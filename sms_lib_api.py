@@ -38,7 +38,7 @@ class sms_library_api(object):
 		Store self.is_chinese for the language
 		return bool for successful of login
 		"""
-		notlocal login_appempt
+		#nonlocal login_appempt
 		login_attempt = 0
 		value = {'UserID' : id, 'Passwd' : passwd}
 		data = urllib.parse.urlencode(value).encode('utf-8')
@@ -47,7 +47,7 @@ class sms_library_api(object):
 		with urllib.request.urlopen(req) as k:
 			i = k.read().decode('big5')
 			login_fail = re.search(r'cschlib/admin/login.asp', i)
-		if login_fail and self.login_attempt == 0:
+		if login_fail and login_attempt == 0:
 			login_attempt+=1
 			self.login()
 		elif not login_fail and login_attempt == 1:
