@@ -18,6 +18,7 @@ class sms_library_api(object):
 		self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cj))
 		urllib.request.install_opener(self.opener)
 		self.is_chinese = False
+		self.info = {}
 		return
 	
 	def url_formatter(self, src):
@@ -38,38 +39,55 @@ class sms_library_api(object):
 		Store self.is_chinese for the language
 		return bool for successful of login
 		"""
-		#nonlocal login_appempt
-		login_attempt = 0
+		login_attempt = False
 		value = {'UserID' : id, 'Passwd' : passwd}
 		data = urllib.parse.urlencode(value).encode('utf-8')
 		url = self.url_formatter(AUTH_URL)
 		req = urllib.request.Request(url, data)
-		with urllib.request.urlopen(req) as k:
-			i = k.read().decode('big5')
-			login_fail = re.search(r'cschlib/admin/login.asp', i)
-		if login_fail and login_attempt == 0:
-			login_attempt+=1
-			self.login()
-		elif not login_fail and login_attempt == 1:
-			self.is_chinese == True
-			return True
-		elif login_fail and login_attempt == 1:
-			return False
-		return True
+		while True:
+			with urllib.request.urlopen(req) as k:
+				i = k.read().decode('big5')
+			login_fail = re.search(r'login\.UserID\.focus', i)
+			if not login_fail:
+				# login success
+				self.case = 0
+				return True
+			elif login_fail and login_attempt:
+				# Perhaps it is chinese, or failed
+				login_attempt = True
+				self.case = 1
+			elif not login_fail and not login_attempt:
+				# Second attempt, confirmed Chinese user
+				self.is_chinese = True
+				self.case = 2
+				return True
+			elif login_fail and not login_attempt:
+				# Second attempt, Failed
+				self.case = 3
+				return False
+			else:
+				# Unknown
+				return False
 	
 	def get_reader_id(self):
 		"""
-		Store the reader id as self.reader_id
+		Store the reader informations into self.info
+		Remained get_reader_id as the name for backward compability
 		"""
 		url = self.url_formatter(GET_READER_ID_URL)
 		with urllib.request.urlopen(url) as r:
-			format_r = [i.decode('big5') for i in r]
-		p = re.compile(r'\s{0,10}(\d{1,5})')
-		for i in format_r:
-			match = p.match(i)
-			if match:
-				self.reader_id = int(match.group(1))
-				break
+			raw = r.read().decode('big5')
+		self.info['reader_id'] = int(re.search(r"PCode=(\d+)'", raw).group(1))
+		if self.is_chinese:
+			self.info['login_name'] = re.search(r"登入名稱.+?<TD>(.+?)</TD>", raw, re.DOTALL).group(1)
+			self.info['student_no'] = re.search(r"學生編號.+?<TD>(.+?)</TD>", raw, re.DOTALL).group(1)
+			self.info['class'] = re.search(r"班別</font.+?<TD>(.+?)</TD>", raw, re.DOTALL).group(1)
+			self.info['class_no'] = re.search(r"班號</font.+?<TD>(.+?)</TD>", raw, re.DOTALL).group(1)
+		else:
+			self.info['login_name'] = re.search(r"Login Name.*?<TD>(.+?)</TD>", raw, re.DOTALL).group(1)
+			self.info['student_no'] = re.search(r"Student No.+?<TD>(.+?)</TD>", raw, re.DOTALL).group(1)
+			self.info['class'] = re.search(r"Class</font.+?<TD>(.+?)</TD>", raw, re.DOTALL).group(1)
+			self.info['class_no'] = re.search(r"Class No\.</font.+?<TD>(.+?)</TD>", raw, re.DOTALL).group(1)
 		return
 	
 	def get_renew(self):
@@ -79,9 +97,9 @@ class sms_library_api(object):
 		format is [id_of_the_book, name_of_the_book, borrow_date, due_date, renewal]
 		"""
 		if self.is_chinese:
-			url = RENEW_URL.format(lang='c', code=self.reader_id)
+			url = RENEW_URL.format(lang='c', code=self.info['reader_id'])
 		else:
-			url = RENEW_URL.format(lang='', code=self.reader_id)
+			url = RENEW_URL.format(lang='', code=self.info['reader_id'])
 		with urllib.request.urlopen(url) as r:
 			raw = r.read().decode('big5')	
 		search = re.search(r'<TR>.*</TR></TABLE><P><P>', raw)
@@ -110,12 +128,19 @@ class sms_library_api(object):
 		renew book
 		can only renew one book at a time
 		will not reflesh data
+		Will return a bool for successful
 		"""
 		url = self.url_formatter(RENEW_BOOK_URL)
-		value = {'PatCode' : self.reader_id, 'sel1' : book_id, 'subbut' : 'Renew'}
+		value = {'PatCode' : self.info['reader_id'], 'sel1' : book_id, 'subbut' : 'Renew'}
 		data = urllib.parse.urlencode(value).encode('utf-8')
 		req = urllib.request.Request(url, data)
 		with urllib.request.urlopen(req) as r:
-			i = r.read.decode('big5')
-		return
-
+			raw = r.read().decode('big5')
+		if self.is_chinese:
+			failed = re.search(r"已超越預借限額", raw)
+		else:
+			failed = re.search(r"exceeded the renewal limit", raw)
+		if failed:
+			return False
+		else:
+			return True
