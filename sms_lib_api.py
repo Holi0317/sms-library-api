@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# License: MIT License
 
 import urllib
 from http import cookiejar
@@ -128,7 +129,7 @@ class sms_library_api(object):
 		renew book
 		can only renew one book at a time
 		will not reflesh data
-		Will return a bool for successful
+		Will return a bool for result
 		"""
 		url = self.url_formatter(RENEW_BOOK_URL)
 		value = {'PatCode' : self.info['reader_id'], 'sel1' : book_id, 'subbut' : 'Renew'}

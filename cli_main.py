@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# License: MIT License
 
 # Import required libaries
 import sms_lib_api
@@ -50,6 +51,10 @@ class App(object):
 			print('Incorrect option')
 
 	def login(self):
+		"""
+		Login module
+		return a bool for successful
+		"""
 		clear()
 		if self.is_logined:
 			print("Logging out...")

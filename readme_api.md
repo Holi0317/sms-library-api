@@ -2,7 +2,9 @@
 
 ## 聲名
 這一個API以python3寫成
+
 這不是一個官方的API
+
 我(holi0317)與聖馬可中學圖書館系統製作公司(CCNet)並沒有任何關係
 
 ## 簡介
@@ -14,11 +16,6 @@
 
 ## 需求
 python 3 (在python 3.4.2測試環境下可正常運作)
-urllib
-re (regular expression)
-datetime
-http/cookiejar
-(其實python已經把所有的都包在裏面了)
 
 ## 用途
  - 登入帳號
@@ -44,11 +41,10 @@ http/cookiejar
 | 參數 | 內容 | 種類 | 需求 |
 | ---- |:------:|:-------:|:-------:|
 | api.is\_chinese | 使用者是否使用中文作語言 | bool | api.login |
-| api.reader\_id | 用戶的讀者編號 | int | api.get\_reader\_id |
+| api.info | 用戶的個人資料 | dict | api.get\_reader\_id |
 | api.book | 已借的書, 格式參考上表 | [[int, str, date, date, int]...] | api.get\_renew |
 
 ## TO-DO
- - 增加取得的資料, 如編號, 性名等
  - 令續借書可以一次續借多本
  - 更多功能?
 
