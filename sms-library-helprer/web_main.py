@@ -88,7 +88,7 @@ def main():
 @click.option('--id', '-i', help='Account of user', prompt='ID')
 @click.option('--pwd', '-p', help='password of user', prompt='Password',
               hide_input=True)
-def add_user(id, passwd):
+def add(id, passwd):
     path = os.path.join('data', 'web_data')
     if not os.path.exists('data'):
         os.makedirs('data')

@@ -1,12 +1,5 @@
 # St. Mark's School unoffical library api
 
-## 聲名
-這一個API以python3寫成
-
-這不是一個官方的API
-
-我(holi0317)與聖馬可中學圖書館系統製作公司(CCNet)並沒有任何關係
-
 ## 簡介
 就是一個令python的腳本可以與圖書館系統作出互動的API
 
@@ -47,6 +40,9 @@ python 3 (在python 3.4.2測試環境下可正常運作)
 | api.is\_chinese | 使用者是否使用中文作語言 | bool | api.login |
 | api.info | 用戶的個人資料 | dict | api.get\_reader\_id |
 | api.book | 已借的書, 格式參考上表 | [[int, str, date, date, int]...] | api.get\_renew |
+
+* * *
+詳情/最新的api可以在代碼的注解上看到
 
 ## TO-DO
  - 令續借書可以一次續借多本
