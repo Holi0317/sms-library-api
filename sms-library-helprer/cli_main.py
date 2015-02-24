@@ -7,6 +7,7 @@ import os
 import click
 from tabulate import tabulate
 import json
+import sys.platform
 
 
 @click.group()
@@ -47,6 +48,26 @@ def main():
     exit(0)
 
 
+@cli.command()
+@click.option('--ac', '-a', help='Account of the user', prompt='Account')
+@click.option('--passwd', '-p', help='Password of the user', prompt='Password',
+              hide_input=True)
+def add(ac, passwd):
+    click.echo('Adding user...')
+    path = os.path.join('data', 'account')
+    if not os.path.exists('data'):
+        os.makedirs('data')
+    value = [ac, passwd]
+    data = json.dumps(value, sort_keys=True, indent=4)
+    with open(path, 'w') as f:
+        f.write(data)
+    click.echo('Done!')
+
+    if sys.platform.startswith('linux'):
+        click.echo('Changing permission to 400...')
+        os.chmod(path, 0o400)
+
+
 def login(api):
     click.echo('Logging in...')
     path = os.path.join('data', 'account')
@@ -75,7 +96,6 @@ def login(api):
         click.echo('Login Failed')
         click.echo('Incorrect user name or password')
         exit(1)
-# ============================================================================
 
 if __name__ == '__main__':
     cli()
