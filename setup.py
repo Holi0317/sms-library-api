@@ -14,8 +14,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'lib-helper-server = sms-lib-helper.web_main:cli'
-            'lib-helper-cli = sms-lib-helper.cli_main:cli'
+            'slh-server = sms-lib-helper.web_main:cli',
+            'slh-cli = sms-lib-helper.cli_main:cli',
         ]
     }
 )
