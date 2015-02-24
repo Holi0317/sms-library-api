@@ -13,7 +13,7 @@ RENEW_URL = 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/patron/sho
 RENEW_BOOK_URL = 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/patron/saveRenew.asp'
 
 
-class sms_library_api(object):
+class library_api(object):
     def __init__(self):
         # create cookiejar for cookie
         self.cj = cookiejar.CookieJar()

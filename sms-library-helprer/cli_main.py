@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: MIT License
 
-import sms_lib_api
+import lib_api
 import os
 import click
 from tabulate import tabulate
@@ -17,7 +17,7 @@ def cli():
 
 @cli.command()
 def main():
-    api = sms_lib_api.sms_library_api()
+    api = lib_api.library_api()
     login(api)
     api.get_reader_id()
     api.get_renew()

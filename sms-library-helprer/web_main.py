@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: MIT License
 
-import sms_lib_api
+import lib_api
 import json
 import click
 import datetime
@@ -12,7 +12,7 @@ import sys.platform
 
 class App(object):
     def __init__(self):
-        self.api = sms_lib_api.sms_library_api()
+        self.api = lib_api.library_api()
         return
 
     def login(self, id, passwd):
