@@ -48,6 +48,7 @@ def main():
     api = slh.slhapi.library_api()
     failed = 0
     today = datetime.date.today()
+    target_date = 5
 
     # Read JSON file
     path = os.path.join(base, 'web_data.json')
@@ -82,7 +83,7 @@ def main():
         # Renew book
         for current_book in api.book:
             diff = current_book[3] - today
-            if diff.days <= 2:
+            if diff.days <= target_date:
                 logger.info('Renew {0}, User: {1}'.format(current_book[1],
                                                           current_id))
                 if api.renew(current_book[0]):

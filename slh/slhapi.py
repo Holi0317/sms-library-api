@@ -47,31 +47,28 @@ class library_api(object):
         Store self.is_chinese for the language
         return bool for successful of login
         """
-        login_attempt = False
         value = {'UserID': id, 'Passwd': passwd}
         data = urllib.parse.urlencode(value).encode('utf-8')
         url = self.url_formatter(AUTH_URL)
         req = urllib.request.Request(url, data)
-        while True:
-            with urllib.request.urlopen(req) as k:
-                i = k.read().decode('big5')
-            login_fail = re.search(r'login\.UserID\.focus', i)
-            if not login_fail:
-                logger.debug('Login succeed')
-                return True
-            elif login_fail and login_attempt:
-                login_attempt = True
-                logger.debug('Perhaps user is Chinese, or failed')
-            elif not login_fail and not login_attempt:
+
+        with urllib.request.urlopen(req) as k:
+            redirect = k.geturl()
+            i = k.read().decode('big5')
+        login_fail = re.search(r'login\.UserID\.focus', i)
+        if login_fail:
+            logger.debug('Login Failed')
+            return False
+        else:
+            logger.debug('Login succeed')
+            search = re.search(r'central/sms/cschlib/admin/main.asp', redirect)
+            if search:
                 self.is_chinese = True
-                logger.debug('User is chinese. Succeed')
-                return True
-            elif login_fail and not login_attempt:
-                logger.debug('Login Failed')
-                return False
+                logger.debug('User is Chinese')
             else:
-                logger.debug('Unknown situation')
-                return False
+                self.is_chinese = False
+                logger.debug('User is not Chinese')
+            return True
 
     def get_reader_id(self):
         """
