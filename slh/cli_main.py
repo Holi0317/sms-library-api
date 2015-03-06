@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 # License: MIT License
 
-import lib_api
+import slh.slhapi
 import os
 import click
 from tabulate import tabulate
 import json
-import sys.platform
+import sys
 
 
 @click.group()
@@ -17,7 +17,7 @@ def cli():
 
 @cli.command()
 def main():
-    api = lib_api.library_api()
+    api = slh.slhapi.library_api()
     login(api)
     api.get_reader_id()
     api.get_renew()
@@ -59,12 +59,13 @@ def add(ac, passwd):
         os.makedirs('data')
     value = [ac, passwd]
     data = json.dumps(value, sort_keys=True, indent=4)
+    if sys.platform.startswith('linux'):
+        os.chmod(path, 0o600)
     with open(path, 'w') as f:
         f.write(data)
     click.echo('Done!')
 
     if sys.platform.startswith('linux'):
-        click.echo('Changing permission to 400...')
         os.chmod(path, 0o400)
 
 
