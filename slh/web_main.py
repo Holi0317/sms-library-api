@@ -15,9 +15,9 @@ import sqlite3
 
 
 def create_log_config():
-    'Create logging.conf if not found'
+    'Create default logging.conf if not found'
     import configparser
-    log_path = os.path.join(BASE_DIR, 'log', 'web.log')
+    log_path = PATHS['log_path']
     config = configparser.ConfigParser()
 
     screen_format = r'[%(name)s] [%(levelname)s] %(message)s'
@@ -41,14 +41,18 @@ def create_log_config():
     config['formatter_file'] = {'format': file_format,
                                 'class': 'logging.Formatter'}
 
-    if not os.path.exists(LOG_CONFIG_DIR):
+    if not os.path.exists(PATHS['log_config']):
         os.makedirs(BASE_DIR)
-    with open(LOG_CONFIG_DIR, 'w') as config_file:
+    with open(PATHS['log_config'], 'w') as config_file:
         config.write(config_file)
 
 
 BASE_DIR = os.path.join(os.path.expanduser('~'), '.slh')
 LOG_CONFIG_DIR = os.path.join(BASE_DIR, 'logging.conf')
+PATHS = {'sql': os.path.join(BASE_DIR, 'web_data.sqlite3'),
+         'json': os.path.join(BASE_DIR, 'web_data.json'),
+         'log_config': os.path.join(BASE_DIR, 'logging.conf'),
+         'log_path': os.path.join(BASE_DIR, 'log', 'web.log')}
 if not os.path.exists(LOG_CONFIG_DIR):
     create_log_config()
 logging.config.fileConfig(LOG_CONFIG_DIR)
@@ -72,15 +76,16 @@ def main():
     today = datetime.date.today()
     target_date = 5
 
-    # Read JSON file
-    path = os.path.join(BASE_DIR, 'web_data.json')
-    if not os.path.isfile(path):
-        logger.error('web_data file not found')
+    # Read database
+    if not os.path.isfile(PATHS['sql']):
+        logger.error('database not found')
         logger.error('Please create it with add')
+        logger.error('Please use merge if you have json database')
         exit(1)
-    with open(path, 'r') as file:
-        raw = file.read()
-    login_data = json.loads(raw)
+    conn = sqlite3.connect(PATHS['sql'])
+    cur = conn.cursor()
+    fetch = cur.execute('SELECT * FROM users')
+    login_data = fetch.fetchall()
     logger.info('Length of login data: %s', len(login_data))
 
     # Main Loop
@@ -126,48 +131,50 @@ def add(loginid, passwd):
     'Add user to the database'
     logger = logging.getLogger()
     logger.info('========Adding user==============')
-    path = os.path.join(BASE_DIR, 'web_data.json')
     if not os.path.exists(BASE_DIR):
-        logger.info('Path does not exist. creating')
+        logger.info('BASE does not exist. creating')
         os.makedirs(BASE_DIR)
-    if os.path.isfile(path):
-        with open(path, 'r') as file:
-            raw = file.read()
-        data = json.loads(raw)
+    if os.path.isfile(PATHS['sql']) and sys.platform.startswith('linux'):
+        logger.debug('Platform is linux')
+        os.chmod(PATHS['sql'], 0o600)
+        was_exist = True
+    elif os.path.isfile(PATHS['sql']):
+        was_exist = True
     else:
-        data = []
-    data.append([loginid, passwd])
-    value = json.dumps(data, indent=4, sort_keys=True)
-    if os.path.isfile(path) and sys.platform.startswith('linux'):
-        logger.info('Platform is linux')
-        os.chmod(path, 0o600)
-    with open(path, 'w') as file:
-        file.write(value)
+        was_exist = False
+
+    conn = sqlite3.connect(PATHS['sql'])
+    cur = conn.cursor()
+    if not was_exist:
+        cur.execute('CREATE TABLE users (id, passwd)')
+    cur.execute('INSERT INTO users VALUES (?, ?)', (loginid, passwd))
+    conn.commit()
+    conn.close()
+
     if sys.platform.startswith('linux'):
-        os.chmod(path, 0o400)
+        os.chmod(PATHS['sql'], 0o400)
 
 
 @cli.command()
 def migrate():
     'Migrate .json file to sqlte database'
     logger = logging.getLogger()
-    json_path = os.path.join(BASE_DIR, 'web_data.json')
-    sql_path = os.path.join(BASE_DIR, 'web_data.sqlite3')
-    if not os.path.exists(json_path):
+    logger.info('===========migrating json to sqlite===============')
+    if not os.path.exists(PATHS['json']):
         logger.error('json file not found. exiting...')
         exit(1)
-    with open(json_path, 'r') as file:
+    with open(PATHS['json'], 'r') as file:
         raw = file.read()
     data = json.loads(raw)
 
     if sys.platform.startswith('linux'):
-        logger.info('Platform is linux')
-        os.chmod(sql_path, 0o600)
-    conn = sqlite3.connect(sql_path)
+        logger.debug('Platform is linux')
+        os.chmod(PATHS['sql'], 0o600)
+    conn = sqlite3.connect(PATHS['sql'])
     cur = conn.cursor()
     cur.execute('CREATE TABLE users (id, passwd)')
     cur.executemany('INSERT INTO users VALUES(?, ?)', data)
     conn.commit()
     conn.close()
     if sys.platform.startswith('linux'):
-        os.chmod(sql_path, 0o400)
+        os.chmod(PATHS['sql'], 0o400)
