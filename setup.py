@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='sms-lib-helper',
-    version='0.1',
+    version='1.0',
     pacakages=find_packages(),
     install_requires=[
         'click',

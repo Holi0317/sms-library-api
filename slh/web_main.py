@@ -74,7 +74,7 @@ def main():
     api = slh.slhapi.library_api()
     failed = 0
     today = datetime.date.today()
-    target_date = 5
+    target_date = 3
 
     # Read database
     if not os.path.isfile(PATHS['sql']):
