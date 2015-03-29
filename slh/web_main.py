@@ -55,7 +55,7 @@ PATHS = {'sql': os.path.join(BASE_DIR, 'web_data.sqlite3'),
          'log_path': os.path.join(BASE_DIR, 'log', 'web.log')}
 if not os.path.exists(LOG_CONFIG_DIR):
     create_log_config()
-logging.config.fileConfig(LOG_CONFIG_DIR)
+logging.config.fileConfig(LOG_CONFIG_DIR, disable_existing_loggers=False)
 
 
 @click.group()

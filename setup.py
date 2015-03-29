@@ -11,6 +11,9 @@ setup(
     install_requires=[
         'click',
         'tabulate',
+        'beautifulsoup4',
+        'flask',
+        'google-api-python-client',
     ],
     entry_points={
         'console_scripts': [

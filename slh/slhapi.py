@@ -2,28 +2,24 @@
 # -*- coding: utf-8 -*-
 # License: MIT License
 
-import urllib
-from http import cookiejar
 import re
 import datetime
 import logging
+import requests
 
 AUTH_URL = 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/admin/get_a_password.asp'
 GET_READER_ID_URL = 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/patron/patronr.asp'
-RENEW_URL = 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/patron/showRenew.asp?PCode={code}'
+RENEW_URL = 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/patron/showRenew.asp'
 RENEW_BOOK_URL = 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/patron/saveRenew.asp'
+LOGIN_URL = 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/admin/login.asp'
 
 logger = logging.getLogger(__name__)
 
 
 class library_api(object):
     def __init__(self):
-        # create cookiejar for cookie
         logger.debug('Initializing api')
-        self.cj = cookiejar.CookieJar()
-        processor = urllib.request.HTTPCookieProcessor(self.cj)
-        self.opener = urllib.request.build_opener(processor)
-        urllib.request.install_opener(self.opener)
+        self.session = requests.Session()
         self.is_chinese = False
         self.info = {}
         self.book = []
@@ -47,21 +43,18 @@ class library_api(object):
         Store self.is_chinese for the language
         return bool for successful of login
         """
-        value = {'UserID': id, 'Passwd': passwd}
-        data = urllib.parse.urlencode(value).encode('utf-8')
+        payload = {'UserID': id, 'Passwd': passwd}
         url = self.url_formatter(AUTH_URL)
-        req = urllib.request.Request(url, data)
 
-        with urllib.request.urlopen(req) as k:
-            redirect = k.geturl()
-            i = k.read().decode('big5')
-        login_fail = re.search(r'login\.UserID\.focus', i)
-        if login_fail:
+        req = self.session.get(url, params=payload)
+        req.encoding = 'big5'
+
+        if check_login_fail(req.url):
             logger.debug('Login Failed')
             return False
         else:
             logger.debug('Login succeed')
-            search = re.search(r'central/sms/cschlib/admin/main.asp', redirect)
+            search = re.search(r'central/sms/cschlib/admin/main.asp', req.url)
             if search:
                 self.is_chinese = True
                 logger.debug('User is Chinese')
@@ -76,8 +69,9 @@ class library_api(object):
         Remained get_reader_id as the name for backward compability
         """
         url = self.url_formatter(GET_READER_ID_URL)
-        with urllib.request.urlopen(url) as r:
-            raw = r.read().decode('big5')
+        req = self.session.get(url)
+        req.encoding = 'big5'
+        raw = req.text
         self.info['reader_id'] = int(re.search(r"PCode=(\d+)'", raw).group(1))
         if self.is_chinese:
             self.info['login_name'] = re.search(r"登入名稱.+?<TD>(.+?)</TD>",
@@ -110,13 +104,11 @@ class library_api(object):
         """
         if self.info == {}:
             self.get_reader_id()
-        if self.is_chinese:
-            url = RENEW_URL.format(lang='c', code=self.info['reader_id'])
-        else:
-            url = RENEW_URL.format(lang='', code=self.info['reader_id'])
-        with urllib.request.urlopen(url) as r:
-            raw = r.read().decode('big5')
-        search = re.search(r'<TR>.*</TR></TABLE><P><P>', raw)
+        url = self.url_formatter(RENEW_URL)
+        payload = {'PCode': self.info['reader_id']}
+        req = self.session.get(url, params=payload)
+        req.encoding = 'big5'
+        search = re.search(r'<TR>.*</TR></TABLE><P><P>', req.text)
         if search:
             raw_data = search.group()
         else:
@@ -154,17 +146,25 @@ class library_api(object):
         """
         logger.debug('book id: {0}'.format(book_id))
         url = self.url_formatter(RENEW_BOOK_URL)
-        value = {'PatCode': self.info['reader_id'], 'sel1': book_id,
+        payload = {'PatCode': self.info['reader_id'], 'sel1': book_id,
                  'subbut': 'Renew'}
-        data = urllib.parse.urlencode(value).encode('utf-8')
-        req = urllib.request.Request(url, data)
-        with urllib.request.urlopen(req) as r:
-            raw = r.read().decode('big5')
+        req = self.session.post(url, data=payload)
+        req.encoding = 'big5'
         if self.is_chinese:
-            failed = re.search(r"已超越預借限額", raw)
+            failed = re.search(r"已超越預借限額", req.text)
         else:
-            failed = re.search(r"exceeded the renewal limit", raw)
+            failed = re.search(r"exceeded the renewal limit", req.text)
         if failed:
             return False
         else:
             return True
+
+
+def check_login_fail(url):
+    logger.debug(url)
+    chinese_url = LOGIN_URL.format(lang='c')
+    eng_url = LOGIN_URL.format(lang='')
+    if url == chinese_url or url == eng_url:
+        return True
+    else:
+        return False
