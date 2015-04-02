@@ -17,7 +17,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'slh-server = slh.web_main:cli',
+            'slh-server = slh.backend:cli',
             'slh-cli = slh.cli_main:cli',
         ]
     }
