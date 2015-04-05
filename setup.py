@@ -10,7 +10,6 @@ setup(
     pacakages=find_packages(),
     install_requires=[
         'click',
-        'tabulate',
         'beautifulsoup4',
         'flask',
         'google-api-python-client',
