@@ -1,0 +1,81 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-04-06 18:20+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: zh-hant\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: account/templates/account/index.html:4
+msgid "lang.account.index.title"
+msgstr "帳號頁面"
+
+#: account/templates/account/settings.html:4
+msgid "lang.account.settings.title"
+msgstr "設定"
+
+#: account/templates/account/settings.html:8
+msgid "lang.account.settings.header"
+msgstr "帳號設定"
+
+#: account/templates/account/settings.html:13
+msgid "lang.account.settings.label.username"
+msgstr "使用者名稱"
+
+#: account/templates/account/settings.html:20
+msgid "lang.account.settings.label.lib_account"
+msgstr "圖書館帳號"
+
+#: account/templates/account/settings.html:27
+msgid "lang.account.settings.label.lib_password"
+msgstr "圖書館密碼"
+
+#: account/templates/account/settings.html:34
+msgid "lang.account.settings.label.lang"
+msgstr "語言"
+
+#: account/templates/account/settings.html:49
+msgid "lang.account.settings.label.submit"
+msgstr "遞交"
+
+#: account/templates/account/settings.html:50
+msgid "lang.account.settings.label.reset"
+msgstr "重設"
+
+#: templates/base.html:27
+msgid "lang.base.brand"
+msgstr "Library helper"
+
+#: templates/base.html:31
+msgid "lang.base.home"
+msgstr "主頁"
+
+#: templates/base.html:32
+msgid "lang.base.account"
+msgstr "帳號"
+
+#: templates/base.html:38
+msgid "lang.base.settings"
+msgstr "設定"
+
+#: templates/base.html:39
+msgid "lang.base.logout"
+msgstr "登出"
+
+#: templates/base.html:43
+msgid "lang.base.login"
+msgstr "使用Google登入"
+
+#: templates/index.html:4
+msgid "lang.root.index.title"
+msgstr "主頁"

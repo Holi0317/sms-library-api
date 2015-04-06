@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.utils import translation
 from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
 from apiclient.discovery import build
 from .models import student
@@ -67,6 +68,8 @@ def oauth2callback(request):
 
     user = authenticate(username=name, password=settings.COMMON_PASSWORD)
     login(request, user)
+    # translation.activate(ss.lang)
+    request.session['LANGUAGE_SESSION_KEY'] = ss.lang
 
     if request.session['next'] is None:
         del request.session['next']
@@ -90,8 +93,13 @@ def change_settings(request):
         student.library_account = data['lib-username']
         student.library_password = data['lib-pwd']
         student.name = data['username']
+        student.lang = data['lang']
         student.save()
-        student.user.save()
+
+        translation.activate(data['lang'])
+        request.session[translation.LANGUAGE_SESSION_KEY] = data['lang']
+        request.session['django_language'] = data['lang']
+        request.session.modified = True
         return redirect(reverse('account:index'))
 
 

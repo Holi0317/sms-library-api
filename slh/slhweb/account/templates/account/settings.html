@@ -1,42 +1,60 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Change Settings{% endblock %}
+{% block title %}{% trans 'lang.account.settings.title' %}{% endblock %}
 
 {% block content %}
 <div class="container">
-  <h2>Settings</h2>
-  <form role=form class="form-horizontal" action="" method="POST" id="setting-form">{% csrf_token %}
+  <h2>{% trans 'lang.account.settings.header' %}</h2>
+  <form role=form class="form-horizontal" action="" method="POST" id="setting-form">
+    {% csrf_token %}
 
     <div class="form-group">
-      <label class="control-label col-sm-2" for="username">Username: </label>
+      <label class="control-label col-sm-2" for="username">{% trans 'lang.account.settings.label.username' %}: </label>
       <div class="col-sm-10">
         <input type="text" class="form-control" name="username" value="{{ student.name }}">
       </div>
     </div>
 
     <div class="form-group">
-      <label class="control-label col-sm-2" for="lib-username">Library account: </label>
+      <label class="control-label col-sm-2" for="lib-username">{% trans 'lang.account.settings.label.lib_account' %}: </label>
       <div class="col-sm-10">
         <input type="text" class="form-control" name="lib-username" value="{{ student.library_account }}">
       </div>
     </div>
 
     <div class="form-group">
-      <label class="control-label col-sm-2" for="lib-pwd">Library password: </label>
+      <label class="control-label col-sm-2" for="lib-pwd">{% trans 'lang.account.settings.label.lib_password' %}: </label>
       <div class="col-sm-10">
         <input type="password" class="form-control" name="lib-pwd">
       </div>
     </div>
 
-    <button type="submit" class="btn btn-info" id="submit">Submit</button>
-    <button class="btn btn-warning" id="clear">Clear</button>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="lang">{% trans 'lang.account.settings.label.lang' %}: </label>
+      <div class="col-sm-10">
+        <select class="form-control" name="lang">
+          {% get_available_languages as LANGUAGES %}
+          {% get_language_info_list for LANGUAGES as languages %}
+          {% for language in languages %}
+            <option value="{{ language.code }}"
+            {% if language.code == student.lang %}selected{% endif %}>
+            {{ language.name }} ({{ language.name_local }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-info" id="submit">{% trans 'lang.account.settings.label.submit' %}</button>
+    <button class="btn btn-warning" id="reset-button">{% trans 'lang.account.settings.label.reset' %}</button>
   </form>
 </div>
 {% endblock %}
 
 {% block script %}
 <script>
-  $("#clear").click(function(){
+  $("#reset-button").click(function(){
     $("#setting-form")[0].reset();
     return false;
   });
