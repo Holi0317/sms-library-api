@@ -9,3 +9,4 @@ class student(models.Model):
     library_password = models.CharField(max_length=80)
     credential = CredentialsField()
     id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=80)
