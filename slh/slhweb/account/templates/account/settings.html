@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load staticfiles %}
+
+{% block head %}
+<link href="{% static "dropdown.js/jquery.dropdown.css" %}" rel="stylesheet">
+{% endblock %}
 
 {% block title %}{% trans 'lang.account.settings.title' %}{% endblock %}
 
@@ -12,14 +17,14 @@
     <div class="form-group">
       <label class="control-label col-sm-2" for="username">{% trans 'lang.account.settings.label.username' %}: </label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" name="username" value="{{ student.name }}">
+        <input type="text" class="form-control" name="username" value="{{ user.userprofile.name }}">
       </div>
     </div>
 
     <div class="form-group">
       <label class="control-label col-sm-2" for="lib-username">{% trans 'lang.account.settings.label.lib_account' %}: </label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" name="lib-username" value="{{ student.library_account }}">
+        <input type="text" class="form-control" name="lib-username" value="{{ user.userprofile.library_account }}">
       </div>
     </div>
 
@@ -33,12 +38,12 @@
     <div class="form-group">
       <label class="control-label col-sm-2" for="lang">{% trans 'lang.account.settings.label.lang' %}: </label>
       <div class="col-sm-10">
-        <select class="form-control" name="lang">
+        <select class="form-control select" name="lang">
           {% get_available_languages as LANGUAGES %}
           {% get_language_info_list for LANGUAGES as languages %}
           {% for language in languages %}
             <option value="{{ language.code }}"
-            {% if language.code == student.lang %}selected{% endif %}>
+            {% if language.code == user.userprofile.lang %}selected{% endif %}>
             {{ language.name }} ({{ language.name_local }})
             </option>
           {% endfor %}
@@ -52,11 +57,17 @@
 </div>
 {% endblock %}
 
-{% block script %}
+{% block tail %}
+<script src="{% static "dropdown.js/jquery.dropdown.js" %}"></script>
+
 <script>
   $("#reset-button").click(function(){
     $("#setting-form")[0].reset();
     return false;
+  });
+
+  $(document).ready(function(){
+    $(".select").dropdown({ "autoinit" : ".select" });
   });
 </script>
 {% endblock %}

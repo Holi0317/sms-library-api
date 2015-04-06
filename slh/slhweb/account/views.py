@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils import translation
 from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
 from apiclient.discovery import build
-from .models import student
+from .models import UserProfile
 import httplib2
 
 
@@ -49,27 +49,27 @@ def oauth2callback(request):
     id = req['id']
     try:
         # Check if user have registered
-        ss = student.objects.get(id=id)
+        ext_user = UserProfile.objects.get(id=id)
         # Get user object, update name
-        user = ss.user
+        user = ext_user.user
         user.username = name
         user.save()
-    except student.DoesNotExist:
+    except UserProfile.DoesNotExist:
         # Create new user
-        ss = student()
         user = User.objects.create_user(name,
                                         password=settings.COMMON_PASSWORD)
+        ext_user = UserProfile(user=user, id=id, name=name,
+                               credential=credential)
+        ext_user.save()
         user.save()
-        ss.user = user
-        ss.id = id
-        ss.name = name
-        ss.credential = credential
-        ss.save()
 
     user = authenticate(username=name, password=settings.COMMON_PASSWORD)
     login(request, user)
-    # translation.activate(ss.lang)
-    request.session['LANGUAGE_SESSION_KEY'] = ss.lang
+
+    translation.activate(ext_user.lang)
+    request.session[translation.LANGUAGE_SESSION_KEY] = ext_user.lang
+    request.session['django_language'] = ext_user.lang
+    request.session.modified = True
 
     if request.session['next'] is None:
         del request.session['next']
@@ -84,17 +84,15 @@ def oauth2callback(request):
 @login_required(login_url=reverse_lazy('account:auth_login'))
 def change_settings(request):
     if request.method == 'GET':
-        user = request.user
-        context = {'student': user.student}
-        return render(request, 'account/settings.html', context)
+        return render(request, 'account/settings.html')
     elif request.method == 'POST':
         data = request.POST
-        student = request.user.student
-        student.library_account = data['lib-username']
-        student.library_password = data['lib-pwd']
-        student.name = data['username']
-        student.lang = data['lang']
-        student.save()
+        ext_user = request.user.userprofile
+        ext_user.library_account = data['lib-username']
+        ext_user.library_password = data['lib-pwd']
+        ext_user.name = data['username']
+        ext_user.lang = data['lang']
+        ext_user.save()
 
         translation.activate(data['lang'])
         request.session[translation.LANGUAGE_SESSION_KEY] = data['lang']

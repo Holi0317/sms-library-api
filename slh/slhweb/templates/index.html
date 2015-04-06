@@ -5,11 +5,33 @@
 
 {% block content %}
 <div class="container">
-  <p>Index of root</p>
-  <p>WIP</p>
+  <div class="card">
+    <div class="card-body">
+    <p>Index of root</p>
+    <p>WIP</p>
+    </div>
+  </div>
 </div>
   
+<br>
+
 <div class="container">
-  <p>Debug area</p>
+  <div class="card">
+    <div class="card-body">
+      <p>Debug -- language</p>
+      {% get_current_language as LANGUAGE_CODE %}
+      {% get_available_languages as LANGUAGES %}
+      {% get_language_info_list for LANGUAGES as languages %}
+      <p>Current language: {{ LANGUAGE_CODE }}</p>
+      <p>Language from database: {{ user.userprofile.lang }}</p>
+      <p>Available languages: {{ LANGUAGES }}</p>
+      <p>Language informations:</p>
+      <ul>
+      {% for language in languages %}
+        <li>{{ language }}</li>
+      {% endfor %}
+      </ul>
+    </div>
+  </div>
 </div>
 {% endblock %}

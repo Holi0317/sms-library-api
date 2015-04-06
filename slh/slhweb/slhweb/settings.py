@@ -100,5 +100,5 @@ LOCALE_PATHS = (
 
 LANGUAGES = (
     ('zh-hant', _('Traditional Chinese')),
-    ('en-us', _('English')),
+    ('en', _('English')),
 )

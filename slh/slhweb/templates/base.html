@@ -10,6 +10,7 @@
   <!--link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/material-fullpalette.min.css" rel="stylesheet"-->
   <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/material.min.css" rel="stylesheet">
   <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/ripples.min.css" rel="stylesheet">
+  {% block head %}{% endblock %}
   <title>{% block title %}{% endblock %}</title>
 
 </head>
@@ -33,7 +34,7 @@
         </ul>
         <ul class="nav navbar-nav navbar-right">
           {% if user.is_authenticated %}
-            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ user.student.name }}<span class="caret"></span></a>
+            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ user.userprofile.name }}<span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li><a href="{% url 'account:change_settings' %}"><span class="glyphicon glyphicon-cog"></span>{% trans 'lang.base.settings' %}</a></li>
                 <li><a href="{% url 'account:auth_logout' %}"><span class="glyphicon glyphicon-log-out"></span>{% trans 'lang.base.logout' %}</a></li>
@@ -55,10 +56,16 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/js/ripples.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/js/material.min.js"></script>
   <script>
-    $.material.init()
+    $.material.init();
+
+    var url = window.location;
+    $('ul.nav a[href="'+ url +'"]').parent().addClass('active');
+    $('ul.nav a').filter(function() {
+        return this.href == url;
+    }).parent().addClass('active');
   </script>
 
-  {% block script %}{% endblock %}
+  {% block tail %}{% endblock %}
 
 </body>
 
