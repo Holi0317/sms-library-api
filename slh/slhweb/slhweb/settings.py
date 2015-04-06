@@ -88,7 +88,6 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 
-# Social oauth
-SOCIAL_AUTH_AUTHENTICATION_BACKENDS = (
-    'social.backends.google.GoogleOAuth2',
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'templates'),
 )

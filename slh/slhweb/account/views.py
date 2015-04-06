@@ -4,8 +4,8 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
-from django.core.urlresolvers import reverse
-from oauth2client.client import OAuth2WebServerFlow
+from django.core.urlresolvers import reverse, reverse_lazy
+from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
 from apiclient.discovery import build
 from .models import student
 import httplib2
@@ -20,11 +20,15 @@ FLOW = OAuth2WebServerFlow(client_id=settings.GOOGLE_OAUTH2_CLIENT_ID,
 
 
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'account/index.html')
 
 
 def auth_login(request):
     auth_uri = FLOW.step1_get_authorize_url()
+    try:
+        request.session['next'] = request.GET['next']
+    except KeyError:
+        request.session['next'] = None
     return redirect(auth_uri)
 
 
@@ -57,32 +61,40 @@ def oauth2callback(request):
         user.save()
         ss.user = user
         ss.id = id
+        ss.name = name
         ss.credential = credential
         ss.save()
 
     user = authenticate(username=name, password=settings.COMMON_PASSWORD)
     login(request, user)
-    return redirect('/')
+
+    if request.session['next'] is None:
+        del request.session['next']
+        return redirect(reverse('account:index'))
+    else:
+        target = request.session['next']
+        del request.session['next']
+        return redirect(target)
 
 
 @csrf_protect
-@login_required(login_url=reverse('auth_login'))
+@login_required(login_url=reverse_lazy('account:auth_login'))
 def change_settings(request):
     if request.method == 'GET':
         user = request.user
         context = {'student': user.student}
-        return render(request, 'settings.html', context)
+        return render(request, 'account/settings.html', context)
     elif request.method == 'POST':
         data = request.POST
         student = request.user.student
         student.library_account = data['lib-username']
         student.library_password = data['lib-pwd']
-        student.user.username = data['username']
+        student.name = data['username']
         student.save()
         student.user.save()
-        return redirect('/')
+        return redirect(reverse('account:index'))
 
 
 def auth_logout(request):
     logout(request)
-    return redirect('/')
+    return redirect(reverse('account:index'))
