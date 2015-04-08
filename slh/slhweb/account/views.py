@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from .models import UserProfile
 from django.conf import settings
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
@@ -6,9 +7,12 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils import translation
+from django.http import JsonResponse
+from django.views.generic import View
+from django.utils.decorators import method_decorator
+
 from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
 from apiclient.discovery import build
-from .models import UserProfile
 import httplib2
 
 
@@ -47,20 +51,22 @@ def oauth2callback(request):
         req = plus.people().get(userId='me').execute(http=http)
     name = req['displayName']
     id = req['id']
-    try:
-        # Check if user have registered
-        ext_user = UserProfile.objects.get(id=id)
-        # Get user object, update name
-        user = ext_user.user
-        user.username = name
-        user.save()
-    except UserProfile.DoesNotExist:
-        # Create new user
+
+    # Check if user have registered
+    ext_user, created = UserProfile.objects.get_or_create(
+        id=id, defaults={'name': name, 'credential': credential})
+
+    if created:
+        # fill in user informations
         user = User.objects.create_user(name,
                                         password=settings.COMMON_PASSWORD)
-        ext_user = UserProfile(user=user, id=id, name=name,
-                               credential=credential)
+        ext_user.user = user
+        user.save()
         ext_user.save()
+    else:
+        # update user name
+        user = ext_user.user
+        user.username = name
         user.save()
 
     user = authenticate(username=name, password=settings.COMMON_PASSWORD)
@@ -80,14 +86,22 @@ def oauth2callback(request):
         return redirect(target)
 
 
-@csrf_protect
-@login_required(login_url=reverse_lazy('account:auth_login'))
-def change_settings(request):
-    if request.method == 'GET':
+class change_settings(View):
+    @method_decorator(login_required(
+        login_url=reverse_lazy('account:auth_login')))
+    @method_decorator(csrf_protect)
+    def get(self, request):
         return render(request, 'account/settings.html')
-    elif request.method == 'POST':
+
+    @method_decorator(login_required(
+        login_url=reverse_lazy('account:auth_login')))
+    @method_decorator(csrf_protect)
+    def post(self, request):
         data = request.POST
         ext_user = request.user.userprofile
+
+        # TODO validate informations
+
         ext_user.library_account = data['lib-username']
         ext_user.library_password = data['lib-pwd']
         ext_user.name = data['username']
@@ -98,7 +112,8 @@ def change_settings(request):
         request.session[translation.LANGUAGE_SESSION_KEY] = data['lang']
         request.session['django_language'] = data['lang']
         request.session.modified = True
-        return redirect(reverse('account:index'))
+
+        return JsonResponse({'status': 'success'})
 
 
 def auth_logout(request):

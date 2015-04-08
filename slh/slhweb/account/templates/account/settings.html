@@ -4,14 +4,25 @@
 
 {% block head %}
 <link href="{% static "dropdown.js/jquery.dropdown.css" %}" rel="stylesheet">
+
+<style>
+.return-status-root {
+  visibility:hidden;
+  opacity:0;
+  height:0;
+}
+</style>
 {% endblock %}
 
 {% block title %}{% trans 'lang.account.settings.title' %}{% endblock %}
 
 {% block content %}
-<div class="container">
+<div id="return"></div>
+<div class="container card-ready" id="form-card">
   <h2>{% trans 'lang.account.settings.header' %}</h2>
-  <form role=form class="form-horizontal" action="" method="POST" id="setting-form">
+  <div class="card">
+  <div class="card-body">
+  <form role=form class="form-horizontal" id="setting-form">
     {% csrf_token %}
 
     <div class="form-group">
@@ -51,23 +62,26 @@
       </div>
     </div>
 
-    <button type="submit" class="btn btn-info" id="submit">{% trans 'lang.account.settings.label.submit' %}</button>
+    <button class="btn btn-info" id="submit-button">{% trans 'lang.account.settings.label.submit' %}</button>
     <button class="btn btn-warning" id="reset-button">{% trans 'lang.account.settings.label.reset' %}</button>
   </form>
+  </div>
 </div>
+</div>
+
+<div class="container card-ready" id="test-card">
+  <h2>Testing area</h2>
+  <div class="card">
+    <div class="card-body">
+      <button class="btn btn-primary" id="test-success">Success callback</button>
+      <button class="btn btn-danger" id="test-fail">Fail callback</button>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block tail %}
 <script src="{% static "dropdown.js/jquery.dropdown.js" %}"></script>
-
-<script>
-  $("#reset-button").click(function(){
-    $("#setting-form")[0].reset();
-    return false;
-  });
-
-  $(document).ready(function(){
-    $(".select").dropdown({ "autoinit" : ".select" });
-  });
-</script>
+<script src="{% static "account/settings.js" %}"></script>
 {% endblock %}
