@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from .models import UserProfile
 from django.conf import settings
 from django.contrib.auth import login, authenticate, logout

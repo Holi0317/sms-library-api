@@ -32,7 +32,7 @@ function post_callback(data, status){
   // Animate it
   if ( ! clicked ){
     var height = $("#return-status-root").css({"visibility":"visible","opacity":"1","height":"auto"}).height();
-    animateCard($("#return-status-root"), "left");
+    animateCard($("#return-status-root .card"), "right", window.innerWidth/2);
     animateCard($("#form-card"), "top", "-"+height+"px");
     animateCard($("#test-card"), "top", "-"+height+"px");
   }

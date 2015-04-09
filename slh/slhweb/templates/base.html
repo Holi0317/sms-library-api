@@ -11,7 +11,7 @@
   <!--link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/material-fullpalette.min.css" rel="stylesheet"-->
   <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/material.min.css" rel="stylesheet">
   <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/ripples.min.css" rel="stylesheet">
-  <link href="{% static "account/animate-card.css" %}" rel="stylesheet">
+  <link href="{% static "css/animate-card.css" %}" rel="stylesheet">
   {% block head %}{% endblock %}
   <title>{% block title %}{% endblock %}</title>
 
@@ -57,7 +57,8 @@
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/js/ripples.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/js/material.min.js"></script>
-  <script src="{% static "account/animate-card.js" %}"></script>
+  <script src="{% static "js/animate-card.js" %}"></script>
+  <script src="{% static "jquery-pjax/jquery.pjax.js" %}"></script>
   <script>
     $.material.init();
 

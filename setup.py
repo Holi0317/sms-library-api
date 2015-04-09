@@ -12,9 +12,11 @@ setup(
     pacakages=find_packages(),
     install_requires=[
         'click',
-        'beautifulsoup4',
         'flask',
         'google-api-python-client',
+        'djpj',
+        'pytz',
+        'requests',
     ],
     entry_points={
         'console_scripts': [
