@@ -103,3 +103,5 @@ LANGUAGES = (
     ('zh-hant', _('Traditional Chinese')),
     ('en', _('English')),
 )
+
+LANGUAGES_IN_LIST = [lang[0] for lang in LANGUAGES]

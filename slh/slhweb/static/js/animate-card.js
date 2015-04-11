@@ -1,5 +1,5 @@
 function animateCard(card, direction, position){
-  position = typeof position !== 'undefined' ? position : "-1000px";
+  position = typeof position !== 'undefined' ? position : "-"+window.innerHeight+"px";
   direction = typeof direction !== 'undefined' ? direction : "bottom";
   card.css(direction, position);
   card.addClass('animate-card');

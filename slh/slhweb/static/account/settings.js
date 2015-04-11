@@ -1,9 +1,4 @@
-$("#reset-button").click(function(){
-  $("#setting-form")[0].reset();
-  return false;
-});
-
-function post_callback(data, status){
+function post_callback(data){
   var clicked = true;
   // Add tones of html into document
   if ( $("#return").children().length === 0 ){
@@ -38,8 +33,44 @@ function post_callback(data, status){
   }
 }
 
+// When module is toggled, decide if information should be shown or not
+function toggleModule (){
+  var information = $("#"+$(this).attr("name").split("-")[1]);
+  if ($(this).prop("checked")) {
+    information.css({"opacity":"1","visibility":"visible","top":"0px","z-index":"1","height":"auto"});
+  } else {
+    information.css({"opacity":"0","visibility":"hidden","top":"-50px","z-index":"-1","height":"0"});
+  }
+}
+
+// toggle module, version init
+function toggleModuleInit (){
+  $(".modules").each(function(){
+    var button = $(".togglebutton input[name=module-"+$(this).attr("id")+"]");
+    if (button.prop("checked")) {
+      information.css({"opacity":"1","visibility":"visible","top":"0px","z-index":"1","height":"auto"});
+    } else {
+      information.css({"opacity":"0","visibility":"hidden","top":"-50px","z-index":"-1","height":"0"});
+    }
+}); }
+
+// ajax error handler
+$(document).ajaxError(function(event, jqxhr, settings, thrownError){
+  post_callback(jqxhr.responseJSON);
+});
+
+// display or hide modules settings on click
+$(".togglebutton input").on("click", toggleModule);
+
+// Submit button action
 $("#submit-button").click(function(){
   $.post(window.location, $("#setting-form").serialize(), post_callback);
+  return false;
+});
+
+// Reset button action
+$("#reset-button").click(function(){
+  $("#setting-form")[0].reset();
   return false;
 });
 
@@ -52,5 +83,8 @@ $("#test-fail").click(function(){
 });
 
 $(document).ready(function(){
+  // init script for dropdown.js (dropdown menu)
   $(".select").dropdown({ "autoinit" : ".select" });
+  // Hide information if needed
+  toggleModuleInit();
 });

@@ -1,9 +1,9 @@
 .animate-card {
   position: relative;
-  transition: all .2s linear 0s;
-  -webkit-transition: all .2s linear 0s;
-  -moz-transition: all .2s linear 0s;
-  -o-transition: all .2s linear 0s;
+  transition: all .3s ease-out 0s;
+  -webkit-transition: all .3s ease-out 0s;
+  -moz-transition: all .3s ease-out 0s;
+  -o-transition: all .3s ease-out 0s;
 }
 
 .card-ready {

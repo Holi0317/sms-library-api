@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-06 18:20+0800\n"
+"POT-Creation-Date: 2015-04-10 20:10+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,59 +20,79 @@ msgstr ""
 msgid "lang.account.index.title"
 msgstr "帳號頁面"
 
-#: account/templates/account/settings.html:4
+#: account/templates/account/settings.html:17
 msgid "lang.account.settings.title"
 msgstr "設定"
 
-#: account/templates/account/settings.html:8
+#: account/templates/account/settings.html:22
 msgid "lang.account.settings.header"
 msgstr "帳號設定"
 
-#: account/templates/account/settings.html:13
+#: account/templates/account/settings.html:29
 msgid "lang.account.settings.label.username"
 msgstr "使用者名稱"
 
-#: account/templates/account/settings.html:20
+#: account/templates/account/settings.html:36
 msgid "lang.account.settings.label.lib_account"
 msgstr "圖書館帳號"
 
-#: account/templates/account/settings.html:27
+#: account/templates/account/settings.html:43
 msgid "lang.account.settings.label.lib_password"
 msgstr "圖書館密碼"
 
-#: account/templates/account/settings.html:34
+#: account/templates/account/settings.html:50
 msgid "lang.account.settings.label.lang"
 msgstr "語言"
 
-#: account/templates/account/settings.html:49
+#: account/templates/account/settings.html:65
 msgid "lang.account.settings.label.submit"
 msgstr "遞交"
 
-#: account/templates/account/settings.html:50
+#: account/templates/account/settings.html:66
 msgid "lang.account.settings.label.reset"
 msgstr "重設"
 
-#: templates/base.html:27
+#: account/views.py:108
+msgid "selected language is not correct"
+msgstr ""
+
+#: account/views.py:120
+msgid "library username or password is empty"
+msgstr ""
+
+#: account/views.py:137
+msgid "successfully updated profile"
+msgstr ""
+
+#: slhweb/settings.py:103
+msgid "Traditional Chinese"
+msgstr ""
+
+#: slhweb/settings.py:104
+msgid "English"
+msgstr ""
+
+#: templates/base.html:30
 msgid "lang.base.brand"
 msgstr "Library helper"
 
-#: templates/base.html:31
+#: templates/base.html:34
 msgid "lang.base.home"
 msgstr "主頁"
 
-#: templates/base.html:32
+#: templates/base.html:35
 msgid "lang.base.account"
 msgstr "帳號"
 
-#: templates/base.html:38
+#: templates/base.html:41
 msgid "lang.base.settings"
 msgstr "設定"
 
-#: templates/base.html:39
+#: templates/base.html:42
 msgid "lang.base.logout"
 msgstr "登出"
 
-#: templates/base.html:43
+#: templates/base.html:46
 msgid "lang.base.login"
 msgstr "使用Google登入"
 

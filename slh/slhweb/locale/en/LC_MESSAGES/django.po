@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-06 18:20+0800\n"
+"POT-Creation-Date: 2015-04-10 20:10+0800\n"
 "PO-Revision-Date: 2015-04-06 15:28+08:00\n"
 "Last-Translator: Wu Ho Yin Hollis <holliswuhollis<at>gmail<dot>com>\n"
 "Language-Team: en_US \n"
@@ -21,59 +21,79 @@ msgstr ""
 msgid "lang.account.index.title"
 msgstr "Account Index"
 
-#: account/templates/account/settings.html:4
+#: account/templates/account/settings.html:17
 msgid "lang.account.settings.title"
 msgstr "Settings"
 
-#: account/templates/account/settings.html:8
+#: account/templates/account/settings.html:22
 msgid "lang.account.settings.header"
 msgstr "Settings"
 
-#: account/templates/account/settings.html:13
+#: account/templates/account/settings.html:29
 msgid "lang.account.settings.label.username"
 msgstr "Username"
 
-#: account/templates/account/settings.html:20
+#: account/templates/account/settings.html:36
 msgid "lang.account.settings.label.lib_account"
 msgstr "Library account"
 
-#: account/templates/account/settings.html:27
+#: account/templates/account/settings.html:43
 msgid "lang.account.settings.label.lib_password"
 msgstr "Library password"
 
-#: account/templates/account/settings.html:34
+#: account/templates/account/settings.html:50
 msgid "lang.account.settings.label.lang"
 msgstr "Language"
 
-#: account/templates/account/settings.html:49
+#: account/templates/account/settings.html:65
 msgid "lang.account.settings.label.submit"
 msgstr "Submit"
 
-#: account/templates/account/settings.html:50
+#: account/templates/account/settings.html:66
 msgid "lang.account.settings.label.reset"
 msgstr "Reset"
 
-#: templates/base.html:27
+#: account/views.py:108
+msgid "selected language is not correct"
+msgstr "selected language is not correct"
+
+#: account/views.py:120
+msgid "library username or password is empty"
+msgstr "Library Username or password is empty"
+
+#: account/views.py:137
+msgid "successfully updated profile"
+msgstr "successfully updated profile"
+
+#: slhweb/settings.py:103
+msgid "Traditional Chinese"
+msgstr ""
+
+#: slhweb/settings.py:104
+msgid "English"
+msgstr ""
+
+#: templates/base.html:30
 msgid "lang.base.brand"
 msgstr "Library helper"
 
-#: templates/base.html:31
+#: templates/base.html:34
 msgid "lang.base.home"
 msgstr "Home"
 
-#: templates/base.html:32
+#: templates/base.html:35
 msgid "lang.base.account"
 msgstr "Account"
 
-#: templates/base.html:38
+#: templates/base.html:41
 msgid "lang.base.settings"
 msgstr "Settings"
 
-#: templates/base.html:39
+#: templates/base.html:42
 msgid "lang.base.logout"
 msgstr "Logout"
 
-#: templates/base.html:43
+#: templates/base.html:46
 msgid "lang.base.login"
 msgstr "Login with Google"
 

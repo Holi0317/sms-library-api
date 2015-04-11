@@ -13,6 +13,7 @@ class UserProfile(models.Model):
     name = models.CharField(max_length=80)
     lang = models.CharField(max_length=20, default='en',
                             choices=settings.LANGUAGES)
+    library_module_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.user)

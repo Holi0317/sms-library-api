@@ -10,6 +10,7 @@ from django.utils import translation
 from django.http import JsonResponse
 from django.views.generic import View
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext as _
 
 from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
 from apiclient.discovery import build
@@ -100,20 +101,44 @@ class change_settings(View):
         data = request.POST
         ext_user = request.user.userprofile
 
-        # TODO validate informations
+        # validate data
+        # Language
+        if data['lang'] not in settings.LANGUAGES_IN_LIST:
+            message = {'status': 'error',
+                       'message': _('selected language is not correct')}
+            return JsonResponse(message, status=400)
+        # library username/data
+        # pass vaild data for better performance (perhaps)
+        if data['lib-username'] and data['lib-pwd']:
+            # Both empty
+            pass
+        elif not (data['lib-username'] and data['lib-pwd']):
+            # Both have string
+            pass
+        else:
+            message = {'status': 'error',
+                       'message': _('library username or password is empty')}
+            return JsonResponse(message, status=400)
 
+        # write data into database
         ext_user.library_account = data['lib-username']
         ext_user.library_password = data['lib-pwd']
         ext_user.name = data['username']
         ext_user.lang = data['lang']
+        # Bugged. When not selected, it will post nothing
+        # ext_user.library_module_enabled = data['module-lib']
         ext_user.save()
 
+        # Update language
         translation.activate(data['lang'])
         request.session[translation.LANGUAGE_SESSION_KEY] = data['lang']
         request.session['django_language'] = data['lang']
         request.session.modified = True
 
-        return JsonResponse({'status': 'success'})
+        message = {'status': 'success',
+                   'message': _('successfully updated profile')}
+
+        return JsonResponse(message, status=202)
 
 
 def auth_logout(request):
