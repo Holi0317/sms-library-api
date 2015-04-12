@@ -17,6 +17,7 @@ setup(
         'djpj',
         'pytz',
         'requests',
+        'django-crispy-forms',
     ],
     entry_points={
         'console_scripts': [

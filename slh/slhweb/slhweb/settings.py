@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
     'account',
 )
 
@@ -105,3 +106,5 @@ LANGUAGES = (
 )
 
 LANGUAGES_IN_LIST = [lang[0] for lang in LANGUAGES]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'

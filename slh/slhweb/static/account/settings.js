@@ -1,27 +1,28 @@
-function post_callback(data){
+function post_callback(data, status){
   var clicked = true;
   // Add tones of html into document
   if ( $("#return").children().length === 0 ){
-  $("#return").append('<div class="container return-status-root" id="return-status-root"> <div class="col-sm-3"></div> <div class="col-sm-6"> <div class="card"> <div class="col-sm-2"> <div class="card-body"> <button class="" id="return-button"><i id="return-button-icon"></i></button> </div> </div> <div class="col-sm-4"> <div class="card-body" id="return-message"> </div> </div> </div> </div> <div class="col-sm-3"></div> </div>');
+  $("#return").append('<div class="container return-status-root" id="return-status-root"> <div class="col-sm-3"></div> <div class="col-sm-6"> <div class="card"> <div class="col-sm-2"> <div class="card-body"> <button class="" id="return-button"><i id="return-button-icon"></i></button> </div> </div> <div class="col-sm-10"> <div class="card-body" id="return-message"> </div> </div> </div> </div> <div class="col-sm-3"></div> </div>');
   clicked = false;
   }
 
   // write message informations into html
-  switch (data.status) {
+  switch (status) {
     case "success":
       $("#return-button-icon").attr("class", "mdi-navigation-check");
       $("#return-button").attr("class", "btn btn-fab btn-raised btn-success");
-      $("#return-message").children().remove();
-      $("#return-message").append("<p>"+data.message+"</p>");
+      $("#return-message").empty();
+      $("#return-message").append(data.message);
       break;
     case "error":
       $("#return-button-icon").attr("class", "mdi-navigation-close");
       $("#return-button").attr("class", "btn btn-fab btn-raised btn-danger");
-      $("#return-message").children().remove();
-      $("#return-message").append("<p>"+data.message+"</p>");
+      $("#return-message").empty();
+      $("#return-message").append(data.message);
       break;
     default:
       alert("Unknown condition");
+      console.log(status);
   }
 
   // Animate it
@@ -35,45 +36,40 @@ function post_callback(data){
 
 // When module is toggled, decide if information should be shown or not
 function toggleModule (){
-  var information = $("#"+$(this).attr("name").split("-")[1]);
-  if ($(this).prop("checked")) {
-    information.css({"opacity":"1","visibility":"visible","top":"0px","z-index":"1","height":"auto"});
-  } else {
-    information.css({"opacity":"0","visibility":"hidden","top":"-50px","z-index":"-1","height":"0"});
-  }
+  var information = $(this).parents("fieldset").children('.module-toggle');
+  information.toggleClass('module-toggle-show');
 }
 
 // toggle module, version init
 function toggleModuleInit (){
-  $(".modules").each(function(){
-    var button = $(".togglebutton input[name=module-"+$(this).attr("id")+"]");
-    if (button.prop("checked")) {
-      information.css({"opacity":"1","visibility":"visible","top":"0px","z-index":"1","height":"auto"});
-    } else {
-      information.css({"opacity":"0","visibility":"hidden","top":"-50px","z-index":"-1","height":"0"});
-    }
-}); }
+  $("fieldset").each(function(){
+    var button = $(this).children("button");
+    var information = $(this).children(".module-toggle");
+    information.removeClass("module-toggle-show");
+    if ( button.prop("checked")) {
+      information.addClass("module-toggle-show");
+    }});}
 
 // ajax error handler
 $(document).ajaxError(function(event, jqxhr, settings, thrownError){
-  post_callback(jqxhr.responseJSON);
+  post_callback(jqxhr.responseJSON, 'error');
 });
 
 // display or hide modules settings on click
 $(".togglebutton input").on("click", toggleModule);
 
 // Submit button action
-$("#submit-button").click(function(){
-  $.post(window.location, $("#setting-form").serialize(), post_callback);
+$("input[type=submit]").click(function(){
+  $.post(window.location, $("form").serialize(), post_callback);
   return false;
 });
 
-// Reset button action
-$("#reset-button").click(function(){
-  $("#setting-form")[0].reset();
-  return false;
+// Extend reset method
+$("form").on('reset', function(){
+  toggleModuleInit();
 });
 
+// Debug buttons
 $("#test-success").click(function(){
   post_callback({status: 'success', message: 'Data updated'}, "success");
 });
@@ -85,6 +81,6 @@ $("#test-fail").click(function(){
 $(document).ready(function(){
   // init script for dropdown.js (dropdown menu)
   $(".select").dropdown({ "autoinit" : ".select" });
-  // Hide information if needed
-  toggleModuleInit();
+  // Reset form to default value to prevent bug
+  $("form").trigger('reset');
 });

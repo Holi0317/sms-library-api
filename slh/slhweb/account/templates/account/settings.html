@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load staticfiles %}
+{% load crispy_forms_tags %}
 
 {% block head %}
 <link href="{% static "dropdown.js/jquery.dropdown.css" %}" rel="stylesheet">
@@ -14,65 +15,10 @@
 <div class="container card-ready" id="form-card">
   <h1 class="header">{% trans 'lang.account.settings.header' %}</h1>
   <div class="card">
-  <div class="card-body">
-  <form role=form class="form-horizontal" id="setting-form">
-    {% csrf_token %}
-
-    <div class="form-group">
-      <label class="control-label col-sm-2" for="username">{% trans 'lang.account.settings.label.username' %}: </label>
-      <div class="col-sm-10">
-        <input type="text" class="form-control" name="username" value="{{ user.userprofile.name }}">
-      </div>
+    <div class="card-body">
+      {% crispy form %}
     </div>
-
-    <div class="form-group">
-      <label class="control-label col-sm-2" for="lang">{% trans 'lang.account.settings.label.lang' %}: </label>
-      <div class="col-sm-10">
-        <select class="form-control select" name="lang">
-          {% get_available_languages as LANGUAGES %}
-          {% get_language_info_list for LANGUAGES as languages %}
-          {% for language in languages %}
-            <option value="{{ language.code }}"
-            {% if language.code == user.userprofile.lang %}selected{% endif %}>
-            {{ language.name }} ({{ language.name_local }})
-            </option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-
-    <h3>{% trans 'Modules' %}</h3>
-
-    <div class="togglebutton">
-      <label>
-        <div class="col-sm-2">
-          {% trans 'Library module' %}: 
-        </div>
-        <input type="checkbox" name="module-lib" class="col-sm-10" {% if user.userprofile.library_module_enabled %}checked{% endif %}>
-      </label>
-    </div>
-
-    <div class="modules trans" id="lib">
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="lib-username">{% trans 'lang.account.settings.label.lib_account' %}: </label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" name="lib-username" value="{{ user.userprofile.library_account }}">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="control-label col-sm-2" for="lib-pwd">{% trans 'lang.account.settings.label.lib_password' %}: </label>
-        <div class="col-sm-10">
-          <input type="password" class="form-control" name="lib-pwd">
-        </div>
-      </div>
-    </div>
-
-    <button class="btn btn-info" id="submit-button">{% trans 'lang.account.settings.label.submit' %}</button>
-    <button class="btn btn-warning" id="reset-button">{% trans 'lang.account.settings.label.reset' %}</button>
-  </form>
   </div>
-</div>
 </div>
 
 <div class="container card-ready" id="test-card">

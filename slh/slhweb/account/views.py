@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, render
 from .models import UserProfile
+from .form import SettingForm
 from django.conf import settings
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
@@ -8,8 +9,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils import translation
 from django.http import JsonResponse
-from django.views.generic import View
-from django.utils.decorators import method_decorator
+from django.views.generic import FormView
 from django.utils.translation import ugettext as _
 
 from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
@@ -23,6 +23,39 @@ FLOW = OAuth2WebServerFlow(client_id=settings.GOOGLE_OAUTH2_CLIENT_ID,
                                   'https://www.googleapis.com/auth/plus.me'),
                            redirect_uri=settings.GOOGLE_REDIRECT_URI,
                            access_type='offline')
+
+
+class AjaxableResponseMixin(object):
+    """
+    Mixin for supporting AJAX
+    Also include login_required and csrf_protect
+    """
+    def form_invalid(self, form):
+        response = super(AjaxableResponseMixin, self).form_invalid(form)
+        if self.request.is_ajax():
+            data = [''.join(['<p>', str(j), ':', str(k), '</p>'])
+                    for j, k in form.errors.items()]
+            return JsonResponse({'message': ''.join(data)}, status=400)
+        else:
+            return response
+
+    def form_valid(self, form):
+        response = super(AjaxableResponseMixin, self).form_valid(form)
+        form.save()
+        if self.request.is_ajax():
+            data = {
+                'message': _('successfully updated profile')
+            }
+            return JsonResponse(data, status=202)
+        else:
+            return response
+
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(AjaxableResponseMixin, cls).as_view(**initkwargs)
+        decorate = csrf_protect(view)
+        return login_required(decorate,
+                              login_url=reverse_lazy('account:auth_login'))
 
 
 def index(request):
@@ -87,58 +120,16 @@ def oauth2callback(request):
         return redirect(target)
 
 
-class change_settings(View):
-    @method_decorator(login_required(
-        login_url=reverse_lazy('account:auth_login')))
-    @method_decorator(csrf_protect)
-    def get(self, request):
-        return render(request, 'account/settings.html')
+class change_settings(AjaxableResponseMixin, FormView):
+    template_name = 'account/settings.html'
+    form_class = SettingForm
+    success_url = reverse_lazy('account:change_settings')
 
-    @method_decorator(login_required(
-        login_url=reverse_lazy('account:auth_login')))
-    @method_decorator(csrf_protect)
-    def post(self, request):
-        data = request.POST
-        ext_user = request.user.userprofile
-
-        # validate data
-        # Language
-        if data['lang'] not in settings.LANGUAGES_IN_LIST:
-            message = {'status': 'error',
-                       'message': _('selected language is not correct')}
-            return JsonResponse(message, status=400)
-        # library username/data
-        # pass vaild data for better performance (perhaps)
-        if data['lib-username'] and data['lib-pwd']:
-            # Both empty
-            pass
-        elif not (data['lib-username'] and data['lib-pwd']):
-            # Both have string
-            pass
-        else:
-            message = {'status': 'error',
-                       'message': _('library username or password is empty')}
-            return JsonResponse(message, status=400)
-
-        # write data into database
-        ext_user.library_account = data['lib-username']
-        ext_user.library_password = data['lib-pwd']
-        ext_user.name = data['username']
-        ext_user.lang = data['lang']
-        # Bugged. When not selected, it will post nothing
-        # ext_user.library_module_enabled = data['module-lib']
-        ext_user.save()
-
-        # Update language
-        translation.activate(data['lang'])
-        request.session[translation.LANGUAGE_SESSION_KEY] = data['lang']
-        request.session['django_language'] = data['lang']
-        request.session.modified = True
-
-        message = {'status': 'success',
-                   'message': _('successfully updated profile')}
-
-        return JsonResponse(message, status=202)
+    def get_form_kwargs(self):
+        'Override this for passing request to form object'
+        kwargs = super(change_settings, self).get_form_kwargs()
+        kwargs.update({'request': self.request})
+        return kwargs
 
 
 def auth_logout(request):

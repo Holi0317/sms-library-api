@@ -1,0 +1,11 @@
+{% load crispy_forms_field %}
+
+<div id="div_{{ field.auto_id }}" class="form-group">
+  <div class="{{ label_class }}"></div>
+  <div class="{{ field_class }} togglebutton">
+    <label for="{{ field.id_for_label }}" class="{% if field.field.required %} requiredField{% endif %}">
+      {% crispy_field field 'class' 'checkbox' %}
+      {{ field.label|safe }}
+    </label>
+  </div>
+</div>
