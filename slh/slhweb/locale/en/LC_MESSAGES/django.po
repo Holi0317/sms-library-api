@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-12 15:35+0800\n"
+"POT-Creation-Date: 2015-04-12 15:37+0800\n"
 "PO-Revision-Date: 2015-04-06 15:28+08:00\n"
 "Last-Translator: Wu Ho Yin Hollis <holliswuhollis<at>gmail<dot>com>\n"
 "Language-Team: en_US \n"
@@ -26,8 +26,8 @@ msgid "Language"
 msgstr "Language"
 
 #: account/form.py:17
-msgid "Library Module"
-msgstr "Library Module"
+msgid "Enable"
+msgstr "Enable"
 
 #: account/form.py:19 account/form.py:90
 msgid "Library account"

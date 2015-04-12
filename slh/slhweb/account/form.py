@@ -14,7 +14,7 @@ class SettingForm(forms.Form):
 
     # library module
     library_module_enabled = forms.BooleanField(required=False,
-                                                label=_('Library Module'))
+                                                label=_('Enable'))
     library_account = forms.CharField(max_length=80, required=False,
                                       label=_('Library account'))
     library_password = forms.CharField(widget=forms.PasswordInput,
