@@ -8,12 +8,12 @@
 <link href="{% static "account/settings.css" %}" rel="stylesheet">
 {% endblock %}
 
-{% block title %}{% trans 'lang.account.settings.title' %}{% endblock %}
+{% block title %}{% trans 'Settings' %}{% endblock %}
 
 {% block content %}
 <div id="return"></div>
 <div class="container card-ready" id="form-card">
-  <h1 class="header">{% trans 'lang.account.settings.header' %}</h1>
+  <h1 class="header">{% trans 'Settings' %}</h1>
   <div class="card">
     <div class="card-body">
       {% crispy form %}

@@ -42,7 +42,7 @@ class SettingForm(forms.Form):
                      'name',
                      'lang',
                      css_id='information'),
-            HTML('<h2>Modules</h2>'),
+            HTML("<h2>{0}</h2>".format(_('Modules'))),
             Fieldset('Library Module',
                      Field('library_module_enabled',
                            template='togglebutton.html'),

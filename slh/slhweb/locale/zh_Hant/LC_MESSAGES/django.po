@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-10 20:10+0800\n"
+"POT-Creation-Date: 2015-04-12 15:35+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,86 +16,120 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: account/templates/account/index.html:4
-msgid "lang.account.index.title"
-msgstr "帳號頁面"
-
-#: account/templates/account/settings.html:17
-msgid "lang.account.settings.title"
-msgstr "設定"
-
-#: account/templates/account/settings.html:22
-msgid "lang.account.settings.header"
-msgstr "帳號設定"
-
-#: account/templates/account/settings.html:29
-msgid "lang.account.settings.label.username"
-msgstr "使用者名稱"
-
-#: account/templates/account/settings.html:36
-msgid "lang.account.settings.label.lib_account"
-msgstr "圖書館帳號"
-
-#: account/templates/account/settings.html:43
-msgid "lang.account.settings.label.lib_password"
-msgstr "圖書館密碼"
-
-#: account/templates/account/settings.html:50
-msgid "lang.account.settings.label.lang"
-msgstr "語言"
-
-#: account/templates/account/settings.html:65
-msgid "lang.account.settings.label.submit"
-msgstr "遞交"
-
-#: account/templates/account/settings.html:66
-msgid "lang.account.settings.label.reset"
-msgstr "重設"
-
-#: account/views.py:108
-msgid "selected language is not correct"
+#: account/form.py:12
+msgid "Username"
 msgstr ""
 
-#: account/views.py:120
-msgid "library username or password is empty"
+#: account/form.py:13
+msgid "Language"
 msgstr ""
 
-#: account/views.py:137
+#: account/form.py:17
+msgid "Library Module"
+msgstr ""
+
+#: account/form.py:19 account/form.py:90
+msgid "Library account"
+msgstr ""
+
+#: account/form.py:22 account/form.py:91
+msgid "Library password"
+msgstr ""
+
+#: account/form.py:45
+msgid "Modules"
+msgstr ""
+
+#: account/form.py:88
+#, python-format
+msgid "%(field1)s and %(field2)s is required"
+msgstr ""
+
+#: account/templates/account/index.html:4 templates/base.html:35
+msgid "Account"
+msgstr ""
+
+#: account/templates/account/settings.html:11
+#: account/templates/account/settings.html:16 templates/base.html:41
+msgid "Settings"
+msgstr ""
+
+#: account/views.py:47
 msgid "successfully updated profile"
 msgstr ""
 
-#: slhweb/settings.py:103
+#: slhweb/settings.py:104
 msgid "Traditional Chinese"
 msgstr ""
 
-#: slhweb/settings.py:104
+#: slhweb/settings.py:105
 msgid "English"
 msgstr ""
 
 #: templates/base.html:30
-msgid "lang.base.brand"
-msgstr "Library helper"
+msgid "Library Helper"
+msgstr ""
 
 #: templates/base.html:34
-msgid "lang.base.home"
-msgstr "主頁"
-
-#: templates/base.html:35
-msgid "lang.base.account"
-msgstr "帳號"
-
-#: templates/base.html:41
-msgid "lang.base.settings"
-msgstr "設定"
+msgid "Home"
+msgstr ""
 
 #: templates/base.html:42
-msgid "lang.base.logout"
-msgstr "登出"
+msgid "Logout"
+msgstr ""
 
 #: templates/base.html:46
-msgid "lang.base.login"
-msgstr "使用Google登入"
+msgid "Login with google"
+msgstr ""
 
 #: templates/index.html:4
-msgid "lang.root.index.title"
-msgstr "主頁"
+msgid "Library helper"
+msgstr ""
+
+#~ msgid "lang.base.settings"
+#~ msgstr "設定"
+
+#~ msgid "lang.base.logout"
+#~ msgstr "登出"
+
+#~ msgid "lang.account.index.title"
+#~ msgstr "帳號頁面"
+
+#~ msgid "lang.account.settings.title"
+#~ msgstr "設定"
+
+#~ msgid "lang.account.settings.header"
+#~ msgstr "帳號設定"
+
+#~ msgid "lang.account.settings.label.username"
+#~ msgstr "使用者名稱"
+
+#~ msgid "lang.account.settings.label.lib_account"
+#~ msgstr "圖書館帳號"
+
+#~ msgid "lang.account.settings.label.lib_password"
+#~ msgstr "圖書館密碼"
+
+#~ msgid "lang.account.settings.label.lang"
+#~ msgstr "語言"
+
+#~ msgid "lang.account.settings.label.submit"
+#~ msgstr "遞交"
+
+#~ msgid "lang.account.settings.label.reset"
+#~ msgstr "重設"
+
+#~ msgid "lang.base.brand"
+#~ msgstr "Library helper"
+
+#~ msgid "lang.base.home"
+#~ msgstr "主頁"
+
+#~ msgid "lang.base.account"
+#~ msgstr "帳號"
+
+#~ msgid "lang.base.login"
+#~ msgstr "使用Google登入"
+
+#~ msgid "lang.root.index.title"
+#~ msgstr "主頁"
