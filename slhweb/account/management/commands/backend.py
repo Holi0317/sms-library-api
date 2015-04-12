@@ -1,5 +1,7 @@
-from slhweb.account.models import UserProfile
+from django.core.management.base import BaseCommand
+from account.models import UserProfile
 from slh import slhapi
+from oauth2client.django_orm import Storage
 from apiclient.discovery import build
 from apiclient.http import BatchHttpRequest
 import httplib2
@@ -55,7 +57,8 @@ class App(object):
         self.profile = profile
         self.account = profile.library_account
         self.password = profile.library_password
-        self.credential = profile.credential
+        storage = Storage(UserProfile, 'user', profile.user, 'credential')
+        self.credential = storage.locked_get()
         self.http = self.credential.authorize(httplib2.Http())
         self.service = build('calendar', 'v3')
         self.library_api = slhapi.library_api()
@@ -113,10 +116,12 @@ class App(object):
                 return calendar['id']
 
 
-def main():
-    users = UserProfile.objects.execute(library_account='')\
-        .execute(library_password='')
+class Command(BaseCommand):
+    help = 'Daily renew command for library helper'
 
-    for user in users:
-        app = App.__init__(user)
-        app.mainloop()
+    def handle(self, *args, **kwargs):
+        users = UserProfile.objects.filter(library_module_enabled=True)
+
+        for user in users:
+            app = App(user)
+            app.mainloop()

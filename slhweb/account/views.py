@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from .models import UserProfile
+from .models import UserProfile, CredentialsModel
 from .form import SettingForm
 from django.conf import settings
 from django.contrib.auth import login, authenticate, logout
@@ -13,6 +13,7 @@ from django.views.generic import FormView
 from django.utils.translation import ugettext as _
 
 from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
+from oauth2client.django_orm import Storage
 from apiclient.discovery import build
 import httplib2
 
@@ -88,7 +89,7 @@ def oauth2callback(request):
 
     # Check if user have registered
     ext_user, created = UserProfile.objects.get_or_create(
-        id=id, defaults={'name': name, 'credential': credential})
+        id=id, defaults={'name': name})
 
     if created:
         # fill in user informations
@@ -105,6 +106,10 @@ def oauth2callback(request):
 
     user = authenticate(username=name, password=settings.COMMON_PASSWORD)
     login(request, user)
+
+    # Use oauth's storage to store credential
+    storage = Storage(CredentialsModel, 'id', user, 'credential')
+    storage.put(credential)
 
     translation.activate(ext_user.lang)
     request.session[translation.LANGUAGE_SESSION_KEY] = ext_user.lang
