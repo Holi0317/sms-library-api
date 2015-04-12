@@ -1,4 +1,4 @@
-from .models import UserProfile
+from account.models import UserProfile
 from slh import slhapi
 from apiclient.discovery import build
 from apiclient.http import BatchHttpRequest

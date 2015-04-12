@@ -12,7 +12,7 @@ setup(
     pacakages=find_packages(),
     install_requires=[
         'click',
-        'flask',
+        'django',
         'google-api-python-client',
         'djpj',
         'pytz',
