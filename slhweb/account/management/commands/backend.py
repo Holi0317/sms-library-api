@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 class callBack(object):
+    """
+    Callback class for batch request
+    Currently, Batch request is bugged under python3
+    Therefore, the code is not used properly in this script
+    """
     def __init__(self, book, http, service, cal_id):
         self.book_id = book[0]
         self.book_name = book[1]
@@ -23,6 +28,7 @@ class callBack(object):
         self.body = None
 
     def process(self, request_id, response, exception):
+        'Method that will be passed to batchrequest as callback'
         if exception is not None:
             logger.warn('Callback got exception: %s', exception)
             return
@@ -34,12 +40,13 @@ class callBack(object):
             self.service.events().insert(calendarId=self.cal_id,
                                          body=self.body).execute(
                                              http=self.http)
-        elif self.check_events(response['items']):
+        elif self._check_events(response['items']):
             pass
         else:
             logger.warn('Unknown situation for %s', self.book_name)
 
-    def check_events(self, items):
+    def _check_events(self, items):
+        'property method for checking if event exists and create event'
         for item in items:
             if self.book_name in item['summary']:
                 if not item['start'] == self.body['start'] and \
@@ -54,8 +61,12 @@ class callBack(object):
 
 
 class App(object):
+    """
+    Main object for this script
+    This will process each user's profile and auto-renew for them,
+    and add/update event to user's calendar
+    """
     def __init__(self, profile):
-        self.profile = profile
         self.account = profile.library_account
         self.password = profile.library_password
         self.credential = OAuth2Credentials.from_json(profile.credential)
@@ -64,6 +75,7 @@ class App(object):
         self.library_api = slhapi.library_api()
 
     def mainloop(self):
+        'Main function of this object'
         if not self.library_api.login(self.account, self.password):
             logger.warning('%s failed to login', self.account)
             return
@@ -84,12 +96,13 @@ class App(object):
         self.library_api.get_renew()
 
         # write items into calender
-        # Dirty hack for formatting time for google api
         now = datetime.datetime.now().isoformat().split('.')[0]+'Z'
-        cal_id = self.get_calendar()
+        cal_id = self._get_calendar()
+
         # Batch is disabled because it will throw error under python3
         # This will be re-enabled when google have ported the library to py3
         # batch = BatchHttpRequest()
+
         for book in self.library_api.book:
             callback = callBack(book, self.http, self.service, cal_id)
             event = self.service.events().list(calendarId=cal_id,
@@ -97,12 +110,18 @@ class App(object):
                                                q=book[1])
             res = event.execute(http=self.http)
             callback.process(None, res, None)
+
+            # Uncomment the following code for usage of batch
             # batch.add(self.service.events().list(calendarId=cal_id,
             #                                      timeMin=now, q=book[1]),
             #           callback=callback.process)
         # batch.execute(http=self.http)
 
-    def get_calendar(self):
+    def _get_calendar(self):
+        """
+        property function for get/create calendar
+        As the code is quite long, I wrapped it into a function
+        """
         page_token = None
         while True:
             calendars = self.service.calendarList().list(minAccessRole='owner',
