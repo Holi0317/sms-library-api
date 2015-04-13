@@ -1,12 +1,12 @@
 from django.core.management.base import BaseCommand
 from account.models import UserProfile
 from slh import slhapi
-from oauth2client.django_orm import Storage
+from oauth2client.client import OAuth2Credentials
 from apiclient.discovery import build
-from apiclient.http import BatchHttpRequest
 import httplib2
 import datetime
 import logging
+# from apiclient.http import BatchHttpRequest
 
 
 logger = logging.getLogger(__name__)
@@ -31,8 +31,9 @@ class callBack(object):
                      'start': {'date': self.due_date.isoformat()},
                      'end': {'date': end_date.isoformat()}}
         if response['items'] == []:
-            self.service.events.insert(calendarId=self.cal_id, body=self.body)\
-                .execute(http=self.http)
+            self.service.events().insert(calendarId=self.cal_id,
+                                         body=self.body).execute(
+                                             http=self.http)
         elif self.check_events(response['items']):
             pass
         else:
@@ -44,9 +45,9 @@ class callBack(object):
                 if not item['start'] == self.body['start'] and \
                         item['end'] == self.body['end']:
                     # update event content
-                    update = self.service.events.update(calendarId=self.cal_id,
-                                                        eventId=item['id'],
-                                                        body=self.body)
+                    update = self.service.events().update(
+                        calendarId=self.cal_id,
+                        eventId=item['id'], body=self.body)
                     update.execute(http=self.http)
                 return True
         return False
@@ -57,8 +58,7 @@ class App(object):
         self.profile = profile
         self.account = profile.library_account
         self.password = profile.library_password
-        storage = Storage(UserProfile, 'user', profile.user, 'credential')
-        self.credential = storage.locked_get()
+        self.credential = OAuth2Credentials.from_json(profile.credential)
         self.http = self.credential.authorize(httplib2.Http())
         self.service = build('calendar', 'v3')
         self.library_api = slhapi.library_api()
@@ -81,39 +81,46 @@ class App(object):
                     logger.info('Renew succeed')
                 else:
                     logger.warning('Failed renew')
+        self.library_api.get_renew()
 
         # write items into calender
         # Dirty hack for formatting time for google api
         now = datetime.datetime.now().isoformat().split('.')[0]+'Z'
         cal_id = self.get_calendar()
-        batch = BatchHttpRequest()
-        self.library_api.get_renew()
+        # Batch is disabled because it will throw error under python3
+        # This will be re-enabled when google have ported the library to py3
+        # batch = BatchHttpRequest()
         for book in self.library_api.book:
             callback = callBack(book, self.http, self.service, cal_id)
-            batch.add(self.service.events.list(calendarId=cal_id, timeMin=now,
-                                               q=book[1]),
-                      callback=callback.process)
-        batch.execute(http=self.http)
+            event = self.service.events().list(calendarId=cal_id,
+                                               timeMin=now,
+                                               q=book[1])
+            res = event.execute(http=self.http)
+            callback.process(None, res, None)
+            # batch.add(self.service.events().list(calendarId=cal_id,
+            #                                      timeMin=now, q=book[1]),
+            #           callback=callback.process)
+        # batch.execute(http=self.http)
 
     def get_calendar(self):
         page_token = None
         while True:
-            calendars = self.service.calendarList.list(minAccessRole='owner',
-                                                       page_token=page_token)
-            calendars.execute(http=self.http)
-            for item in calendars['items']:
+            calendars = self.service.calendarList().list(minAccessRole='owner',
+                                                         pageToken=page_token)
+            res = calendars.execute(http=self.http)
+            for item in res['items']:
                 if item['summary'] == 'slh autorenew reminder':
                     return item['id']
-            page_token = calendars.get('nextPageToken')
+            page_token = res.get('nextPageToken')
             if not page_token:
                 body = {'summary': 'slh autorenew reminder',
                         'timeZone': 'Asia/Hong_Kong'}
-                pre_calendar = self.service.calendars.insert(body=body)
-                pre_calendar.execute()
-                body = {'id': pre_calendar['id']}
-                calendar = self.service.calendarList.insert(body=body)
-                calendar.execute()
-                return calendar['id']
+                pre_calendar = self.service.calendars().insert(body=body)
+                res = pre_calendar.execute(http=self.http)
+                body = {'id': res['id']}
+                calendar = self.service.calendarList().insert(body=body)
+                res = calendar.execute(http=self.http)
+                return res['id']
 
 
 class Command(BaseCommand):

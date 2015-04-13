@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from .models import UserProfile, CredentialsModel
+from .models import UserProfile
 from .form import SettingForm
 from django.conf import settings
 from django.contrib.auth import login, authenticate, logout
@@ -13,7 +13,6 @@ from django.views.generic import FormView
 from django.utils.translation import ugettext as _
 
 from oauth2client.client import OAuth2WebServerFlow, AccessTokenRefreshError
-from oauth2client.django_orm import Storage
 from apiclient.discovery import build
 import httplib2
 
@@ -88,32 +87,30 @@ def oauth2callback(request):
     id = req['id']
 
     # Check if user have registered
-    ext_user, created = UserProfile.objects.get_or_create(
+    profile, created = UserProfile.objects.get_or_create(
         id=id, defaults={'name': name})
 
     if created:
         # fill in user informations
         user = User.objects.create_user(name,
                                         password=settings.COMMON_PASSWORD)
-        ext_user.user = user
-        user.save()
-        ext_user.save()
+        profile.user = user
     else:
         # update user name
-        user = ext_user.user
+        user = profile.user
         user.username = name
-        user.save()
+
+    # Store credential for furure use
+    profile.credential = credential.to_json()
+    user.save()
+    profile.save()
 
     user = authenticate(username=name, password=settings.COMMON_PASSWORD)
     login(request, user)
 
-    # Use oauth's storage to store credential
-    storage = Storage(CredentialsModel, 'id', user, 'credential')
-    storage.put(credential)
-
-    translation.activate(ext_user.lang)
-    request.session[translation.LANGUAGE_SESSION_KEY] = ext_user.lang
-    request.session['django_language'] = ext_user.lang
+    translation.activate(profile.lang)
+    request.session[translation.LANGUAGE_SESSION_KEY] = profile.lang
+    request.session['django_language'] = profile.lang
     request.session.modified = True
 
     if request.session['next'] is None:

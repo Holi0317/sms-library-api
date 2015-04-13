@@ -102,6 +102,7 @@ class library_api(object):
         format is [id_of_the_book, name_of_the_book, borrow_date, due_date,
             renewal]
         """
+        self.book = []
         if self.info == {}:
             self.get_reader_id()
         url = self.url_formatter(RENEW_URL)
