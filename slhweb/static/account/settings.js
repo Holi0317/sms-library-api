@@ -43,12 +43,13 @@ function toggleModule (){
 // toggle module, version init
 function toggleModuleInit (){
   $("fieldset").each(function(){
-    var button = $(this).children("button");
+    var button = $(this).find("input[type=checkbox]");
     var information = $(this).children(".module-toggle");
     information.removeClass("module-toggle-show");
     if ( button.prop("checked")) {
       information.addClass("module-toggle-show");
-    }});}
+    }});
+}
 
 // ajax error handler
 $(document).ajaxError(function(event, jqxhr, settings, thrownError){
@@ -58,8 +59,8 @@ $(document).ajaxError(function(event, jqxhr, settings, thrownError){
 // display or hide modules settings on click
 $(".togglebutton input").on("click", toggleModule);
 
-// Submit button action
-$("input[type=submit]").click(function(){
+// Override form submition action
+$("form").on("submit", function(){
   $.post(window.location, $("form").serialize(), post_callback);
   return false;
 });
@@ -67,6 +68,20 @@ $("input[type=submit]").click(function(){
 // Extend reset method
 $("form").on('reset', function(){
   toggleModuleInit();
+});
+
+// Implement delete button action 
+$("button[name=delete]").on("click", function(){
+  $("input[name=action]").val("delete");
+  $.ajax({
+    url: window.location,
+    method: "POST",
+    data: $("form").serialize(),
+    success: function(data, textStatus) {
+      window.location.href = window.location.origin;
+      }
+    }
+  });
 });
 
 // Debug buttons

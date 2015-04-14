@@ -2,15 +2,21 @@ from django import forms
 from django.utils.translation import ugettext as _
 from django.utils import translation
 from django.conf import settings
+from django.contrib.auth import logout
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Reset, HTML, Field,\
-    Div
+    Div, Button
 from crispy_forms.bootstrap import FormActions
+from oauth2client.client import OAuth2Credentials
+
+import httplib2
 
 
 class SettingForm(forms.Form):
     name = forms.CharField(max_length=80, label=_('Username'))
     lang = forms.ChoiceField(choices=settings.LANGUAGES, label=_('Language'))
+    action = forms.CharField(max_length=20, widget=forms.HiddenInput(),
+                             initial='update')
 
     # library module
     library_module_enabled = forms.BooleanField(required=False,
@@ -41,6 +47,7 @@ class SettingForm(forms.Form):
             Fieldset('Basic informations',
                      'name',
                      'lang',
+                     'action',
                      css_id='information'),
             HTML("<h2>{0}</h2>".format(_('Modules'))),
             Fieldset('Library Module',
@@ -52,11 +59,19 @@ class SettingForm(forms.Form):
                      css_id='library'),
             FormActions(Submit('submit', 'Submit'),
                         Reset('reset', 'Reset'),
+                        Button('fake-delete', 'Delete Account',
+                               css_class='btn-danger',
+                               data_toggle='modal',
+                               data_target='#delete-warn'),
                         css_class='trans')
         )
 
     def save(self):
         profile = self.request.user.userprofile
+
+        if self.cleaned_data['action'] == 'delete':
+            self._remove()
+            return 'delete'
 
         profile.name = self.cleaned_data['name']
         profile.lang = self.cleaned_data['lang']
@@ -73,6 +88,24 @@ class SettingForm(forms.Form):
         self.request.session[translation.LANGUAGE_SESSION_KEY] = profile.lang
         self.request.session['django_language'] = profile.lang
         self.request.session.modified = True
+
+        return 'update'
+
+    def _remove(self):
+        profile = self.request.user.userprofile
+        user = self.request.user
+
+        # Void google oauth2 permission
+        credential = OAuth2Credentials.from_json(profile.credential)
+        http = credential.authorize(httplib2.Http())
+        credential.revoke(http=http)
+
+        # Remove profile from database
+        user.delete()
+        profile.delete()
+
+        # Logout
+        logout(self.request)
 
     def clean(self):
         cleaned_data = super(SettingForm, self).clean()

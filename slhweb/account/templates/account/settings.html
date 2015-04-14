@@ -31,6 +31,24 @@
   </div>
 </div>
 
+<div id="delete-warn" class="modal fade well page" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title">{% trans 'Are you sure?' %}</h4>
+      </div>
+      <div class="modal-body">
+        {% trans 'There is no way to recover your data. Also, your developer will be sad as you leave him' %}
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-warning" name="delete">{% trans 'Yes, I am sure' %}</button>
+        <button class="btn btn-primary" data-dismiss="modal">{% trans "Nah, take me back" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block tail %}

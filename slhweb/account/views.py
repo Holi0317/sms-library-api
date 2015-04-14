@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils import translation
 from django.http import JsonResponse
@@ -28,7 +27,7 @@ FLOW = OAuth2WebServerFlow(client_id=settings.GOOGLE_OAUTH2_CLIENT_ID,
 class AjaxableResponseMixin(object):
     """
     Mixin for supporting AJAX
-    Also include login_required and csrf_protect
+    Also include login_required
     """
     def form_invalid(self, form):
         response = super(AjaxableResponseMixin, self).form_invalid(form)
@@ -40,21 +39,12 @@ class AjaxableResponseMixin(object):
             return response
 
     def form_valid(self, form):
-        response = super(AjaxableResponseMixin, self).form_valid(form)
-        form.save()
-        if self.request.is_ajax():
-            data = {
-                'message': _('successfully updated profile')
-            }
-            return JsonResponse(data, status=202)
-        else:
-            return response
+        super(AjaxableResponseMixin, self).form_valid(form)
 
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(AjaxableResponseMixin, cls).as_view(**initkwargs)
-        decorate = csrf_protect(view)
-        return login_required(decorate,
+        return login_required(view,
                               login_url=reverse_lazy('account:auth_login'))
 
 
@@ -132,6 +122,20 @@ class change_settings(AjaxableResponseMixin, FormView):
         kwargs = super(change_settings, self).get_form_kwargs()
         kwargs.update({'request': self.request})
         return kwargs
+
+    def form_valid(self, form):
+        response = super(change_settings, self).form_valid(form)
+        action = form.save()
+        if action == 'update':
+            if self.request.is_ajax():
+                data = {
+                    'message': _('successfully updated profile')
+                }
+                return JsonResponse(data, status=202)
+            else:
+                return response
+        elif action == 'delete':
+            return redirect('/')
 
 
 def auth_logout(request):
