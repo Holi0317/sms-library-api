@@ -3,4 +3,6 @@
 cd ~/projects/sms-library-helper
 source .env/bin/activate
 
-slh-server main 
+cd ~/projects/sms-library-helper/slhweb
+
+python manage.py backend
