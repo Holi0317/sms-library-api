@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 setup(
     name='sms-lib-helper',
     version='1.0',
-    pacakages=find_packages(),
+    packages=find_packages(),
     install_requires=[
         'click',
         'django',
