@@ -81,17 +81,7 @@ $("button[name=delete]").on("click", function(){
       window.location.href = window.location.origin;
       }
     }
-  });
-});
-
-// Debug buttons
-$("#test-success").click(function(){
-  post_callback({status: 'success', message: 'Data updated'}, "success");
-});
-
-$("#test-fail").click(function(){
-  post_callback({status: 'error', message: 'Incorrect data in field'}, "error");
-});
+);});
 
 $(document).ready(function(){
   // init script for dropdown.js (dropdown menu)
