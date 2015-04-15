@@ -5,20 +5,19 @@
 .
 ├── docs    -- 所有文件的位置
 │   ├── api.md  -- 有關api的說明
-│   ├── cli.md  -- 有關cli的說明
+│   ├── backend.md  -- 有關backend的說明
 │   ├── README.md   -- 此文件
 │   └── web.md  -- 有關web的說明
 ├── LICENSE -- license 檔案
 ├── README.md   -- 主要的說明檔案
 ├── setup.py    -- 安裝檔
 ├── slh
-│   ├── cli\_main.py   -- cli的執行檔 
 │   ├── scripts -- 各種自動啟動的script
 │   │   ├── slh-server-start    -- 自動啟動的shell腳本
 │   │   ├── slh.service -- systemd的unit檔案
 │   │   └── slh.timer   -- systemd的timer檔案
 │   ├── slhapi.py   -- api
-│   └── web\_main.py    -- web的執行檔
+│   └── backend.py    -- backend的執行檔
 ├── sms\_lib\_helper.egg-info   -- 安裝時出現的檔案, 不用理會
 │   ├── dependency\_links.txt
 │   ├── entry\_points.txt
@@ -29,7 +28,7 @@
 └── TODO.md -- 未來要做的事
 
 ## 資料的結構
-在linux下, 所有的資料會存在 `~/.slh/` 
+在linux下, backend的資料會存在 `~/.slh/` 
 
 
 ~/.slh

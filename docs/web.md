@@ -1,16 +1,11 @@
-# 伺服器模塊
+# 網頁後端
 
-要自動續借? 你找對地方了
+本個計劃中最難的一部份
+
+~ 好吧, 是我沒用 ~
 
 ## 簡介
-當使用者的還書日期只剩下3天時, 就會自動為使用者續借書藉. 預計配合cron(或systemd/timer)使用
+利用django建立一個網頁伺服器, 提供使用者用google帳號登記. 之後會把圖書的還書日期加到calendar裏, 並自動續借
 
-## 使用方法
-`slh-web main` -- 開始一次的循環. 登入, 查未還的書, 自動續借一手包辦.
-`slh-web add` -- 增加使用者到這系統內.
-`slh-web migrate` -- 把原來的資料庫轉換成新版的資料庫
-
-## TODO
- - [ ] 增加Google Calendar 的支援, 把還書日期寫到Google Calendar內
- - [ ] 以Django製作網頁介面, 簡化增加使用者的步驟
- - [ ] 增加以json寫成的設定檔
+## 注意
+如果要自己架設相同的伺服器, 必需使用Linux作為作業系統(其實apache+Windows太麻煩 -3-), 建議使用Apache. 詳情可以到這裏閱讀 [Deploy with WSGI](https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/)
