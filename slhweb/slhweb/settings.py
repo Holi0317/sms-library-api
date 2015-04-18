@@ -9,11 +9,28 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from __future__ import absolute_import
 import os
-from secret import *
+from .secret import *
 from django.utils.translation import ugettext_lazy as _
+from celery.schedules import crontab
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+
+# Celery settings
+BROKER_URL = 'amqp://slh:CESY6FnTDpOuzaYAfRz9NfcR@localhost/web_vhost'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'amqp'
+CELERY_TASK_RESULT_EXPIRES = 18000
+
+CELERYBEAT_SCHEDULE = {
+    'Auto renew every day at 8 am': {
+        'task': 'account.tasks.auto_renew',
+        'schedule': crontab(minute=0, hour=8),
+    },
+}
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
