@@ -9,3 +9,5 @@
 
 ## 注意
 如果要自己架設相同的伺服器, 必需使用Linux作為作業系統(其實apache+Windows太麻煩 -3-), 建議使用Apache. 詳情可以到這裏閱讀 [Deploy with WSGI](https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/)
+
+同時, 也需要一堆沒有寫上等設定, 如果有需要可以私下聯絡我(需求太低, 所以直接不供應)
