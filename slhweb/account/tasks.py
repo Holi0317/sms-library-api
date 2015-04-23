@@ -72,10 +72,15 @@ class App(object):
     def __init__(self, profile):
         self.account = profile.library_account
         self.password = profile.library_password
+        self.library_api = slhapi.library_api()
+
+        # Force refresh token and store it
         self.credential = OAuth2Credentials.from_json(profile.credential)
+        http = credential.authorize(httplib2.Http())
+        credential.refresh(http)
+        profile.credential = credential.to_json()
         self.http = self.credential.authorize(httplib2.Http())
         self.service = build('calendar', 'v3')
-        self.library_api = slhapi.library_api()
 
     def mainloop(self):
         'Main function of this object'
