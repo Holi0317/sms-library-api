@@ -167,7 +167,7 @@ def migrate():
         raw = file.read()
     data = json.loads(raw)
 
-    if sys.platform.startswith('linux'):
+    if sys.platform.startswith('linux') and os.path.exists(PATHS['sql']):
         logger.debug('Platform is linux')
         os.chmod(PATHS['sql'], 0o600)
     conn = sqlite3.connect(PATHS['sql'])
