@@ -9,7 +9,6 @@ from apiclient.discovery import build
 import httplib2
 import datetime
 import logging
-# from apiclient.http import BatchHttpRequest
 
 
 logger = logging.getLogger(__name__)
@@ -76,19 +75,22 @@ class App(object):
 
         # Force refresh token and store it
         self.credential = OAuth2Credentials.from_json(profile.credential)
-        http = credential.authorize(httplib2.Http())
-        credential.refresh(http)
-        profile.credential = credential.to_json()
-        self.http = self.credential.authorize(httplib2.Http())
-        self.service = build('calendar', 'v3')
+        if self.credential.refresh_token is None:
+            self.http = None
+            self.service = None
+        else:
+            self.http = self.credential.authorize(httplib2.Http())
+            self.service = build('calendar', 'v3')
 
     def mainloop(self):
         'Main function of this object'
+
         if not self.library_api.login(self.account, self.password):
             logger.warning('%s failed to login', self.account)
             return
         self.library_api.get_reader_id()
-        if not self.library_api.get_renew():
+        self.library_api.get_renew()
+        if not self.library_api.book:
             logger.info('%s has borrowed nothing', self.account)
             return
 
@@ -103,13 +105,13 @@ class App(object):
                     logger.warning('Failed renew')
         self.library_api.get_renew()
 
+        if self.http is None:
+            logger.warning('No refresh token')
+            return
+
         # write items into calender
         now = datetime.datetime.now().isoformat().split('.')[0]+'Z'
         cal_id = self._get_calendar()
-
-        # Batch is disabled because it will throw error under python3
-        # This will be re-enabled when google have ported the library to py3
-        # batch = BatchHttpRequest()
 
         for book in self.library_api.book:
             callback = callBack(book, self.http, self.service, cal_id)
@@ -118,12 +120,6 @@ class App(object):
                                                q=book[1])
             res = event.execute(http=self.http)
             callback.process(None, res, None)
-
-            # Uncomment the following code for usage of batch
-            # batch.add(self.service.events().list(calendarId=cal_id,
-            #                                      timeMin=now, q=book[1]),
-            #           callback=callback.process)
-        # batch.execute(http=self.http)
 
     def _get_calendar(self):
         """
