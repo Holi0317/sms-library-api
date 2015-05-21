@@ -29,7 +29,7 @@ class callBack(object):
         self.cal_id = cal_id
         self.body = None
 
-    def process(self, request_id, response, exception):
+    def process(self, _, response, exception):
         'Method that will be passed to batchrequest as callback'
         if exception is not None:
             logger.warn('Callback got exception: %s', exception)
@@ -50,7 +50,7 @@ class callBack(object):
     def _check_events(self, items):
         'property method for checking if event exists and create event'
         for item in items:
-            if self.book_name in item['summary']:
+            if 'Due date of %s' % self.book_name in item['summary']:
                 if not item['start'] == self.body['start'] and \
                         item['end'] == self.body['end']:
                     # update event content
@@ -73,7 +73,7 @@ class App(object):
         self.password = profile.library_password
         self.library_api = slhapi.library_api()
 
-        # Force refresh token and store it
+        # Get credential
         self.credential = OAuth2Credentials.from_json(profile.credential)
         if self.credential.refresh_token is None:
             self.http = None
@@ -120,6 +120,17 @@ class App(object):
                                                q=book[1])
             res = event.execute(http=self.http)
             callback.process(None, res, None)
+
+        # Remove outdated events
+        # TODO use a better approach for this
+        book_list = ['Due date of %s' % i[1] for i in self.library_api.book]
+        events = self.service.events().list(calendarId=cal_id).\
+            execute(http=self.http)
+        for event in events['items']:
+            if not event['summary'] in book_list:
+                self.service.events().delete(calendarId=cal_id,
+                                             eventId=event['id']).\
+                    execute(http=self.http)
 
     def _get_calendar(self):
         """
