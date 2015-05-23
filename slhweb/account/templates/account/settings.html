@@ -6,13 +6,14 @@
 {% block head %}
 <link href="{% static "dropdown.js/jquery.dropdown.css" %}" rel="stylesheet">
 <link href="{% static "account/settings.css" %}" rel="stylesheet">
+<link href="{% static "css/animate-card.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}{% trans 'Settings' %}{% endblock %}
 
 {% block content %}
 <div id="return"></div>
-<div class="container card-ready" id="form-card">
+<div class="container wow fadeInUp card-ready" id="form-card">
   <h1 class="header">{% trans 'Settings' %}</h1>
   <div class="card">
     <div class="card-body">
@@ -42,6 +43,7 @@
 {% endblock %}
 
 {% block tail %}
-<script src="{% static "dropdown.js/jquery.dropdown.js" %}"></script>
-<script src="{% static "account/settings.js" %}"></script>
+  <script src="{% static "dropdown.js/jquery.dropdown.js" %}"></script>
+  <script src="{% static "account/settings.js" %}"></script>
+  <script src="{% static "js/animate-card.js" %}"></script>
 {% endblock %}

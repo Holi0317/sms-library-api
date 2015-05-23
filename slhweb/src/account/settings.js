@@ -2,7 +2,7 @@ function post_callback(data, status){
   var clicked = true;
   // Add tones of html into document
   if ( $("#return").children().length === 0 ){
-  $("#return").append('<div class="container return-status-root" id="return-status-root"> <div class="col-sm-3"></div> <div class="col-sm-6"> <div class="card"> <div class="col-sm-2"> <div class="card-body"> <button class="" id="return-button"><i id="return-button-icon"></i></button> </div> </div> <div class="col-sm-10"> <div class="card-body" id="return-message"> </div> </div> </div> </div> <div class="col-sm-3"></div> </div>');
+  $("#return").append('<div class="container return-status-root" id="return-status-root"> <div class="col-md-offset-3 col-sm-6 col-md-offset-3 col-xs-12"> <div class="card"> <div class="col-sm-2"> <div class="card-body"> <button class="" id="return-button"><i id="return-button-icon"></i></button> </div> </div> <div class="col-sm-10"> <div class="card-body" id="return-message"> </div> </div> </div> </div> </div>');
   clicked = false;
   }
 
@@ -28,16 +28,14 @@ function post_callback(data, status){
   // Animate it
   if ( ! clicked ){
     var height = $("#return-status-root").css({"visibility":"visible","opacity":"1","height":"auto"}).height();
-    animateCard($("#return-status-root .card"), "right", window.innerWidth/2);
+    $("#return-status-root .card").addClass("animated fadeInLeft");
     animateCard($("#form-card"), "top", "-"+height+"px");
-    animateCard($("#test-card"), "top", "-"+height+"px");
   }
 }
 
 // When module is toggled, decide if information should be shown or not
 function toggleModule (){
-  var information = $(this).parents("fieldset").children('.module-toggle');
-  information.toggleClass('module-toggle-show');
+  $(this).parents("fieldset").children('.module-toggle').toggleClass('module-toggle-show');
 }
 
 // toggle module, version init

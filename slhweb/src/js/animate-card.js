@@ -6,9 +6,3 @@ function animateCard(card, direction, position){
   card.show();
   card.css(direction, "0");
 }
-
-
-$(document).ready(function(){
-  animateCard($(".card-ready"));
-  $(".card-ready").removeClass("card-ready");
-});
