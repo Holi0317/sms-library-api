@@ -1,0 +1,23 @@
+{
+  "name": "slhweb",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Holi0317/sms-library-helper",
+  "authors": [
+    "Holi0317 <holliswuhollis@gmail.com>"
+  ],
+  "description": "bower packages for slhweb",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "animate.css": "~3.3.0",
+    "dropdown.js": "*",
+    "wow.js": "~1.1.2",
+    "bootstrap-material-design": "~0.3.0"
+  }
+}

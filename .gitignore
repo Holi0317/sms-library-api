@@ -61,3 +61,4 @@ target/
 secret.py
 00*.py
 db.sqlite3
+*/bower_components/*
