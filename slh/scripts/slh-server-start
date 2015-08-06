@@ -1,8 +1,0 @@
-#!/bin/bash
-
-cd ~/projects/sms-library-helper
-source .env/bin/activate
-
-cd ~/projects/sms-library-helper/slhweb
-
-python manage.py backend

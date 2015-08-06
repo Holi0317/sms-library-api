@@ -1,9 +1,0 @@
-[Unit]
-Description=Stmarks library system helper server
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash /home/h/bin/slh-server-start
-
-[Install]
-WantedBy=default.target
