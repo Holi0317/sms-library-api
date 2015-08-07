@@ -1,0 +1,25 @@
+{
+  "name": "sms-library-helper",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Holi0317/sms-library-helper",
+  "authors": [
+    "Holi0317 <holliswuhollis@gmail.com>"
+  ],
+  "description": "Auto renew for st. Mark's Library",
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-material-design": "~0.3.0",
+    "bootstrap": "~3.3.5"
+  }
+}
