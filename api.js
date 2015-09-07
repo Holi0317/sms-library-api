@@ -4,7 +4,7 @@
 var request = require('request-promise');
 var cheerio = require('cheerio');
 
-const URLS = {
+var URLS = {
   auth: 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/admin/get_a_password.asp',
   info: 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/patron/patronr.asp',
   showRenew: 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/patron/showRenew.asp',
