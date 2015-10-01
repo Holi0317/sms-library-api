@@ -3,6 +3,7 @@
 let express = require('express');
 let path = require('path');
 let logger = require('morgan');
+let bodyParser = require('body-parser');
 let session = require('express-session');
 let MongoStore = require('connect-mongo')(session);
 
@@ -12,6 +13,7 @@ let config = require('./config');
 let app = express();
 
 app.use(logger('dev'));
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session
