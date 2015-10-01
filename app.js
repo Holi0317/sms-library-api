@@ -27,6 +27,9 @@ if (app.get('env') === 'production') {
 app.use(session(sess));
 
 app.use('/', routes);
+if (app.get('env') === 'development') {
+  app.use('/dev', require('./routes/dev'))
+}
 app.get('*', function(req, res){
   res.status(404).send('Sorry. But I got a 404');
 });
