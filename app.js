@@ -19,12 +19,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Session
 let sess = {
   secret: config.secret,
-  cookie: {},
-  store: new MongoStore({ url: config.sessionUrl })
+  resave: false,
+  saveUninitialized: false,
+  cookie: {}
 };
 if (app.get('env') === 'production') {
-  app.set('trust proxy', 1) // trust first proxy
-  sess.cookie.secure = true // serve secure cookies
+  app.set('trust proxy', 1);
+  sess.cookie.secure = true;
+  sess.store = new MongoStore({ url: config.sessionUrl });
 }
 app.use(session(sess));
 

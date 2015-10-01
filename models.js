@@ -6,11 +6,14 @@ let ObjectId = mongoose.Schema.Types.ObjectId;
 
 let schema = {
   user: mongoose.Schema({
-    accessToken: String,
-    refreshToken: String,
+    tokens: {},
+    googleId: String,
     libraryLogin: String,
     libraryPassword: String,
-    enabled: Boolean,
+    enabled: {
+      type: Boolean,
+      default: false
+    },
     logs: [{
       type: ObjectId,
       ref: 'Log'
