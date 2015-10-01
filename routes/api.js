@@ -34,9 +34,9 @@ router.get('/oauth2callback', (req, res) => {
     oauth2client.getToken(req.query.code, function getGoogleId (err, tokens) {
       if (err) throw err;
 
+      req.session.tokens = tokens;
       let plus = google.plus('v1');
       oauth2client.setCredentials(tokens);
-      req.session.tokens = tokens;
 
       plus.people.get({userId: 'me', auth: oauth2client}, function writeDB(err, response) {
         if (err) throw err;

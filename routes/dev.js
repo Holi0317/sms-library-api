@@ -4,7 +4,9 @@
 let express = require('express');
 let router = express.Router();
 
+let google = require('googleapis');
 let models = require('../models');
+let config = require('../config');
 
 router.get('/', (req, res) => {
   res.json({
@@ -54,6 +56,21 @@ router.get('/db/users/drop', (req, res) => {
       message: 'Error when dropping users.'
     });
     throw err;
+  });
+});
+
+router.get('/gapi/revoke', (req, res) => {
+  if (!req.session.tokens) {
+    return res.json({
+      message: 'Tokens not found'
+    });
+  }
+  let oauth2client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
+  oauth2client.setCredentials(req.session.tokens);
+  oauth2client.revokeCredentials(() => {
+    return res.json({
+      message: 'Tokens revoked.'
+    });
   });
 });
 
