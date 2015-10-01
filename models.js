@@ -1,6 +1,5 @@
-var config = require('./config');
-var mongoose = require('mongoose');
+'use strict';
 
 module.exports = {
-  
+
 };

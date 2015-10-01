@@ -28,7 +28,8 @@ app.use(session(sess));
 
 app.use('/', routes);
 if (app.get('env') === 'development') {
-  app.use('/dev', require('./routes/dev'))
+  app.use('/dev', require('./routes/dev'));
+  app.set('json spaces', 4);
 }
 app.get('*', function(req, res){
   res.status(404).send('Sorry. But I got a 404');
