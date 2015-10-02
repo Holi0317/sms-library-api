@@ -21,7 +21,9 @@ let sess = {
   secret: config.secret,
   resave: false,
   saveUninitialized: false,
-  cookie: {}
+  cookie: {
+    maxAge: 8.64e+7 // 1 day
+  }
 };
 if (app.get('env') === 'production') {
   app.set('trust proxy', 1);

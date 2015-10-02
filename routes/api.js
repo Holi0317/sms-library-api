@@ -4,8 +4,11 @@ let express = require('express');
 let router = express.Router();
 
 let google = require('googleapis');
+let Promise = require('bluebird');
 let config = require('../config');
 let models = require('../models');
+
+Promise.promisifyAll(google.auth.OAuth2.prototype);
 
 function requireLogin(req, res, next) {
   if (!req.session.tokens) {
@@ -115,11 +118,35 @@ router.route('/user')
 })
 .delete((req, res) => {
   // Remove user
-  res.send('NYI');
+  let oauth2client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
+  oauth2client.setCredentials(req.session.tokens);
+
+  let session = Promise.promisifyAll(req.session);
+
+  oauth2client.revokeCredentialsAsync()
+  .then(function createDropQuery() {
+    return models.user.findOne({
+      googleId: session.googleId
+    })
+    .remove();
+  })
+  .then(session.destroyAsync())
+  .then(function response() {
+    return res.json({message: 'Delection succeed.'});
+  })
+  .catch((err) => {
+    res.status(500).json({message: 'Delection failed.'});
+    throw err;
+  });
 });
 
 router.get('/logout', (req, res) => {
-  res.send('NYI');
+  req.session.destroy(err => {
+    if (err) return res.status(500).json({message: 'Server error.'});
+    return res.json({
+      message: 'Logout succeed.'
+    });
+  });
 });
 
 module.exports = router;

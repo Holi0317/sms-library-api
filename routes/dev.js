@@ -5,6 +5,7 @@ let express = require('express');
 let router = express.Router();
 
 let google = require('googleapis');
+let Promise = require('bluebird');
 let models = require('../models');
 let config = require('../config');
 
@@ -20,15 +21,15 @@ router.get('/session', (req, res) => {
 });
 
 router.get('/session/destroy', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      res.status(500).json({
-        message: 'Error when destroying session'
-      });
-      throw err;
-    }
-    res.json({message: 'success'});
-  })
+  let session = Promise.promisifyAll(req.session);
+  session.destroyAsync()
+  .then(() => res.json({message: 'success'}))
+  .catch(err => {
+    res.status(500).json({
+      message: 'Error when destroying session'
+    });
+    throw err;
+  });
 });
 
 router.get('/db/users', (req, res) => {
