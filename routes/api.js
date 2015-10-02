@@ -71,15 +71,19 @@ router.get('/oauth2callback', (req, res) => {
 
 });
 
-router.get('/user', function (req, res) {
+router.get('/user', (req, res) => {
   res.send('NYI');
 });
 
-router.post('/user', function (req, res) {
+router.post('/user', (req, res) => {
   res.send('NYI');
 });
 
-router.delete('/user', function (req, res) {
+router.delete('/user', (req, res) => {
+  res.send('NYI');
+});
+
+router.get('/logout', (req, res) => {
   res.send('NYI');
 });
 
