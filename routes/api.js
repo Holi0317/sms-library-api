@@ -41,46 +41,41 @@ router.get('/oauth2callback', (req, res) => {
   let oauth2client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
 
   // Step2, exchange code
-  // Callback Hell >.> . I promise I will promise when Google promise this.
-  try {
-    oauth2client.getToken(req.query.code, function getGoogleId (err, tokens) {
-      if (err) throw err;
+  oauth2client.getTokenAsync(req.query.code)
+  .then(function getGoogleId (tokens) {
+    req.session.tokens = tokens[0];
+    oauth2client.setCredentials(tokens[0]);
 
-      req.session.tokens = tokens;
-      let plus = google.plus('v1');
-      oauth2client.setCredentials(tokens);
+    let plus = google.plus('v1');
+    let getAsync = Promise.promisify(plus.people.get);
 
-      plus.people.get({userId: 'me', auth: oauth2client}, function writeDB(err, response) {
-        if (err) throw err;
+    return getAsync({userId: 'me', auth: oauth2client});
+  })
+  .then(function makeDBQuery(plusResponse) {
+    req.session.name = plusResponse.displayName;
+    req.session.googleId = plusResponse.id;
 
-        req.session.name = response.displayName;
-        req.session.googleId = response.id;
-
-        return models.user.findOneAndUpdate({
+    return models.user.findOneAndUpdate({
+      googleId: req.session.googleId
+    }, {
+      update: {
+        tokens: req.session.tokens,
+        $setOnInsert: {
           googleId: req.session.googleId
-        }, {
-          update: {
-            tokens: req.session.tokens,
-            $setOnInsert: {
-              googleId: req.session.googleId
-            }
-          }
-        }, {
-          new: true,
-          upsert: true
-        })
-        .exec(function goToMain (err) {
-          if (err) throw err;
-          return res.redirect('../../ui?oauth=success');
-        });
-      });
-
-    });
-  } catch (e) {
+        }
+      }
+    }, {
+      new: true,
+      upsert: true
+    })
+  })
+  .then(function goToMain() {
+    return res.redirect('../../ui?oauth=success');
+  })
+  .catch(err => {
     res.redirect('../../ui?oauth=fail');
-    throw e;
-  }
-
+    throw err;
+  })
 });
 
 router.use('/user', requireLogin)
