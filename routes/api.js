@@ -7,6 +7,15 @@ let google = require('googleapis');
 let config = require('../config');
 let models = require('../models');
 
+function requireLogin(req, res, next) {
+  if (!req.session.tokens) {
+    // No token
+    return res.redirect('login');
+  } else {
+    return next();
+  }
+}
+
 
 router.get('/login', (req, res) => {
   // Step1, get authorize url
@@ -71,15 +80,41 @@ router.get('/oauth2callback', (req, res) => {
 
 });
 
-router.get('/user', (req, res) => {
-  res.send('NYI');
-});
+router.use('/user', requireLogin)
 
-router.post('/user', (req, res) => {
+router.route('/user')
+.get((req, res) => {
+  // Return JSON for informations
+  models.user.findOne({
+    googleId: req.session.googleId
+  })
+  .populate('logs')
+  .select({
+    id_: 0,
+    tokens: 0,
+    libraryPassword: 0,
+    googleId: 0
+  })
+  .then(result => {
+    return res.json({
+      name: req.session.name,
+      renewEnabled: result.enabled,
+      libraryLogin: result.libraryLogin || null,
+      logs: result.logs
+    });
+  })
+  .catch(() => {
+    return res.status(500).json({
+      message: 'Server error.'
+    });
+  });
+})
+.post((req, res) => {
+  // Update information
   res.send('NYI');
-});
-
-router.delete('/user', (req, res) => {
+})
+.delete((req, res) => {
+  // Remove user
   res.send('NYI');
 });
 
