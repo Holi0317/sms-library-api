@@ -21,6 +21,10 @@ function requireLogin(req, res, next) {
 
 
 router.get('/login', (req, res) => {
+  if (req.session.tokens) {
+    // Logined. Don't waste resources on these request = =
+    return res.redirect('../../ui');
+  }
   // Step1, get authorize url
   let oauth2client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
   let authUrl = oauth2client.generateAuthUrl({
@@ -52,8 +56,8 @@ router.get('/oauth2callback', (req, res) => {
     return getAsync({userId: 'me', auth: oauth2client});
   })
   .then(function makeDBQuery(plusResponse) {
-    req.session.name = plusResponse.displayName;
-    req.session.googleId = plusResponse.id;
+    req.session.name = plusResponse[0].displayName;
+    req.session.googleId = plusResponse[0].id;
 
     return models.user.findOneAndUpdate({
       googleId: req.session.googleId
@@ -78,7 +82,7 @@ router.get('/oauth2callback', (req, res) => {
   })
 });
 
-router.use('/user', requireLogin)
+router.use('/user', requireLogin);
 
 router.route('/user')
 .get((req, res) => {
@@ -86,7 +90,6 @@ router.route('/user')
   models.user.findOne({
     googleId: req.session.googleId
   })
-  .populate('logs')
   .select({
     id_: 0,
     tokens: 0,
@@ -96,7 +99,7 @@ router.route('/user')
   .then(result => {
     return res.json({
       name: req.session.name,
-      renewEnabled: result.enabled,
+      renewEnabled: result.renewEnabled,
       libraryLogin: result.libraryLogin || null,
       logs: result.logs
     });
@@ -109,7 +112,36 @@ router.route('/user')
 })
 .post((req, res) => {
   // Update information
-  res.send('NYI');
+  if (!req.is('json')) {
+    // Only accept JSON request
+    return res.status(406).json({
+      message: 'Only accept application/json body request'
+    });
+  }
+
+  // TODO try if library login is correct.
+
+  models.user.findOne({
+    googleId: req.session.googleId
+  })
+  .then(result => {
+    result.libraryLogin = req.body.libraryLogin || '';
+    result.libraryPassword = req.body.libraryPassword || '';
+    result.renewEnabled = req.body.renewEnabled || false;
+
+    return result.save()
+  })
+  .then(() => {
+    return res.json({
+      message: 'Successfuly updated data.'
+    });
+  })
+  .catch(err => {
+    res.status(500).json({
+      message: 'Server error.'
+    });
+    throw err;
+  });
 })
 .delete((req, res) => {
   // Remove user

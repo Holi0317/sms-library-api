@@ -9,7 +9,7 @@ let schema = {
     googleId: String,
     libraryLogin: String,
     libraryPassword: String,
-    enabled: {
+    renewEnabled: {
       type: Boolean,
       default: false
     },
