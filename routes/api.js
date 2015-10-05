@@ -63,14 +63,11 @@ router.get('/oauth2callback', (req, res) => {
     return models.user.findOneAndUpdate({
       googleId: req.session.googleId
     }, {
-      update: {
-        tokens: req.session.tokens,
-        $setOnInsert: {
-          googleId: req.session.googleId
-        }
+      tokens: req.session.tokens,
+      $setOnInsert: {
+        googleId: req.session.googleId
       }
     }, {
-      new: true,
       upsert: true
     })
   })

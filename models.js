@@ -4,8 +4,8 @@ let mongoose = require('mongoose');
 let conn = require('./config').conn;
 
 let schema = {
-  user: mongoose.Schema({
-    tokens: {},
+  user: new mongoose.Schema({
+    tokens: mongoose.Schema.Types.Mixed,
     googleId: String,
     libraryLogin: String,
     libraryPassword: String,
