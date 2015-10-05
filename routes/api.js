@@ -7,6 +7,7 @@ let google = require('googleapis');
 let Promise = require('bluebird');
 let config = require('../config');
 let models = require('../models');
+let libApi = require('../api');
 
 Promise.promisifyAll(google.auth.OAuth2.prototype);
 
@@ -110,6 +111,8 @@ router.route('/user')
     });
   });
 })
+
+
 .post((req, res) => {
   // Update information
   if (!req.is('json')) {
@@ -119,15 +122,35 @@ router.route('/user')
     });
   }
 
+  // Serialize
+  let body = {
+      libraryLogin: (req.body.renewEnabled) ? req.body.libraryLogin: '',
+      libraryPassword: (req.body.renewEnabled) ? req.body.libraryPassword: '',
+      renewEnabled: req.body.renewEnabled
+  };
+
+
+  // Check if library login id and password is correct.
+  if (body.renewEnabled) {
+    let userLibrary = new libApi();
+    return userLibrary.login(body.libraryLogin, body.libraryPassword)
+    .catch(() => {
+      return res.status(401).json({
+        message: 'Authorization for library system failed. Is your password or Id correct?'
+      });
+    })
+    .done();
+  }
+
   // TODO try if library login is correct.
 
   models.user.findOne({
     googleId: req.session.googleId
   })
   .then(result => {
-    result.libraryLogin = req.body.libraryLogin || '';
-    result.libraryPassword = req.body.libraryPassword || '';
-    result.renewEnabled = req.body.renewEnabled || false;
+    result.libraryLogin = body.libraryLogin || '';
+    result.libraryPassword = body.libraryPassword || '';
+    result.renewEnabled = body.renewEnabled || false;
 
     return result.save()
   })
@@ -143,6 +166,8 @@ router.route('/user')
     throw err;
   });
 })
+
+
 .delete((req, res) => {
   // Remove user
   let oauth2client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
