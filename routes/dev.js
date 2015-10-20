@@ -8,6 +8,7 @@ let google = require('googleapis');
 let Promise = require('bluebird');
 let models = require('../models');
 let config = require('../config');
+let cron = require('../job');
 
 router.get('/', (req, res) => {
   res.json({
@@ -72,6 +73,13 @@ router.get('/gapi/revoke', (req, res) => {
     return res.json({
       message: 'Tokens revoked.'
     });
+  });
+});
+
+router.get('/cron', (req, res) => {
+  cron();
+  return res.json({
+    message: 'Cron job started'
   });
 });
 
