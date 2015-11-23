@@ -154,9 +154,7 @@ gulp.task('fonts', () => {
 gulp.task('js', () => {
   return gulp.src(['app/**/*.{js,html}'])
     .pipe($.if('*.html', $.crisper())) // Extract JS from .html files
-    .pipe($.if('*.js', $.babel({
-      presets: ['es2015']
-    })))
+    .pipe($.if('*.js', $.babel({})))
     .pipe(gulp.dest('.tmp/'))
     .pipe(gulp.dest(dist()));
 });

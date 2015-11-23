@@ -57,5 +57,8 @@
     "transform": [
       "page"
     ]
+  },
+  "babel": {
+    "presets": ["es2015"]
   }
 }
