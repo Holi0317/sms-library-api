@@ -9,6 +9,12 @@ let schema = {
     googleId: String,
     libraryLogin: String,
     libraryPassword: String,
+    renewDate: {
+      type: Number,
+      max: 13,
+      min: 2,
+      default: 3
+    },
     renewEnabled: {
       type: Boolean,
       default: false

@@ -24,7 +24,7 @@ function requireLogin(req, res, next) {
 router.get('/login', (req, res) => {
   if (req.session.tokens) {
     // Logined. Don't waste resources on these request = =
-    return res.redirect('../../ui');
+    return res.redirect('../../');
   }
   // Step1, get authorize url
   let oauth2client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
@@ -39,7 +39,7 @@ router.get('/oauth2callback', (req, res) => {
   // OAUTH2 callback
   if (!req.query.code) {
     // Error occured. No code is responsed.
-    return res.redirect('../../ui?oauth=fail');
+    return res.redirect('../../?oauth=fail');
   }
 
   // Function is not passed through session. So......
@@ -72,10 +72,10 @@ router.get('/oauth2callback', (req, res) => {
     })
   })
   .then(function goToMain() {
-    return res.redirect('../../ui?oauth=success');
+    return res.redirect('../../?oauth=success');
   })
   .catch(err => {
-    res.redirect('../../ui?oauth=fail');
+    res.redirect('../../?oauth=fail');
     throw err;
   })
 });
@@ -99,12 +99,14 @@ router.route('/user')
       name: req.session.name,
       renewEnabled: result.renewEnabled,
       libraryLogin: result.libraryLogin || null,
+      renewDate: result.renewDate || null,
       logs: result.logs
     });
   })
   .catch(() => {
     return res.status(500).json({
-      message: 'Server error.'
+      message: 'Server error.',
+      ok: false
     });
   });
 })
@@ -115,17 +117,25 @@ router.route('/user')
   if (!req.is('json')) {
     // Only accept JSON request
     return res.status(406).json({
-      message: 'Only accept application/json body request'
+      message: 'Only accept application/json body request',
+      ok: false
     });
   }
 
   // Serialize
   let body = {
-      libraryLogin: (req.body.renewEnabled) ? req.body.libraryLogin: '',
-      libraryPassword: (req.body.renewEnabled) ? req.body.libraryPassword: '',
-      renewEnabled: req.body.renewEnabled
+    libraryLogin: (req.body.renewEnabled) ? req.body.libraryLogin: '',
+    libraryPassword: (req.body.renewEnabled) ? req.body.libraryPassword: '',
+    renewEnabled: req.body.renewEnabled,
+    renewDate: (req.body.renewDate) ? req.body.renewDate: 2
   };
 
+  if (body.renewDate >= 2 && body.renewDate < 14) {
+    return res.status(401).json({
+      message: 'Renew date must be an interger between 2 and 13, including both.',
+      ok: false
+    })
+  }
 
   // Check if library login id and password is correct.
   if (body.renewEnabled) {
@@ -133,13 +143,12 @@ router.route('/user')
     return userLibrary.login(body.libraryLogin, body.libraryPassword)
     .catch(() => {
       return res.status(401).json({
-        message: 'Authorization for library system failed. Is your password or Id correct?'
+        message: 'Authorization for library system failed. Is your password or Id correct?',
+        ok: false
       });
     })
     .done();
   }
-
-  // TODO try if library login is correct.
 
   models.user.findOne({
     googleId: req.session.googleId
@@ -153,12 +162,14 @@ router.route('/user')
   })
   .then(() => {
     return res.json({
-      message: 'Successfuly updated data.'
+      message: 'Successfuly updated data.',
+      ok: true
     });
   })
   .catch(err => {
     res.status(500).json({
-      message: 'Server error.'
+      message: 'Server error.',
+      ok: false
     });
     throw err;
   });
@@ -181,19 +192,29 @@ router.route('/user')
   })
   .then(session.destroyAsync())
   .then(function response() {
-    return res.json({message: 'Delection succeed.'});
+    return res.json({
+      message: 'Delection succeed.',
+      ok: true
+    });
   })
   .catch((err) => {
-    res.status(500).json({message: 'Delection failed.'});
+    res.status(500).json({
+      message: 'Delection failed. Server error occured.',
+      ok: false
+    });
     throw err;
   });
 });
 
 router.get('/logout', (req, res) => {
   req.session.destroy(err => {
-    if (err) return res.status(500).json({message: 'Server error.'});
+    if (err) return res.status(500).json({
+      message: 'Server error.',
+      ok: false
+    });
     return res.json({
-      message: 'Logout succeed.'
+      message: 'Logout succeed.',
+      ok: true
     });
   });
 });
