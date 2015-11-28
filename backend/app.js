@@ -8,7 +8,7 @@ let session = require('express-session');
 let MongoStore = require('connect-mongo')(session);
 
 let routes = require('./routes/index');
-let config = require('./config');
+let config = require('../config');
 
 let app = express();
 

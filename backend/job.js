@@ -5,7 +5,7 @@ let google = require('googleapis');
 let Promise = require('bluebird');
 let LibraryApi = require('./api');
 let models = require('./models');
-let config = require('./config');
+let config = require('../config');
 
 // One day, in milisecond
 const aDay = 8.64e+7;

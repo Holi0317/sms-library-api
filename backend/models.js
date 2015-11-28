@@ -1,7 +1,7 @@
 'use strict';
 
 let mongoose = require('mongoose');
-let conn = require('./config').conn;
+let conn = require('../config').conn;
 
 let schema = {
   user: new mongoose.Schema({
