@@ -4,6 +4,9 @@
     "es6": true,
     "browser": true
   },
+  "ecmaFeatures": {
+    "modules": true
+  },
   "extends": "eslint:recommended",
   "rules": {
     "quotes": [2, "single"],
@@ -11,8 +14,7 @@
   },
   "globals": {
     "Polymer": true,
-    "app": true,
-    "page": true
+    "app": true
   },
   "plugins": [
     "html"

@@ -12,10 +12,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 // Include Gulp & Tools We'll Use
 let gulp = require('gulp');
 let $ = require('gulp-load-plugins')();
+let browserify = require('browserify');
+let source = require('vinyl-source-stream');
 let del = require('del');
 let runSequence = require('run-sequence');
 let browserSync = require('browser-sync');
-let reload = browserSync.reload;
 let merge = require('merge-stream');
 let path = require('path');
 let fs = require('fs');
@@ -24,6 +25,8 @@ let historyApiFallback = require('connect-history-api-fallback');
 let packageJson = require('./package.json');
 let crypto = require('crypto');
 // let ghPages = require('gulp-gh-pages');
+
+let reload = browserSync.reload;
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -119,23 +122,24 @@ gulp.task('copy', () => {
     'bower_components/**/*'
   ]).pipe(gulp.dest(dist('bower_components')));
 
-  var elements = gulp.src(['app/elements/**/*.html',
+  var elements = gulp.src([
+      'app/elements/**/*.html',
       'app/elements/**/*.css',
       'app/elements/**/*.js'
     ])
     .pipe(gulp.dest(dist('elements')));
 
-  var swBootstrap = gulp.src(['bower_components/platinum-sw/bootstrap/*.js'])
-    .pipe(gulp.dest(dist('elements/bootstrap')));
-
-  var swToolbox = gulp.src(['bower_components/sw-toolbox/*.js'])
-    .pipe(gulp.dest(dist('sw-toolbox')));
+  // var swBootstrap = gulp.src(['bower_components/platinum-sw/bootstrap/*.js'])
+  //   .pipe(gulp.dest(dist('elements/bootstrap')));
+  //
+  // var swToolbox = gulp.src(['bower_components/sw-toolbox/*.js'])
+  //   .pipe(gulp.dest(dist('sw-toolbox')));
 
   var vulcanized = gulp.src(['app/elements/elements.html'])
     .pipe($.rename('elements.vulcanized.html'))
     .pipe(gulp.dest(dist('elements')));
 
-  return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox)
+  return merge(app, bower, elements, vulcanized)
     .pipe($.size({
       title: 'copy'
     }));
@@ -152,9 +156,19 @@ gulp.task('fonts', () => {
 
 // Transpile all JS to ES5.
 gulp.task('js', () => {
-  return gulp.src(['app/**/*.{js,html}'])
-    .pipe($.if('*.html', $.crisper())) // Extract JS from .html files
-    .pipe($.if('*.js', $.babel({})))
+  return gulp.src(['app/**/*.js', '!app/**/*-b.js'])
+    .pipe($.babel())
+    .pipe(gulp.dest('.tmp/'))
+    .pipe(gulp.dest(dist()));
+  });
+
+gulp.task('js:browserify', () => {
+  let files = glob.sync('app/**/*-b.js')
+
+  return browserify(files)
+    .transform('babelify')
+    .bundle()
+    .pipe(source('scripts/bundle.js'))
     .pipe(gulp.dest('.tmp/'))
     .pipe(gulp.dest(dist()));
 });
@@ -221,7 +235,7 @@ gulp.task('clean', () => {
 });
 
 // Watch Files For Changes & Reload
-gulp.task('serve', ['styles', 'elements', 'images', 'js'], () => {
+gulp.task('serve', ['styles', 'elements', 'images', 'js', 'js:browserify'], () => {
   browserSync({
     port: 5000,
     notify: false,
@@ -250,7 +264,7 @@ gulp.task('serve', ['styles', 'elements', 'images', 'js'], () => {
   gulp.watch(['app/**/*.html'], ['js', reload]);
   gulp.watch(['app/styles/**/*.css'], ['styles', reload]);
   gulp.watch(['app/elements/**/*.css'], ['elements', reload]);
-  gulp.watch(['app/{scripts,elements}/**/*.js'], ['js']);
+  gulp.watch(['app/{scripts,elements}/**/*.js'], ['js', 'js:browserify']);
   gulp.watch(['app/images/**/*'], reload);
 });
 
@@ -281,7 +295,8 @@ gulp.task('serve:dist', ['default'], () => {
 gulp.task('default', ['clean'], cb => {
   runSequence(
     ['copy', 'styles'],
-    ['elements', 'js'],
+    ['js', 'js:browserify'],
+    'elements',
     ['images', 'fonts', 'html'],
     'vulcanize',
     cb);
