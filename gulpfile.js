@@ -163,14 +163,30 @@ gulp.task('js', () => {
   });
 
 gulp.task('js:browserify', () => {
-  let files = glob.sync('app/**/*-b.js')
+  let scriptFiles = glob.sync('app/scripts/**/*-b.js');
+  let elementFiles = glob.sync('app/elements/**/*-b.js');
 
-  return browserify(files)
+  let bScript = browserify(scriptFiles)
     .transform('babelify')
     .bundle()
     .pipe(source('scripts/bundle.js'))
     .pipe(gulp.dest('.tmp/'))
     .pipe(gulp.dest(dist()));
+
+  let merged = merge(bScript)
+
+  for (let file of elementFiles) {
+    merged.add(
+      browserify(file)
+        .transform('babelify')
+        .bundle()
+        .pipe(source(file))
+        .pipe(gulp.dest('.tmp/'))
+        .pipe(gulp.dest(dist()))
+    );
+  }
+
+  return merged
 });
 
 // Scan your HTML for assets & optimize them
