@@ -1,0 +1,45 @@
+extends _base
+block var
+  - var title = 'SMS library helper'
+block content
+  .container
+    .alert.alert-success.alert-dismissible#req-success(role='alert')
+      button.close(type='button', data-dismiss='alert', aria-label='close')
+        span(aria-hidden='true') &times;
+      span
+    .alert.alert-danger.alert-dismissible#req-fail(role='alert')
+      button.close(type='button', data-dismiss='alert', aria-label='close')
+        span(aria-hidden='true') &times;
+      span
+    
+  .container
+    form.form-horizontal(data-async, action="user", method="POST")
+      fieldset
+        legend Informations update
+
+        .form-group
+          .col-md-offset-2.col-md-10
+            .togglebutton
+              label
+                input(type='checkbox', name='renewEnabled', checked=renewEnabled)
+                | Enable auto renew
+        
+        .form-group
+          label.col-md-2.control-label Library login
+          .col-md-10
+            input.form-control(type='text', name='libraryLogin', placeholder='Library login', value=libraryLogin)
+              
+        .form-group
+          label.col-md-2.control-label Library password
+          .col-md-10
+            input.form-control(type='password', name='libraryPassword', placeholder='Library password')
+        
+        .form-group
+          label.col-md-2.control-label Renew at
+          .col-md-10
+            input.form-control(type='number', name='renewDate', placeholder='... before due date', value=renewDate)
+            p.help-block Before due date. Must between 2 and 13
+        
+        .form-group
+          .col-md-10.col-md-offset-2
+            button.btn.btn-primary.btn-raised(type='submit') Submit

@@ -7,14 +7,11 @@ let router = express.Router();
 let google = require('googleapis');
 let Promise = require('bluebird');
 let models = require('../models');
-let config = require('../config');
+let config = require('../../config');
 let cron = require('../job');
 
 router.get('/', (req, res) => {
-  res.json({
-    message: 'Development mode is enabled',
-    enabled: true
-  });
+  res.render('develop');
 });
 
 router.get('/session', (req, res) => {

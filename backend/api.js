@@ -54,7 +54,7 @@ class Parser {
         self.language = 'english';
         break;
       default:
-        throw new Error('Login failed');
+        throw new Error('Cannot login library system. Is id and password correct?');
     }
 
     // Request for user record

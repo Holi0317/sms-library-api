@@ -14,16 +14,12 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "public/bower_components",
     "test",
     "tests"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.1.0",
-    "iron-elements": "PolymerElements/iron-elements#^1.0.0",
-    "paper-elements": "PolymerElements/paper-elements#^1.0.1",
-    "platinum-elements": "PolymerElements/platinum-elements#^1.1.0",
-    "neon-elements": "PolymerElements/neon-elements#^1.0.0"
-  },
-  "devDependencies": {}
+    "bootstrap-sass": "~3.3.6",
+    "bootstrap-material-design": "~0.5.7",
+    "font-awesome": "~4.5.0"
+  }
 }

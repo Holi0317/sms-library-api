@@ -3,6 +3,8 @@
 let mongoose = require('mongoose');
 let conn = require('../config').conn;
 
+mongoose.Promise = require('bluebird');
+
 let schema = {
   user: new mongoose.Schema({
     tokens: mongoose.Schema.Types.Mixed,

@@ -14,7 +14,7 @@ module.exports = {
   clientSecret: 'Client secret got from console.developer.google.com',
   // oauth2callback url. Should be <host>/api/oauth2callback
   // Remember to config this on developer console
-  redirectUrl: 'http://localhost:3000/api/oauth2callback',
+  redirectUrl: 'http://localhost:3000/oauth2callback',
 
   // Calendar name for Google calendar
   calendarName: 'slh autorenew'

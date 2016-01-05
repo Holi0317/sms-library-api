@@ -39,7 +39,7 @@ class UserFunctions {
     this.calendarID = null;
   }
 
-  refreshToken(){
+  refreshToken()  {
     // Refresh user's google token and write into database.
     return this.oauth2client.refreshAccessTokenAsync()
     .catch(err => {
@@ -52,7 +52,7 @@ class UserFunctions {
     })
   }
 
-  renewBooks(){
+  renewBooks() {
     // Renew book in library system.
     // If user.renewEnabled is false, this will return an empty promise.
     // Return Promise
@@ -81,7 +81,7 @@ class UserFunctions {
 
   }
 
-  _getCalendar(){
+  _getCalendar() {
     // Get a calendar with name equals to config.calendarName. Create new calendar if needed
     // Write calendar id into this.calendarID
     // Return Promise
@@ -111,7 +111,7 @@ class UserFunctions {
     })
   }
 
-  _createCalendar(){
+  _createCalendar() {
     // Create calendar and write it into CalendarList (On google's server)
     // Calnedar title (summary) will be config.calendarName
     // Write calendar id into this.calendarID
@@ -135,7 +135,7 @@ class UserFunctions {
     })
   }
 
-  refreshCalendar(){
+  refreshCalendar() {
     // Refresh user's google calendar
     // If user.renewEnabled is false, this will return an empty promise.
     // Return Promise
@@ -144,7 +144,7 @@ class UserFunctions {
     }
 
     return this._getCalendar()
-    .then(this.library.reload)
+    .then(this.library.reload.bind(this))
     .then(() => {
       // List events in calendar
       return calendar.events.list({
@@ -208,7 +208,11 @@ class UserFunctions {
 }
 
 class UserFunctionsHandler {
-  refreshToken(users){
+  constructor() {
+    this.users = [];
+  }
+
+  refreshToken(users) {
     // Add users to this.users and refresh their google tokens
     // Return: Promise for the above actoion
     this.users = [];
@@ -223,7 +227,7 @@ class UserFunctionsHandler {
     return Promise.all(promises);
   }
 
-  renewBooks(){
+  renewBooks() {
     let promises = [];
 
     this.users.forEach(user => {
@@ -233,7 +237,7 @@ class UserFunctionsHandler {
     return Promise.all(promises)
   }
 
-  refreshCalendar(){
+  refreshCalendar() {
     let promises = [];
 
     this.users.forEach(user => {
@@ -246,12 +250,12 @@ class UserFunctionsHandler {
 
 function execute() {
   console.log('Started cron job.');
-  let handler = UserFunctionsHandler();
+  let handler = new UserFunctionsHandler();
 
   models.user.find()
-  .then(handler.refreshToken)
-  .then(handler.renewBooks)
-  .then(handler.refreshCalendar)
+  .then(handler.refreshToken.bind(handler))
+  .then(handler.renewBooks.bind(handler))
+  .then(handler.refreshCalendar.bind(handler))
   .then(() => {
     console.log('Cron job ended');
   })
@@ -269,3 +273,5 @@ new Cron({
 });
 
 module.exports = execute;
+module.exports._UserFunctions = UserFunctions;
+module.exports._UserFunctionsHandler = UserFunctionsHandler;
