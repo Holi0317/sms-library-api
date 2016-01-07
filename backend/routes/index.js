@@ -7,6 +7,7 @@ let assert = require('assert');
 let config = require('../../config');
 let libApi = require('../api');
 let models = require('../models');
+let utils = require('../utils');
 let router = express.Router();
 
 Promise.promisifyAll(google.auth.OAuth2.prototype);
@@ -36,13 +37,22 @@ function getUserProfile(googleId) {
   });
 }
 
-function BreakSignal() {}
+router.use((req, res, next) => {
+  res.locals.session = req.session;
+  req.logined = Boolean(req.session.tokens);
+  res.locals.name = req.session.name;
+  res.locals.logined = req.logined;
+  next();
+});
 
 router.get('/', function(req, res) {
-  if (req.session.tokens) {
+  if (req.logined) {
     getUserProfile(req.session.googleId)
     .then(result => {
-      return res.render('user', result);
+      result.logs.sort((a, b) => {
+        return b.time - a.time;
+      });
+      return res.render('user', {user: result});
     })
     .catch(() => {
       return res.status(500).render('error');
@@ -53,8 +63,7 @@ router.get('/', function(req, res) {
 });
 
 router.get('/login', (req, res) => {
-  if (req.session.tokens) {
-    // Logined. Don't waste resources on these request = =
+  if (req.logined) {
     return res.redirect('../');
   }
   // Step1, get authorize url
@@ -93,8 +102,8 @@ router.get('/oauth2callback', (req, res) => {
     return models.user.findOneAndUpdate({
       googleId: req.session.googleId
     }, {
-      tokens: req.session.tokens,
       $setOnInsert: {
+        tokens: req.session.tokens,
         googleId: req.session.googleId
       }
     }, {
@@ -133,7 +142,8 @@ router.route('/user')
     libraryLogin: (req.body.renewEnabled) ? req.body.libraryLogin: '',
     libraryPassword: (req.body.renewEnabled) ? req.body.libraryPassword: '',
     renewEnabled: req.body.renewEnabled,
-    renewDate: (req.body.renewDate) ? req.body.renewDate: 2
+    renewDate: (req.body.renewDate) ? req.body.renewDate: 2,
+    calendarName: (req.body.calendarName) ? req.body.calendarName: ''
   };
 
   function errorHandle(err) {
@@ -141,13 +151,14 @@ router.route('/user')
       ok: false,
       message: err.message
     });
-    throw(new BreakSignal());
+    throw(new utils.BreakSignal());
   }
 
   new Promise(resolve => {
     // assertions for data checking
     assert(typeof body.renewEnabled === 'boolean', 'Renew enabled must be a boolean');
     assert(typeof body.renewDate === 'number', 'Renew date must be an integer');
+    assert(typeof body.calendarName === 'string', 'Calendar name must be a string');
     assert(body.renewDate >= 2 && body.renewDate < 14, 'Renew date must be an interger between 2 and 13, including both.');
 
     if (body.renewEnabled) {
@@ -159,7 +170,6 @@ router.route('/user')
     }
     resolve();
   })
-  .catch(errorHandle)
   .then(() => {
     if (body.renewEnabled) {
       let userLibrary = new libApi();
@@ -175,10 +185,13 @@ router.route('/user')
     })
   })
   .then(result => {
-    result.libraryLogin = body.libraryLogin || '';
-    result.libraryPassword = body.libraryPassword || '';
-    result.renewEnabled = body.renewEnabled || false;
-    result.renewDate = body.renewDate || 2;
+    result.libraryLogin = body.libraryLogin || undefined;
+    result.libraryPassword = body.libraryPassword || undefined;
+    result.renewEnabled = body.renewEnabled;
+    result.renewDate = body.renewDate || undefined;
+    result.calendarName = body.calendarName || undefined;
+
+    result.logs.push(new models.Log('Changed user profile.'));
 
     return result.save()
   })
@@ -189,7 +202,7 @@ router.route('/user')
     });
   })
   .catch(err => {
-    if (err instanceof BreakSignal) {
+    if (err instanceof utils.BreakSignal) {
       // Break because of other factor than server error.
     } else {
       res.status(500).json({
@@ -205,24 +218,33 @@ router.route('/user')
   // Remove user
   let oauth2client = oauth2clientFactory();
   oauth2client.setCredentials(req.session.tokens);
-
-  let session = Promise.promisifyAll(req.session);
+  let googleId = req.session.googleId;
 
   oauth2client.revokeCredentialsAsync()
-  .then(function createDropQuery() {
+  .then(() => {
+    // Create drop db query
     return models.user.findOne({
-      googleId: session.googleId
+      googleId: googleId
     })
     .remove();
   })
-  .then(session.destroyAsync())
+  .then(new Promise(function(resolve, reject) {
+    // Express session cannot be promisify-ed by Bluebird. Donno why(Just me being lazy)
+    // Quick and dirty promise wrapper for req.session.regenerate
+    req.session.regenerate(err => {
+      if (err) reject(err)
+      else resolve();
+    });
+  }))
   .then(function response() {
+    req.session.flash = 'Your account has been delected.';
     return res.json({
       message: 'Delection succeed.',
       ok: true
     });
   })
   .catch((err) => {
+    req.session.flash = 'Cannot delete your account due to server issue.';
     res.status(500).json({
       message: 'Delection failed. Server error occured.',
       ok: false
@@ -232,15 +254,10 @@ router.route('/user')
 });
 
 router.get('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) return res.status(500).json({
-      message: 'Server error.',
-      ok: false
-    });
-    return res.json({
-      message: 'Logout succeed.',
-      ok: true
-    });
+  req.session.regenerate(err => {
+    if (err) return res.status(500).render('error');
+    req.session.flash = 'Logout succeed. Hope to see you in the future.';
+    return res.redirect('/');
   });
 });
 

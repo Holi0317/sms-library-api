@@ -13,33 +13,114 @@ block content
       span
     
   .container
-    form.form-horizontal(data-async, action="user", method="POST")
-      fieldset
-        legend Informations update
+    .jumbotron
+      form.form-horizontal(data-async, action="user", method="POST")
+        fieldset
+          legend Informations update
 
-        .form-group
-          .col-md-offset-2.col-md-10
-            .togglebutton
-              label
-                input(type='checkbox', name='renewEnabled', checked=renewEnabled)
-                | Enable auto renew
-        
-        .form-group
-          label.col-md-2.control-label Library login
-          .col-md-10
-            input.form-control(type='text', name='libraryLogin', placeholder='Library login', value=libraryLogin)
+          .form-group
+            .col-md-offset-2.col-md-10
+              .togglebutton
+                label
+                  input(type='checkbox', name='renewEnabled', checked=user.renewEnabled)
+                  | Enable auto renew
+          
+          .form-group
+            label.col-md-2.control-label Library login
+            .col-md-10
+              input.form-control(type='text', name='libraryLogin', placeholder='Library login', value=user.libraryLogin)
+                
+          .form-group
+            label.col-md-2.control-label Library password
+            .col-md-10
+              input.form-control(type='password', name='libraryPassword', placeholder='Library password')
+          
+          .form-group
+            label.col-md-2.control-label Renew at
+            .col-md-10
+              input.form-control(type='number', name='renewDate', placeholder='... before due date', value=user.renewDate)
+              p.help-block Before due date. Must between 2 and 13
               
-        .form-group
-          label.col-md-2.control-label Library password
-          .col-md-10
-            input.form-control(type='password', name='libraryPassword', placeholder='Library password')
-        
-        .form-group
-          label.col-md-2.control-label Renew at
-          .col-md-10
-            input.form-control(type='number', name='renewDate', placeholder='... before due date', value=renewDate)
-            p.help-block Before due date. Must between 2 and 13
-        
-        .form-group
-          .col-md-10.col-md-offset-2
-            button.btn.btn-primary.btn-raised(type='submit') Submit
+          .form-group
+            label.col-md-2.control-label Google calendar name
+            .col-md-10
+              input.form-control(type='text', name='calendarName', placeholder='Google calendar name', value=user.calendarName)
+          
+          .form-group
+            .col-md-10.col-md-offset-2
+              button.btn.btn-primary.btn-raised(type='submit') Submit
+            
+  .container
+    .jumbotron
+      h3 Logs
+      if user.logs.length > 0
+        -
+          var enumLogLevel = {
+            DEBUG: 'debug',
+            INFO: 'info',
+            WARN: 'warning',
+            ERROR: 'danger',
+            FATAL: 'danger',
+            SUCCESS: 'success'}
+        .table-responsive
+          table.table.table-hover.logs-table
+            thead
+              th #
+              th Message
+              th Time
+            tbody
+              for log, i in user.logs
+                tr(class=enumLogLevel[log.level])
+                  td= i + 1
+                  td.dynamic-dialog-entry(data-message=log.message, data-level=log.level, data-time=log.time.valueOf()): a= log.message
+                  td.moment.moment-relative(data-time=log.time.valueOf())
+      else
+        //- No log
+        .alert.alert-info(role='alert')
+          p.text-center There is no log yet :(
+  
+  .container
+    .panel.panel-danger
+      .panel-heading
+        h3.panel-title Delete Account
+      .panel-body
+        p Once your account is deleted, there is no way to recover it.
+        p: del You may ask NSA for recover process.
+        button.btn.btn-danger(type='button', data-toggle='modal', data-target='#dialog-delete') Delete my account
+          
+  #dynamic-dialog.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+          h4.modal-title(replace-message)
+        .modal-body
+          .table-responsive
+            table.table.table-hover
+              tbody
+                tr
+                  td Date
+                  td(replace-time)
+                tr
+                  td Message
+                  td(replace-message)
+                tr
+                  td Log level
+                  td(replace-level)
+        .modal-footer
+          button.btn.btn-primary(type='button', data-dismiss='modal') Dismiss
+
+  #dialog-delete.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+          h4.modal-title Are you sure?
+        .modal-body
+          p This question is rather challenging.
+          p Think carefully.
+          p I give you 3 minutes to do so.
+          
+        .modal-footer
+          button.btn.btn-primary(type='button', data-dismiss='modal') Don't delete my account
+          button.btn.btn-danger#delete-account(type='button', data-dismiss='modal') Fu*k that. Delete it.

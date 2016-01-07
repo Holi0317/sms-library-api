@@ -16,9 +16,31 @@ html
         p Development mode is enabled.
         p Disenable this by setting NODE_ENV to production.
         
-      p: a(href='sessoion') Get session information
-      p: a(href='session/destroy') Destroy session
-      p: a(href='db/users') List db.users
-      p: a(href='db/users/drop') Drop db.users
-      p: a(href='gapi/revoke') Revoke Google Oauth2 grant
-      p: a(href='cron') Invoke cron job
+      h1 Session functions
+      ul
+        li: a(href='session') Get session information
+        li: a(href='session/destroy') Destroy session
+        li: a(href='session/flash') Make a flash
+      
+      h1 Database functions
+      ul
+        li: a(href='db/users') List db.users
+        li: a(href='db/users/drop') Drop db.users
+      
+      h1 Google api functions
+      ul
+        li: a(href='gapi/revoke') Revoke Google Oauth2 grant
+      
+      h1 Cron job functions
+      ul
+        li: a(href='cron') Invoke cron job
+        
+      h1 Render template....
+      ul
+        li: a(href='/render/_base') _base.jade
+        li: a(href='/render/_navbar') _navbar.jade
+        li: a(href='/render/auth_fail') auth_fail.jade
+        li: a(href='/render/error') error.jade
+        li: a(href='/render/index') index.jade
+        li: a(href='/render/index') index.jade
+        li: a(href='/render/user') user.jade

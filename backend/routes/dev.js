@@ -5,7 +5,6 @@ let express = require('express');
 let router = express.Router();
 
 let google = require('googleapis');
-let Promise = require('bluebird');
 let models = require('../models');
 let config = require('../../config');
 let cron = require('../job');
@@ -19,14 +18,26 @@ router.get('/session', (req, res) => {
 });
 
 router.get('/session/destroy', (req, res) => {
-  let session = Promise.promisifyAll(req.session);
-  session.destroyAsync()
-  .then(() => res.json({message: 'success'}))
-  .catch(err => {
-    res.status(500).json({
-      message: 'Error when destroying session'
-    });
-    throw err;
+  req.session.destroy(err => {
+    if (err) {
+      res.status(500).json({
+        message: 'Error when destroying session.',
+        ok: false
+      });
+      throw err;
+    }
+    res.json({
+      message: 'success',
+      ok: true
+    })
+  })
+});
+
+router.get('/session/flash', (req, res) => {
+  req.session.flash = 'Allo Allo! This is a flash message';
+  return res.json({
+    message: 'Done',
+    ok: true
   });
 });
 
@@ -79,5 +90,9 @@ router.get('/cron', (req, res) => {
     message: 'Cron job started'
   });
 });
+
+router.get('/render/:template', (req, res) => {
+  return res.render(req.params.template, {basePath: '../../'});
+})
 
 module.exports = router;

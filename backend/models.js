@@ -21,15 +21,33 @@ let schema = {
       type: Boolean,
       default: false
     },
+    calendarName: {
+      type: String,
+      default: 'slh autorenew'
+    },
     logs: [{
       time: Date,
-      action: String
+      message: String,
+      level: {
+        type: String,
+        enum: 'DEBUG INFO WARN ERROR FATAL SUCCESS'.split(' ')
+      }
     }]
   })
 };
 
+// function Log(message, level='INFO') {  TODO Enable this when node.js supports default parameters
+function Log(message, level) {
+  // Class for log object in database, with some helper function.
+  level = typeof level !== 'undefined' ?  level : 'INFO';
+  this.time = new Date();
+  this.message = message;
+  this.level = level;
+}
+
 module.exports = {
   user: conn.model('User', schema.user),
 
-  _schema: schema
+  _schema: schema,
+  Log: Log
 };

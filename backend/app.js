@@ -6,6 +6,7 @@ let bodyParser = require('body-parser');
 let helmet = require('helmet');
 let session = require('express-session');
 let MongoStore = require('connect-mongo')(session);
+let Cron = require('cron').CronJob;
 
 let routes = require('./routes/index');
 let config = require('../config');
@@ -15,19 +16,21 @@ let app = express();
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(helmet());
+// Render engine
+app.set('views', './views');
+app.set('view engine', 'jade');
+
+
 
 switch (app.get('env')) {
   case 'development':
     app.use(express.static('.tmp'));
     app.use(express.static('app'));
+    app.set('json spaces', 4);
     break;
   case 'production':
     app.use(express.static('static'));
 }
-
-// Render engine
-app.set('views', './views');
-app.set('view engine', 'jade');
 
 // Session
 let sess = {
@@ -46,10 +49,10 @@ if (app.get('env') === 'production') {
 }
 app.use(session(sess));
 
+// Routes
 app.use('/', routes);
 if (app.get('env') === 'development') {
   app.use('/dev', require('./routes/dev'));
-  app.set('json spaces', 4);
 }
 app.get('*', function(req, res){
   res.status(404).render('error', {code: 404, message: 'Page not found'});
@@ -85,6 +88,13 @@ app.use(function(err, req, res) {
     message: err.message,
     error: {}
   });
+});
+
+new Cron({
+  cronTime: '00 00 00 * * *',
+  onTick: require('./job'),
+  start: true,
+  timeZone: 'UTC'
 });
 
 

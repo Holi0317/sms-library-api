@@ -26,3 +26,23 @@ body {
 #req-success, #req-fail {
   display: none;
 }
+
+.logs-table {
+  table-layout:fixed;
+  a {
+    cursor: pointer;
+  }
+  td {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  th {
+    &:first-child {
+      width: 10%;
+    }
+    &:last-child {
+      width: 20%;
+    }
+  }
+}

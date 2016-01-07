@@ -5,8 +5,12 @@
         span.icon-bar
         span.icon-bar
         span.icon-bar
-      a.navbar-brand Library helper
+      a.navbar-brand(href='/') Home
     .navbar-collapse.collapse.navbar-responsive-collapse
-      ul.nav.navbar-nav
-        li: a(href='/') Home
-        li: a(href='login') Login
+      if logined
+        p.navbar-text.navbar-right
+          | Hello, #{name} &nbsp;&nbsp;&nbsp;
+          a.navbar-link(href='logout') Logout
+      else
+        p.navbar-text.navbar-right
+          a.navbar-link(href='login') Login

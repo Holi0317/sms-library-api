@@ -1,12 +1,16 @@
 'use strict';
 
 let $ = require('jquery');
+let moment = require('moment');
 global.jQuery = $;
 
 require('bootstrap-material-design');
 
 // Example bootstrap plugin.
 require('bootstrap-sass/assets/javascripts/bootstrap/alert');
+require('bootstrap-sass/assets/javascripts/bootstrap/collapse');
+require('bootstrap-sass/assets/javascripts/bootstrap/modal');
+require('bootstrap-sass/assets/javascripts/bootstrap/transition');
 
 let formLock = false;
 
@@ -52,7 +56,7 @@ $(() => {
     $.ajax({
       type: form.attr('method'),
       url: form.attr('action'),
-      contentType:'application/json; charset=utf-8',
+      contentType: 'application/json; charset=utf-8',
       data: JSON.stringify(data),
       dataType: 'json',
       success: res => {
@@ -67,5 +71,40 @@ $(() => {
       }
     });
 
+  });
+
+  $('.moment.moment-relative').each(function () {
+    let element = $(this);
+    let time = element.attr('data-time');
+    let deltaString = moment(time, 'x').fromNow();
+    element.text(deltaString);
+  });
+
+  $('.dynamic-dialog-entry').on('click', function (event) {
+    event.preventDefault();
+    let element = $(this);
+    let message = element.attr('data-message');
+    let level = element.attr('data-level');
+    let time = moment(element.attr('data-time'), 'x').format('LLLL');
+
+    $('#dynamic-dialog [replace-time]').text(time);
+    $('#dynamic-dialog [replace-message]').text(message);
+    $('#dynamic-dialog [replace-level]').text(level);
+
+    $('#dynamic-dialog').modal('show');
+  });
+
+  $('#delete-account').on('click', () => {
+    $.ajax({
+      type: 'DELETE',
+      url: 'user',
+      contentType: 'application/json; charset=utf-8',
+      success: () => {
+        window.location.reload();
+      },
+      error: () => {
+        window.location.reload();
+      }
+    })
   });
 });
