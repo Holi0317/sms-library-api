@@ -261,4 +261,8 @@ router.get('/logout', (req, res) => {
   });
 });
 
+router.get('/418', (req, res) => {
+  return res.status(418).render('418');
+});
+
 module.exports = router;
