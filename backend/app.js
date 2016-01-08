@@ -7,6 +7,7 @@ let helmet = require('helmet');
 let session = require('express-session');
 let MongoStore = require('connect-mongo')(session);
 let Cron = require('cron').CronJob;
+let path = require('path');
 
 let routes = require('./routes/index');
 let config = require('../config');
@@ -19,8 +20,6 @@ app.use(helmet());
 // Render engine
 app.set('views', './views');
 app.set('view engine', 'jade');
-
-
 
 switch (app.get('env')) {
   case 'development':
@@ -49,12 +48,23 @@ if (app.get('env') === 'production') {
 }
 app.use(session(sess));
 
+// Inject flask-like urlFor function
+app.locals.urlFor = (route, _sub) => {
+  let sub = typeof _sub !== 'undefined' ?  _sub : '/';
+
+  if (route === 'index' || route === 'static') {
+    route = app.mountpath;
+  }
+
+  return path.join(route, sub);
+};
+
 // Routes
 app.use('/', routes);
 if (app.get('env') === 'development') {
   app.use('/dev', require('./routes/dev'));
 }
-app.get('*', function(req, res){
+app.get('*', function(req, res) {
   res.status(404).render('error', {code: 404, message: 'Page not found'});
 });
 
