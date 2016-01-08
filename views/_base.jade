@@ -20,7 +20,7 @@ html
     
     if session.flash
       .container
-        .alert.alert-info(role='alert')
+        .alert.alert-info.fade.in(role='alert')
           button.close(type='button', data-dismiss='alert', aria-label='close')
             span(aria-hidden='true') &times;
           p=session.flash
