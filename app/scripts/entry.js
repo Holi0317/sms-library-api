@@ -105,6 +105,10 @@ $(() => {
       error: () => {
         window.location.reload();
       }
-    })
+    });
+  });
+
+  $('#toggle-debug').on('click', () => {
+    $('.debug').toggleClass('hidden');
   });
 });

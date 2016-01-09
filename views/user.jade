@@ -53,10 +53,14 @@ block content
   .container
     .jumbotron
       h3 Logs
+      .togglebutton
+        label
+          input#toggle-debug(type='checkbox')
+          | Show debug message
       if user.logs.length > 0
         -
           var enumLogLevel = {
-            DEBUG: 'debug',
+            DEBUG: 'debug hidden',
             INFO: 'info',
             WARN: 'warning',
             ERROR: 'danger',
@@ -74,6 +78,7 @@ block content
                   td= i + 1
                   td.dynamic-dialog-entry(data-message=log.message, data-level=log.level, data-time=log.time.valueOf()): a= log.message
                   td.moment.moment-relative(data-time=log.time.valueOf())
+
       else
         //- No log
         .alert.alert-info(role='alert')
