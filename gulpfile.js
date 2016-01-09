@@ -4,10 +4,12 @@ let gulp = require('gulp');
 let $ = require('gulp-load-plugins')();
 let del = require('del');
 let browserify = require('browserify');
+let browserSync = require('browser-sync').create();
 let source = require('vinyl-source-stream');
 let buffer = require('vinyl-buffer');
 
 const DIST = 'static';
+const reload = browserSync.reload;
 
 function styleTask(src, outputStyle) {
   let opt = {
@@ -70,11 +72,6 @@ gulp.task('fonts', () => {
   return gulp.src(['bower_components/**/*.{woff2,woff,ttf}', 'app/fonts/**/*'])
     .pipe($.flatten())
     .pipe(gulp.dest('.tmp/fonts'));
-
-  // return gulp.src(require('main-bower-files')('**/*.{eot,svg,ttf,woff,woff2}', function () {})
-  //   .concat('app/fonts/**/*'))
-  //   .pipe(gulp.dest('.tmp/fonts'))
-  //   .pipe(gulp.dest(DIST + '/fonts'));
 });
 
 gulp.task('extras', () => {
@@ -89,10 +86,38 @@ gulp.task('extras', () => {
 
 gulp.task('clean', del.bind(null, ['.tmp', DIST]));
 
-gulp.task('watch', ['styles', 'js', 'js:browserify', 'fonts'], () => {
-  gulp.watch('app/styles/*.scss', ['styles']);
-  gulp.watch('app/scripts/**/*.js', ['js', 'js:browserify']);
+gulp.task('serve', ['styles', 'js', 'js:browserify', 'fonts', 'nodemon'], () => {
+
+  browserSync.init({
+    proxy: 'localhost:3002',
+    port: 3000
+  });
+
+  gulp.watch('app/styles/*.scss', ['styles', reload]);
+  gulp.watch('app/scripts/**/*.js', ['js', 'js:browserify', reload]);
 });
+
+gulp.task('nodemon', cb => {
+
+  let started = false;
+
+  return $.nodemon({
+    script: 'bin/www',
+    watch: ['backend/', 'views/'],
+    env: {
+      PORT: '3002',
+      NODE_ENV: 'development'
+    },
+    ext: 'js jade'
+  }).on('start', () => {
+    if (!started) {
+      cb();
+      started = true;
+    }
+  }).on('restart', () => {
+    setTimeout(reload, 1000);
+  });
+})
 
 gulp.task('build', ['js', 'js:browserify', 'styles:dist', 'images', 'fonts', 'extras'], () => {
   return gulp.src('.tmp/**/*')
