@@ -6,3 +6,6 @@ static
 
 config.js
 npm-debug.log
+
+# Temperately disable test as this is work in progress
+test
