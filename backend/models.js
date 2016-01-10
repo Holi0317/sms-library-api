@@ -1,3 +1,14 @@
+/**
+ * Defines schema and models for MongoDB.
+ * Note that by requiring this module, bluebird will be used as mongoose's promise library.
+ * @module backend/models
+ * @author Holi0317 <holliswuhollis@gmail.com>
+ * @license MIT
+ *
+ * @requires mongoose
+ * @requires bluebird
+ */
+
 'use strict';
 
 let mongoose = require('mongoose');
@@ -5,7 +16,11 @@ let conn = require('../config').conn;
 
 mongoose.Promise = require('bluebird');
 
-let schema = {
+/**
+ * Defines schema to be used in mongoDB.
+ * @const {Object.<string, mongoose.Schema>} schema
+ */
+const schema = {
   user: new mongoose.Schema({
     tokens: mongoose.Schema.Types.Mixed,
     googleId: String,
@@ -36,13 +51,22 @@ let schema = {
   })
 };
 
-// function Log(message, level='INFO') {  TODO Enable this when node.js supports default parameters
+/**
+ * Helper class for a log message.
+ *
+ * @class
+ * @param {string} message - Message to be logged.
+ * @param {string} [level=DEBUG] - Level of the log message. Valid levels: DEBUG, INFO, WARN, ERROR, FATAL, SUCCESS.
+ * They will not be validicated until it is written into database.
+ *
+ * @prop {string} level - Level of the message.
+ * @prop {string} message - Message content.
+ * @prop {Date} time - Time of this message being created.
+ */
 function Log(message, level) {
-  // Class for log object in database, with some helper function.
-  level = typeof level !== 'undefined' ?  level : 'INFO';
+  this.level = typeof level !== 'undefined' ?  level : 'INFO';
   this.time = new Date();
   this.message = message;
-  this.level = level;
 }
 
 module.exports = {

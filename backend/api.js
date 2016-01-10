@@ -3,6 +3,11 @@
  * @module backend/api
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
+ *
+ * @requires request-promise
+ * @requires cheerio
+ * @requires iconv-lite
+ * @requires bluebird
  */
 'use strict';
 
