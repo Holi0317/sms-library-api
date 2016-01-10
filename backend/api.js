@@ -1,10 +1,26 @@
-// Library API for school library
+/**
+ * Request handler and parser for school library.
+ * @module backend/api
+ * @author Holi0317 <holliswuhollis@gmail.com>
+ * @license MIT
+ */
 'use strict';
 
-var request = require('request-promise');
-var cheerio = require('cheerio');
-var iconv = require('iconv-lite');
+let request = require('request-promise');
+let cheerio = require('cheerio');
+let iconv = require('iconv-lite');
+let Promise = require('bluebird');
 
+/**
+ * Endpoints to library system.
+ *
+ * Some link requires language inside the link. These links contains {lang} inside them.
+ * Replace {lang} to 'c' if chinese, '' if english before using them.
+ * {@link User._formatUrl} is a helper function for this purpose.
+ *
+ * @const
+ * @type {Object.<string, string>}
+ */
 const URLS = {
   auth: 'http://www.library.ccnet-hk.com/central/sms/schlib/admin/get_a_password.asp',
   info: 'http://www.library.ccnet-hk.com/central/sms/{lang}schlib/patron/patronr.asp',
@@ -14,18 +30,29 @@ const URLS = {
   mainEnglish: '/central/sms/schlib/admin/main.asp'
 };
 
+/**
+ * Decode given buffer to BIG5.
+ * @param {buffer} buffer - Buffer to be decoded as BIG5.
+ * @returns {string} - Decoded string.
+ */
 function decode(buffer) {
-  /*
-  * Decode buffer as big5 and return string
-  * @param (buffer) buffer: buffer object to be decoded.
-  * @return (String): decoded string.
-  */
   return iconv.decode(buffer, 'big5')
 }
 
+/**
+ * Represent a borrowed book.
+ *
+ * @param {object} $ - table row fetched from library, cheerio parsed.
+ *
+ * @prop {string} id - ID of the book. Or, precisely, Material Code. Can be null if renew page did not provide it (probably overdued).
+ * @prop {string} name - Book name. Also contains other informations like author.
+ * @prop {Date} borrowDate - Borrow date.
+ * @prop {Date} dueDate - Due date.
+ * @prop {string} renewal - How many time has this book been renewed.
+ * @constructor
+ */
 function Book ($) {
-  // Construct Book object by cheerio object.
-  var childrens = $.children()
+  let childrens = $.children();
 
   this.id = $.find('input').attr('value') || null;
   this.name = cheerio(childrens[1]).text();
@@ -34,18 +61,38 @@ function Book ($) {
   this.renewal = cheerio(childrens[4]).text();
 }
 
+/**
+ * Parser and request constructor for views in library system.
+ * @prop {User} self - User object that this parser is bounded to.
+ */
 class Parser {
-  /*
-  * Parser for different pages
-  */
+  /**
+   * Construct parser.
+   * When a view is parsed, corresponding value will be populated to the User object bounded to.
+   *
+   * @param {User} that - User object that this parser is bounded to.
+   *
+   * @see {@link User}
+   * @constructor
+   */
   constructor (that) {
     this.self = that;
   }
 
+  /**
+   * Parse auth endpoint. (URLS.auth)
+   * Check for user language in library and if login failed.
+   * If login failed, throw exception.
+   *
+   * @param {object} res - Response object from requesting URLS.auth,
+   * using request-promise and set resolveWithFullResponse = true.
+   *
+   * @returns {Promise} - Request for info view. Meant to be chained with this.info.
+   *
+   * @throws {Error} - Login failed. Perhaps id or password is incorrect.
+   */
   auth (res) {
-    // Link: URLS.auth
-    // Check user language, or failed
-    var self = this.self;
+    let self = this.self;
     switch (res.request.uri.pathname) {
       case URLS.mainChinese:
         self.language = 'chinese';
@@ -58,7 +105,7 @@ class Parser {
     }
 
     // Request for user record
-    var options = {
+    let options = {
       uri: self._formatUrl(URLS.info),
       jar: self._jar,
       encoding: null
@@ -67,16 +114,22 @@ class Parser {
     return request(options);
   }
 
+  /**
+   * Parse info endpoint. (URLS.info)
+   * Reader ID will be parsed at this view.
+   * Meant to be chain from this.auth
+
+   * @param {buffer} body - Buffer (un-decoded) of URLS.info response.
+   * @returns {Promise} - Request of show this user's renew view. Meant to be chained with this.showRenew.
+   */
   info (body) {
-    // Link: URLS.info
-    // Get reader ID
-    var $ = cheerio.load(decode(body));
-    var self = this.self;
+    let $ = cheerio.load(decode(body));
+    let self = this.self;
 
     self.readerId = $('form[name="PATRONF"]>table font').last().text().replace(/\s/g, '');
 
     // Request for borrowed books
-    var options = {
+    let options = {
       uri: self._formatUrl(URLS.showRenew),
       jar: self._jar,
       encoding: null,
@@ -88,34 +141,61 @@ class Parser {
     return request(options);
   }
 
+  /**
+   * Parse showRenew view.
+   * Borrowed books will be parsed and populated here.
+   *
+   * @param {buffer} body - Buffer (un-decoded) response from show renew view.
+   * @returns {Promise} - Promise resolved with nothing.
+   */
   showRenew (body) {
-    // Parse showRenew response.
-    var self = this.self;
-    var $ = cheerio.load(decode(body));
+    let self = this.self;
+    let $ = cheerio.load(decode(body));
     self.borrowedBooks = [];
 
     $('form tr:not(:first-child)').each(function () {
-      var book = new Book(cheerio(this));
+      let book = new Book(cheerio(this));
       self.borrowedBooks.push(book)
     });
 
-    return;
+    return Promise.resolve();
   }
 }
 
-module.exports = class {
-  /*
-  * Constructor function for api
-  */
+/**
+ * User represnets a user inside the library system.
+ * @prop {request.jar} _jar - Cookie jar for this user. Private.
+ * @prop {Parser} parser - Parser for this user, bounded to this. Private.
+ * @prop {string} language - language this user used in library system. Must be either 'chinese' or 'english'.
+ * @prop {string} id - Login ID of the user.
+ * @prop {string} readerId - ID (Patron Code) of the user. Can be converted to Number,
+ * but remains as string. Because, whatever.
+ * @prop {Book[]} borrowedBooks - Borrowed books.
+ */
+class User {
+  /**
+   * Construct the User
+   * @constructor
+   */
   constructor () {
     this._jar = request.jar();
+    this.parser = new Parser(this);
+
     this.language = null;
     this.id = null;
     this.readerId = null;
     this.borrowedBooks = [];
-    this.parser = new Parser(this);
   }
 
+  /**
+   * Pre-process url and inject language to url. Some url requires language.
+   *
+   * @param {string} url - Url to be pre-processed.
+   * @returns {string} - Processed url. {lang} has been properly replaced with user language.
+   *
+   * @see URLS
+   * @private
+   */
   _formatUrl (url) {
     if (this.language === 'chinese') {
       return url.replace(/\{lang\}/, 'c');
@@ -127,15 +207,22 @@ module.exports = class {
   }
 
 
+  /**
+   * Login this user with given id and password.
+   * After login, reader id and borrowed books will be parsed and populated.
+   *
+   * @param {string} id - Login id of the user. This will be saved in this.id.
+   * @param {string} passwd - Login password of the user.
+   * Password will NOT be saved due to security reason.
+   *
+   * @returns {Promise} - Promise that will login and parse all the required informations.
+   * Result of Promise should be nothing.
+   *
+   * @see Parser
+   */
   login (id, passwd) {
-    /*
-    * Login user with given id and passwd.
-    * Save id in this.id
-    * Also get reader id and borrowed book.
-    * @return: Promise object, only handle error and .done. i.e., do not .then it.
-    */
     this.id = id;
-    var options = {
+    let options = {
       uri: URLS.auth,
       jar: this._jar,
       qs: {
@@ -151,13 +238,19 @@ module.exports = class {
     .then(this.parser.showRenew.bind(this.parser));
   }
 
+  /**
+   * Reload borrowed books.
+   *
+   * @returns {Promise} - Request and parse for books. Result should be nothing.
+   * Access reloaded borred book from property of this.
+   * @throws {error} - Not logined.
+   */
   reload () {
-    // Reload borrowed books data.
     if (!this.id) {
       throw new Error('Not logined.');
     }
 
-    var options = {
+    let options = {
       uri: this._formatUrl(URLS.showRenew),
       jar: this._jar,
       encoding: null,
@@ -170,17 +263,20 @@ module.exports = class {
     .then(this.parser.showRenew.bind(this.parser));
   }
 
+  /**
+   * Renew one book. If that failed, no error will be thrown as this does not check if renew is succeed.
+   * Also, borrowed books will not be reloaded. Reload it if you need to.
+   *
+   * @param {Book} book - The book to be renewed.
+   * @returns {Promise} - Promise to renew that book. Response from server will be the
+   * promise's result.
+   */
   renewBook (book) {
-    /*
-    * Renew one book, with given book object.
-    * @return promise
-    * please .then the promise
-    */
     if (!this.id) {
       throw new Error('Not logined.');
     }
 
-    var options = {
+    let options = {
       uri: this._formatUrl(URLS.saveRenew),
       jar: this._jar,
       encoding: null,
@@ -192,10 +288,15 @@ module.exports = class {
       }
     };
 
-    return request(options)
+    return request(options);
   }
 
 }
+
+module.exports = User;
+module.exports._URLS = URLS;
+module.exports._Book = Book;
+module.exports._Parser = Parser;
 
 // Inject jq command, for debugging selector
 // var jq = document.createElement('script');jq.src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js";document.getElementsByTagName('head')[0].appendChild(jq);
