@@ -67,7 +67,7 @@ class UserFunctions {
     // Return Promise
 
     if (!this.user.renewEnabled || this.failed) {
-      return utils.emptyPromise;
+      return Promise.resolve();
     }
 
     return this.library.login(this.user.libraryLogin, this.user.libraryPassword)
@@ -114,7 +114,7 @@ class UserFunctions {
     // Write calendar id into this.calendarID
     // Return Promise
     if (this.failed) {
-      return utils.emptyPromise;
+      return Promise.resolve();
     }
     return calendar.calendarList.listAsync({
       auth: this.oauth2client,
@@ -135,7 +135,7 @@ class UserFunctions {
 
           this.calendarID = item.id;
           this.log(`Found Google Calendar. ID: ${item.id}.`, 'DEBUG');
-          return utils.emptyPromise;
+          return Promise.resolve();
 
         } else {continue}
       }
@@ -151,7 +151,7 @@ class UserFunctions {
     // Write calendar id into this.calendarID
     // Return Promise
     if (this.failed) {
-      return utils.emptyPromise;
+      return Promise.resolve();
     }
 
     this.log(`Cannot find Google Calendar with name "${this.user.calendarName}". Creating one.`);
@@ -182,7 +182,7 @@ class UserFunctions {
     // If user.renewEnabled is false, this will return an empty promise.
     // Return Promise
     if (!this.user.renewEnabled || this.failed) {
-      return utils.emptyPromise;
+      return Promise.resolve();
     }
 
     return this._getCalendar()
