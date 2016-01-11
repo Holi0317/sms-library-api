@@ -1,3 +1,10 @@
+/**
+ * Settings/handlers for express.js.
+ * @module backend/app
+ * @author Holi0317 <holliswuhollis@gmail.com>
+ * @license MIT
+ */
+
 'use strict';
 
 let express = require('express');
@@ -100,6 +107,7 @@ app.use(function(err, req, res) {
   });
 });
 
+// Create cron job.
 new Cron({
   cronTime: '00 00 00 * * *',
   onTick: require('./job'),
