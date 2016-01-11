@@ -1,3 +1,13 @@
+/**
+ * The job, cron job, to be runned.
+ * @module backend/job
+ * @author Holi0317 <holliswuhollis@gmail.com>
+ * @license MIT
+ *
+ * @requires googleapis
+ * @requires bluebird
+ */
+
 'use strict';
 
 let google = require('googleapis');
@@ -7,9 +17,20 @@ let models = require('./models');
 let config = require('../config');
 let utils = require('./utils');
 
-// One day, in milisecond
+/**
+ * One day in milisecond.
+ * @const {number} ONE_DAY
+ */
 const ONE_DAY = 8.64e+7;
+/**
+ * Timezone that library system is at.
+ * @const {string} TIMEZONE
+ */
 const TIMEZONE = 'Asia/Hong_Kong';
+/**
+ * Maximum log to be kept.
+ * @const {number} MAX_LOG_RECORD
+ */
 const MAX_LOG_RECORD = 100;
 
 Promise.promisifyAll(google.auth.OAuth2.prototype);
@@ -20,16 +41,28 @@ Promise.promisifyAll(calendar.calendarList);
 Promise.promisifyAll(calendar.calendars);
 Promise.promisifyAll(calendar.events);
 
+/**
+ * A collection of promises that bind to a user's library and google account.
+ * Use UserFunctionFactory for batch execution.
+ *
+ * @prop {backend/models.user} user - User object queried from database.
+ * @prop {google.auth.OAuth2} oauth2client - Google OAuth2 bounded to user token.
+ * @prop {backend/api.User} library - Library API bound to user.
+ * @prop {Number} celdnarID - Google calendar ID that matches the name of user defined.
+ * @prop {bool} failed - Trye if any operation failed.
+ *
+ * @see UserFunctionFactory
+ */
 class UserFunctions {
 
-  // UserFunctions is a collcetion of promises that bind to user's library and google account
-  // User UserFunctionFactory for real usage as it can consume an array of users
-
+  /**
+   * Construct a new UserFunctions object.
+   *
+   * @param {backend/models.user} user - User (database record) that this object will be bounded to.
+   *
+   * @constructor
+   */
   constructor(user) {
-    /*
-    Parameters:
-    user -- user object queried from database
-    */
     this.user = user;
     this.oauth2client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
     this.oauth2client.setCredentials(this.user.tokens);
@@ -38,12 +71,26 @@ class UserFunctions {
     this.failed = false;
   }
 
+  /**
+   * Log message into user log.
+   * Just a wrapper for creating {@link backend/models.Log} object and pushing it into
+   * user.logs.
+   *
+   * @param {object} a - First option to be passed into Log constructor.
+   * @param {object} b - Second option to be passed into Log constructor.
+   * @see backend/models.Log
+   */
   log(a, b) {
     this.user.logs.push(new models.Log(a, b));
   }
 
+  /**
+   * Refresh user's Google OAuth2 token and write to database.
+   *
+   * @throws {Error} - Cannot refresh OAuth2 tokens.
+   * @returns {Proimse} - Promise for refreshing token then writes into database.
+   */
   refreshToken() {
-    // Refresh user's google token and write into database.
     return this.oauth2client.refreshAccessTokenAsync()
     .catch(err => {
       console.error('Error when refreshing access token. Error: ', err);
@@ -60,12 +107,14 @@ class UserFunctions {
     });
   }
 
+  /**
+   * Login library system, then renew books if needed.
+   *
+   * @throws {Error} - Login into library system failed.
+   * @returns {Promise} - Promise for renew login and renew book, if needed.
+   * Or empty promise if failed or not enabled.
+   */
   renewBooks() {
-
-    // Renew book in library system.
-    // If user.renewEnabled is false, this will return an empty promise.
-    // Return Promise
-
     if (!this.user.renewEnabled || this.failed) {
       return Promise.resolve();
     }
@@ -79,18 +128,19 @@ class UserFunctions {
     })
     .then(() => {
       let now = new Date();
-      let promises = [];
-      let borrowedBooks = [];
-      let renewBooks = [];
+      let promises = [];  // Promises for renewing book to be returned.
+      let borrowedBooks = [];   // Book name for all borrowed books. For logging purpose.
+      let renewBooks = [];    // Book name for all books requires to be renewed. For logging purpose.
 
-      for (let book of this.library.borrowedBooks) {
+      for (let book of this.library.borrowedBooks) {  // Each borrowed books.
 
-        borrowedBooks.push(book.name);
+        borrowedBooks.push(book.name);  // Logging.
 
         let diff = book.dueDate - now;
         if (diff <= this.user.renewDate * ONE_DAY && diff > 0 && book.id) {
-          promises.push(this.library.renew(book));
-          renewBooks.push(book.name)
+          // If Logic: Less than defined date, more than 0 day and have book ID.
+          promises.push(this.library.renew(book));    // Create promise.
+          renewBooks.push(book.name);    // Logging.
         }
       }
 
@@ -105,17 +155,25 @@ class UserFunctions {
       }
 
       return Promise.all(promises);
-    })
+    });
 
   }
 
+  /**
+   * List calendars and see if there is one equals to name user defined (user.calendarName).
+   * If yes, Save the calendar ID to property and return empty Promise.
+   * Otherwise, return a promise that creates calenar (_createCalendar).
+   *
+   * @see _createCalendar
+   * @returns {Promise} - See above description.
+   * @throws {Error} - Cannot list calendar.
+   * @private
+   */
   _getCalendar() {
-    // Get a calendar with name equals to user.calendarName. Create new calendar if needed
-    // Write calendar id into this.calendarID
-    // Return Promise
     if (this.failed) {
       return Promise.resolve();
     }
+
     return calendar.calendarList.listAsync({
       auth: this.oauth2client,
       maxResults: 250,
@@ -130,31 +188,41 @@ class UserFunctions {
     })
     .then(res => {
 
+      if (res.nextPageToken) {
+        this.log('Found there is more than 250 items in calendar list. A new calendar may be created.', 'WARN');
+      }
+
       for (let item of res.items) {
         if (item.summary === this.user.calendarName) {
 
+          // Got calendar that I want.
           this.calendarID = item.id;
           this.log(`Found Google Calendar. ID: ${item.id}.`, 'DEBUG');
           return Promise.resolve();
 
-        } else {continue}
+        }
+        // Else, continue.
       }
 
+      // Calendar not found. Lets create one.
+      this.log(`Cannot find Google Calendar with name "${this.user.calendarName}". Creating one.`);
       return this._createCalendar();
 
-    })
+    });
   }
 
+  /**
+   * Create new calendar, where summary is user.calendarName and handle stuffs.
+   *
+   * @returns {Promise} - Create new calendar.
+   * @throws {Error} - Cannot create calendar/insert it into CalendarList.
+   * @private
+   */
   _createCalendar() {
-    // Create calendar and write it into CalendarList (On google's server)
-    // Calnedar title (summary) will be user.calendarName
-    // Write calendar id into this.calendarID
-    // Return Promise
     if (this.failed) {
       return Promise.resolve();
     }
 
-    this.log(`Cannot find Google Calendar with name "${this.user.calendarName}". Creating one.`);
     return calendar.calendars.insertAsync({
       auth: this.oauth2client,
       summary: this.user.calendarName,
@@ -166,7 +234,7 @@ class UserFunctions {
       return calendar.calendarList.insertAsync({
         auth: this.oauth2client,
         id: cal.id
-      })
+      });
     })
     .catch(err => {
       this.calendarID = null;
@@ -177,6 +245,37 @@ class UserFunctions {
     })
   }
 
+  /**
+   * Create calendar event resource by using book object passed in.
+   *
+   * @param {backend/api.Book} book - Book object that need to be converted into event resource.
+   * @returns {Object} - Event resource (Google calendar) of this book.
+   * @static
+   * @private
+   */
+  _createEventResource (book) {
+    return {
+      summary: `Due date for book ${book.name}. ID: ${book.id}`,
+      start: {
+        date: `${book.dueDate.getFullYear()}-${book.dueDate.getMonth()+1}-${book.dueDate.getDate()}`,  // JS use 0 as January and 11 as December.
+        timeZone: TIMEZONE
+      },
+      end: {
+        date: `${book.dueDate.getFullYear()}-${book.dueDate.getMonth()+1}-${book.dueDate.getDate()}`,
+        timeZone: TIMEZONE
+      }
+    };
+  }
+
+  /**
+   * Reload library content and write corresponding due date to Google calendar.
+   *
+   * @returns {Promise} - Promise for the above action.
+   * @throws {Errors} - Cannot reload library content.
+   * @throws {Errors} - Cannot get Google Calendar ID.
+   * @throws {Errors} - Cannot insert Calendar event.
+   * @FIXME Remove returned books.
+   */
   refreshCalendar() {
     // Refresh user's google calendar
     // If user.renewEnabled is false, this will return an empty promise.
@@ -208,35 +307,26 @@ class UserFunctions {
       throw err;
     })
     .then(events => {
+
+      // FIXME event will not be deleted if returned?
+
       let promises = [];
       let logUpdated = [];
       let logCreated = [];
 
-      for (let book of this.library.borrowedBooks) {
+      for (let book of this.library.borrowedBooks) {  // Fore each book.
         if (book.id === null) {
           // Book does not have id. Probably overdued.
           continue;
         }
 
-        // Evnet resource for requesting
-        let resource = {
-          summary: `Due date for book ${book.name}. ID: ${book.id}`,
-          start: {
-            date: `${book.dueDate.getFullYear()}-${book.dueDate.getMonth()+1}-${book.dueDate.getDate()}`,  // JS use 0 as January and 11 as December.
-            timeZone: TIMEZONE
-          },
-          end: {
-            date: `${book.dueDate.getFullYear()}-${book.dueDate.getMonth()+1}-${book.dueDate.getDate()}`,
-            timeZone: TIMEZONE
-          }
-        };
+        // Event resource for requesting
+        let resource = this._createEventResource(book);
 
-        for (let event of events.items) {
+        for (let event of events.items) {   // Fore each event.
 
-          // Check if event name equals to book id
-          if (event.summary === resource.summary) {
-            // Book has been written into calendar. Issue update request if needed.
-            if (event.start.date !== resource.start.date) {
+          if (event.summary === resource.summary) {   // Is this event the one I want for this book?
+            if (event.end.date !== resource.end.date) {  // Is due date unchanged? (renewed?)
               promises.push(calendar.events.updateAsync({
                 auth: this.oauth2client,
                 calendarId: this.calendarID,
@@ -247,19 +337,20 @@ class UserFunctions {
               logUpdated.push(book.name);
 
             }
-          } else {
-            // Issue insert event
-            promises.push(calendar.events.insertAsync({
-              auth: this.oauth2client,
-              calendarId: this.calendarID,
-              resource: resource
-            }));
-
-            logCreated.push(book.name);
 
           }
+          // Not the one I want. Continue looping.
 
         }
+        // No event that I am interested.
+        promises.push(calendar.events.insertAsync({
+          auth: this.oauth2client,
+          calendarId: this.calendarID,
+          resource: resource
+        }));
+
+        logCreated.push(book.name);
+
       }
 
       if (logUpdated) {
@@ -275,9 +366,14 @@ class UserFunctions {
 
   }
 
+  /**
+   * Limit log message to 100 and write into database.
+   *
+   * @returns {Promise} - Write optration to database.
+   */
   saveProfile() {
     if (this.failed) {
-      this.log('Cron job failed', 'FATAL');
+      this.log('Cron job failed.', 'FATAL');
     } else {
       this.log('Cron job succeed.', 'SUCCESS');
     }
@@ -291,11 +387,40 @@ class UserFunctions {
 
 }
 
+/**
+ * Batcher for executing mass amount of UserFunctions.
+ * Methods are identical to {@link UserFunctions}, but errors will be supressed.
+ *
+ * @prop {UserFunctions[]} users - Users that this batcher is bounded to.
+ * @see UserFunctions
+ */
 class UserFunctionFactory {
+
+  /**
+   * @constructor
+   */
   constructor() {
     this.users = [];
   }
 
+  /**
+   * Call name and apply catchIgnore and chain all of them together.
+   *
+   * @param {string} name - Name of the method that will be called.
+   * @returns {Promise} - Promise of that object.
+   * @private
+   */
+  _method(name) {
+    let promises = [];
+    this.users.forEach(user => {
+      promises.push(user[name]().catch(utils.catchIgnore));
+    })
+    return Promise.all(promises);
+  }
+
+  /**
+   * @param {backend/models.users[]} users - Users that will be bounded to.
+   */
   refreshToken(users) {
     // Add users to this.users and refresh their google tokens
     // Return: Promise for the above actoion
@@ -313,36 +438,26 @@ class UserFunctionFactory {
   }
 
   renewBooks() {
-    let promises = [];
-
-    this.users.forEach(user => {
-      promises.push(user.renewBooks().catch(utils.catchIgnore));
-    });
-
-    return Promise.all(promises)
+    return this._method('renewBooks');
   }
 
   refreshCalendar() {
-    let promises = [];
-
-    this.users.forEach(user => {
-      promises.push(user.refreshCalendar().catch(utils.catchIgnore));
-    });
-
-    return Promise.all(promises);
+    return this._method('refreshCalendar');
   }
 
   saveProfile() {
-    let promises = [];
-
-    this.users.forEach(user => {
-      promises.push(user.saveProfile().catch(utils.catchIgnore));
-    });
-
-    return Promise.all(promises)
+    return this._method('saveProfile');
   }
 }
 
+/**
+ * @summary Regular job for the system.
+ * @desc This job will, first, query all users. Then renew books for them. Finally,
+ * refresh their Google calendar and do some database cleanup. Please run this job once
+ * per day.
+ *
+ * @returns {Promise} - Promise for the job.
+ */
 function execute() {
   console.log('Started cron job.');
   let factory = new UserFunctionFactory();
