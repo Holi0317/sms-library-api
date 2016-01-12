@@ -1,6 +1,6 @@
 /**
  * Request handler and parser for school library.
- * @module backend/api
+ * @module sms-library-helper/backend/api
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *
@@ -21,11 +21,11 @@ let Promise = require('bluebird');
  *
  * Some link requires language inside the link. These links contains {lang} inside them.
  * Replace {lang} to 'c' if chinese, '' if english before using them.
- * User#_formatUrl is a helper function for this purpose.
+ * {@link sms-library-helper/backend/api~User#_formatUrl} is a helper function for this purpose.
  *
  * @const
  * @type {Object.<string, string>}
- * @see {@link User#_formatUrl}
+ * @see {@link sms-library-helper/backend/api~User#_formatUrl}
  */
 const URLS = {
   auth: 'http://www.library.ccnet-hk.com/central/sms/schlib/admin/get_a_password.asp',
@@ -70,7 +70,7 @@ function Book ($) {
 /**
  * Parser and request constructor for views in library system.
  * @prop {User} self - User object that this parser is bounded to.
- * @see User
+ * @see {@link sms-library-helper/backend/api~User}
  */
 class Parser {
   /**
@@ -199,7 +199,7 @@ class User {
    * @param {string} url - Url to be pre-processed.
    * @returns {string} - Processed url. {lang} has been properly replaced with user language.
    *
-   * @see URLS
+   * @see {@link sms-library-helper/backend/api.URLS}
    * @private
    */
   _formatUrl (url) {
@@ -224,7 +224,7 @@ class User {
    * @returns {Promise} - Promise that will login and parse all the required informations.
    * Result of Promise should be nothing.
    *
-   * @see Parser
+   * @see {@link sms-library-helper/backend/api~Parser}
    */
   login (id, passwd) {
     this.id = id;

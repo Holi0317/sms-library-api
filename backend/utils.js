@@ -1,6 +1,6 @@
 /**
  * Some utilities functions.
- * @module backend/utils
+ * @module sms-library-helper/backend/utils
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *

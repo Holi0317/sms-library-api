@@ -1,6 +1,6 @@
 /**
  * Settings/handlers for express.js.
- * @module backend/app
+ * @module sms-library-helper/backend/app
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  */
@@ -16,7 +16,7 @@ let MongoStore = require('connect-mongo')(session);
 let Cron = require('cron').CronJob;
 let path = require('path');
 
-let routes = require('./routes/index');
+let router = require('./router');
 let config = require('../config');
 
 let app = express();
@@ -66,11 +66,19 @@ app.locals.urlFor = (route, _sub) => {
   return path.join(route, sub);
 };
 
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  req.logined = Boolean(req.session.tokens);
+  res.locals.name = req.session.name;
+  res.locals.logined = req.logined;
+  next();
+});
+
 // Routes
-app.use('/', routes);
-if (app.get('env') === 'development') {
-  app.use('/dev', require('./routes/dev'));
-}
+router(app, {
+  dev: require('./handlers/dev'),
+  root: require('./handlers/root')
+});
 app.get('*', function(req, res) {
   res.status(404).render('error', {code: 404, message: 'Page not found'});
 });

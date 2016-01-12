@@ -1,6 +1,6 @@
 /**
  * The job, cron job, to be runned.
- * @module backend/job
+ * @module sms-library-helper/backend/job
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *
@@ -20,16 +20,19 @@ let utils = require('./utils');
 /**
  * One day in milisecond.
  * @const {number} ONE_DAY
+ * @default 8.64e+7
  */
 const ONE_DAY = 8.64e+7;
 /**
  * Timezone that library system is at.
  * @const {string} TIMEZONE
+ * @default 'Asia/Hong_Kong'
  */
 const TIMEZONE = 'Asia/Hong_Kong';
 /**
  * Maximum log to be kept.
  * @const {number} MAX_LOG_RECORD
+ * @default 100
  */
 const MAX_LOG_RECORD = 100;
 
@@ -51,7 +54,7 @@ Promise.promisifyAll(calendar.events);
  * @prop {Number} celdnarID - Google calendar ID that matches the name of user defined.
  * @prop {bool} failed - Trye if any operation failed.
  *
- * @see UserFunctionFactory
+ * @see {@link sms-library-helper/backend/job~UserFunctionFactory}
  */
 class UserFunctions {
 
@@ -164,7 +167,7 @@ class UserFunctions {
    * If yes, Save the calendar ID to property and return empty Promise.
    * Otherwise, return a promise that creates calenar (_createCalendar).
    *
-   * @see _createCalendar
+   * @see {@link sms-library-helper/backend/job~UserFunctions~_createCalendar}
    * @returns {Promise} - See above description.
    * @throws {Error} - Cannot list calendar.
    * @private
@@ -392,7 +395,6 @@ class UserFunctions {
  * Methods are identical to {@link UserFunctions}, but errors will be supressed.
  *
  * @prop {UserFunctions[]} users - Users that this batcher is bounded to.
- * @see UserFunctions
  */
 class UserFunctionFactory {
 

@@ -1,17 +1,31 @@
+/**
+ * Main route for the whole program.
+ * @module sms-library-helper/backend/routes/dev
+ * @author Holi0317 <holliswuhollis@gmail.com>
+ * @license MIT
+ *
+ * @requires express
+ * @requires googleapis
+ * @requires bluebird
+ * @requires assert
+ */
+
 'use strict';
 
-let express = require('express');
 let google = require('googleapis');
 let Promise = require('bluebird');
 let assert = require('assert');
+
 let config = require('../../config');
 let libApi = require('../api');
 let models = require('../models');
 let utils = require('../utils');
-let router = express.Router();
 
 Promise.promisifyAll(google.auth.OAuth2.prototype);
 
+/**
+ * Express middleware that checks if user has logined. If not, redirect to login page.
+ */
 function requireLogin(req, res, next) {
   if (!req.session.tokens) {
     // No token
@@ -21,10 +35,13 @@ function requireLogin(req, res, next) {
   }
 }
 
-function oauth2clientFactory() {
-  return new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
-}
-
+/**
+ * Query give googleID and returns data in database.
+ *
+ * @param {string} googleId - Google ID of user.
+ * @returns {Promise} - Resolved value is a user schema queried from database.
+ * @see {@link sms-library-helper/backend/models.schema}
+ */
 function getUserProfile(googleId) {
   return models.user.findOne({
     googleId: googleId
@@ -37,15 +54,19 @@ function getUserProfile(googleId) {
   });
 }
 
-router.use((req, res, next) => {
-  res.locals.session = req.session;
-  req.logined = Boolean(req.session.tokens);
-  res.locals.name = req.session.name;
-  res.locals.logined = req.logined;
-  next();
-});
+/**
+ * Factory function for creating google.auth.OAuth2 client.
+ * Just because copying code is too stubid.
+ *
+ * @static
+ * @returns {google.auth.OAuth2} - New OAuth2 object that have client ID,
+ * secret and redirect url set.
+ */
+function oauth2clientFactory() {
+  return new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
+}
 
-router.get('/', function(req, res) {
+module.exports.index = (req, res) => {
   if (req.logined) {
     getUserProfile(req.session.googleId)
     .then(result => {
@@ -60,9 +81,9 @@ router.get('/', function(req, res) {
   } else {
     res.render('index');
   }
-});
+}
 
-router.get('/login', (req, res) => {
+module.exports.login = (req, res) => {
   if (req.logined) {
     return res.redirect('../');
   }
@@ -73,9 +94,9 @@ router.get('/login', (req, res) => {
     scope: ['https://www.googleapis.com/auth/calendar', 'profile']
   });
   res.redirect(authUrl);
-});
+}
 
-router.get('/oauth2callback', (req, res) => {
+module.exports.googleCallback = (req, res) => {
   // OAUTH2 callback
   if (!req.query.code) {
     // Error occured. No code is responsed.
@@ -117,17 +138,16 @@ router.get('/oauth2callback', (req, res) => {
     res.status(401).render('auth_fail');
     throw err;
   })
-});
+}
 
-router.use('/user', requireLogin);
+module.exports.user = {};
+module.exports.user.middleware = requireLogin;
 
-router.route('/user')
-.get((req, res) => {
+module.exports.user.get = (req, res) => {
   return res.status(405);
-})
+}
 
-
-.post((req, res) => {
+module.exports.user.post = (req, res) => {
   // Update information
   if (!req.is('json')) {
     // Only accept JSON request
@@ -211,10 +231,9 @@ router.route('/user')
       });
     }
   });
-})
+}
 
-
-.delete((req, res) => {
+module.exports.user.delete = (req, res) => {
   // Remove user
   let oauth2client = oauth2clientFactory();
   oauth2client.setCredentials(req.session.tokens);
@@ -251,18 +270,16 @@ router.route('/user')
     });
     throw err;
   });
-});
+}
 
-router.get('/logout', (req, res) => {
+module.exports.logout =  (req, res) => {
   req.session.regenerate(err => {
     if (err) return res.status(500).render('error');
     req.session.flash = 'Logout succeed. Hope to see you in the future.';
     return res.redirect('/');
   });
-});
+}
 
-router.get('/418', (req, res) => {
+module.exports.troll = (req, res) => {
   return res.status(418).render('418');
-});
-
-module.exports = router;
+}

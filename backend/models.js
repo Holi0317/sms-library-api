@@ -1,7 +1,7 @@
 /**
  * Defines schema and models for MongoDB.
  * Note that by requiring this module, bluebird will be used as mongoose's promise library.
- * @module backend/models
+ * @module sms-library-helper/backend/models
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *
@@ -19,6 +19,7 @@ mongoose.Promise = require('bluebird');
 /**
  * Defines schema to be used in mongoDB.
  * @const {Object.<string, mongoose.Schema>} schema
+ * @alias module:sms-library-helper/backend/models._schema
  */
 const schema = {
   user: new mongoose.Schema({
@@ -62,6 +63,8 @@ const schema = {
  * @prop {string} level - Level of the message.
  * @prop {string} message - Message content.
  * @prop {Date} time - Time of this message being created.
+ *
+ * @alias module:sms-library-helper/backend/models.Log
  */
 function Log(message, level) {
   this.level = typeof level !== 'undefined' ?  level : 'INFO';
@@ -69,9 +72,7 @@ function Log(message, level) {
   this.message = message;
 }
 
-module.exports = {
-  user: conn.model('User', schema.user),
-
-  _schema: schema,
-  Log: Log
-};
+/** Model of the user. */
+module.exports.user = conn.model('User', schema.user);
+module.exports._schema = schema;
+module.exports.Log = Log;
