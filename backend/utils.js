@@ -46,3 +46,21 @@ makePromise()
 module.exports.catchIgnore = function catchIgnore() {
   return Promise.resolve();
 };
+
+/**
+ * Returns difference between two arrays (Delta comparing).
+ * However, only items that a have but not in b will be returned. See example for a better
+ * explain.
+ *
+ * @example
+ * utils.diff([1, 2, 3], [3, 4, 5]); // Returns [1, 2], but not [1, 2, 4, 5]
+ *
+ * @param {Array} a - One of the arrays to be compaired.
+ * @param {Array} b - The other array to be compaired.
+ * @see http://stackoverflow.com/questions/1187518/javascript-array-difference
+ */
+module.exports.diff = function (a, b) {
+  return a.filter(function(i) {
+    return b.indexOf(i) < 0;
+  });
+}

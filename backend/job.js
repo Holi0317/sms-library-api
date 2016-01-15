@@ -147,13 +147,13 @@ class UserFunctions {
         }
       }
 
-      if (borrowedBooks) {
+      if (borrowedBooks.length) {
         this.log(`You have borrowed the followings books: ${borrowedBooks.join(', ')}`);
       } else {
         this.log('No borrowed books detected.');
       }
 
-      if (renewBooks) {
+      if (renewBooks.length) {
         this.log(`The following books will be renewed: ${renewBooks.join(', ')}`);
       }
 
@@ -228,23 +228,22 @@ class UserFunctions {
 
     return calendar.calendars.insertAsync({
       auth: this.oauth2client,
-      summary: this.user.calendarName,
-      timeZone: TIMEZONE
+      resource: {
+        summary: this.user.calendarName,
+        timeZone: TIMEZONE
+      }
     })
     .then(cal => {
-      this.log(`Calendar created. ID: ${cal.id}. Adding to CalendarList.`, 'DEBUG');
+      this.log(`Calendar created. ID: ${cal.id}.`, 'DEBUG');
       this.calendarID = cal.id;
-      return calendar.calendarList.insertAsync({
-        auth: this.oauth2client,
-        id: cal.id
-      });
+      return Promise.resolve();
     })
     .catch(err => {
       this.calendarID = null;
       console.error('Error when creating new calendar. Error: ', err);
       this.log('Cannot create calendar / Insert calendar to CalendarList. Aborting', 'FATAL');
       this.failed = true;
-      throw err;
+      throw new utils.BreakSignal();
     })
   }
 
@@ -290,32 +289,37 @@ class UserFunctions {
     return this._getCalendar()
     .then(this.library.reload.bind(this.library))
     .catch(err => {
+      if (err instanceof utils.BreakSignal) {
+        throw err;
+      }
       console.error('Error when reloading library contents. Error: ', err);
       this.failed = true;
       this.log('Cannot reloading library contents. WTF? This should not happen. Aborting', 'FATAL');
-      throw err;
+      throw new utils.BreakSignal();
     })
     .then(() => {
       // List events in calendar
-      return calendar.events.list({
+      return calendar.events.listAsync({
         auth: this.oauth2client,
-        calendarId: this.calendarId,
+        calendarId: this.calendarID,
         timeZone: TIMEZONE
       });
     })
     .catch(err => {
+      if (err instanceof utils.BreakSignal) {
+        throw err;
+      }
       console.error('Error when listing events in Google Calendar. Error: ', err);
       this.failed = true;
       this.log('Cannot listing events in Google Calendar. Aborting.', 'FATAL');
-      throw err;
+      throw new utils.BreakSignal();
     })
     .then(events => {
-
-      // FIXME event will not be deleted if returned?
 
       let promises = [];
       let logUpdated = [];
       let logCreated = [];
+      let touchedEvents = [];
 
       for (let book of this.library.borrowedBooks) {  // Fore each book.
         if (book.id === null) {
@@ -340,7 +344,7 @@ class UserFunctions {
               logUpdated.push(book.name);
 
             }
-
+            touchedEvents.push(event.id);
           }
           // Not the one I want. Continue looping.
 
@@ -356,11 +360,27 @@ class UserFunctions {
 
       }
 
-      if (logUpdated) {
+      // Cleanup events that has not been touched(Illegal events or returned books)
+      let allEventsID = events.items.map(item => {
+        return item.id;
+      });
+      let removes = utils.diff(allEventsID, touchedEvents);
+      for (let eventID of removes) {
+        promises.push(calendar.events.deleteAsync({
+          auth: this.oauth2client,
+          calendarId: this.calendarID,
+          eventId: eventID
+        }));
+      }
+
+      if (logUpdated.length) {
         this.log(`Calendar events of the following books will be updated: ${logUpdated.join(', ')}`);
       }
-      if (logCreated) {
+      if (logCreated.length) {
         this.log(`Calendar events of the following books will be created: ${logCreated.join(', ')}`);
+      }
+      if (removes.length) {
+        this.log(`The following events will be removed: ${removes.join(', ')}`, 'DEBUG');
       }
 
       return Promise.all(promises);
