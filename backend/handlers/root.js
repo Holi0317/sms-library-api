@@ -25,6 +25,7 @@ Promise.promisifyAll(google.auth.OAuth2.prototype);
 
 /**
  * Express middleware that checks if user has logined. If not, redirect to login page.
+ * @alias user.middleware
  */
 function requireLogin(req, res, next) {
   if (!req.session.tokens) {
@@ -66,6 +67,11 @@ function oauth2clientFactory() {
   return new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
 }
 
+/**
+ * Handles index logic.
+ * If user is logined, query his/her information and then render user page.
+ * Else, render welcome page.
+ */
 module.exports.index = (req, res) => {
   if (req.logined) {
     getUserProfile(req.session.googleId)
@@ -83,6 +89,11 @@ module.exports.index = (req, res) => {
   }
 }
 
+
+/**
+ * Login page handler.
+ * Generates a url for Google OAuth2 process and redirect user to that url.
+ */
 module.exports.login = (req, res) => {
   if (req.logined) {
     return res.redirect('../');
@@ -96,6 +107,12 @@ module.exports.login = (req, res) => {
   res.redirect(authUrl);
 }
 
+/**
+ * Handles callback from Google OAuth2 process.
+ * This will request for user's Google ID, their name and write into MongoDB.
+ * Then redirect them to index page.
+ * If any error occured, render auth_fail page.
+ */
 module.exports.googleCallback = (req, res) => {
   // OAUTH2 callback
   if (!req.query.code) {
@@ -143,10 +160,19 @@ module.exports.googleCallback = (req, res) => {
 module.exports.user = {};
 module.exports.user.middleware = requireLogin;
 
+/**
+ * Get handler for user.
+ * Response with a 405(Not allowed).
+ */
 module.exports.user.get = (req, res) => {
   return res.status(405);
 }
 
+/**
+ * Post handler for user route.
+ * Only accept JSON request. If not, response with 406.
+ * This will serialize data, update user's record in database and return result as JSON.
+ */
 module.exports.user.post = (req, res) => {
   // Update information
   if (!req.is('json')) {
@@ -233,6 +259,10 @@ module.exports.user.post = (req, res) => {
   });
 }
 
+/**
+ * Delete method handler for user route.
+ * Delete user from database, revoke their Google OAuth2 permission and clear session.
+ */
 module.exports.user.delete = (req, res) => {
   // Remove user
   let oauth2client = oauth2clientFactory();
@@ -272,6 +302,10 @@ module.exports.user.delete = (req, res) => {
   });
 }
 
+/**
+ * Logout handler.
+ * Just clear session.
+ */
 module.exports.logout =  (req, res) => {
   req.session.regenerate(err => {
     if (err) return res.status(500).render('error');
@@ -280,6 +314,9 @@ module.exports.logout =  (req, res) => {
   });
 }
 
+/**
+ * Troll.
+ */
 module.exports.troll = (req, res) => {
   return res.status(418).render('418');
 }
