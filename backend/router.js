@@ -4,11 +4,11 @@ module.exports = function (app, handlers) {
     app.get('/dev/session', handlers.dev.session);
     app.get('/dev/session/destroy', handlers.dev.session.destroy);
     app.get('/dev/session/flash', handlers.dev.session.flash);
-    app.get('/db/users', handlers.dev.db.users);
-    app.get('/db/users/drop', handlers.dev.db.users.drop);
-    app.get('/gapi/revoke', handlers.dev.gapi.revoke);
-    app.get('/cron', handlers.dev.cron);
-    app.get('/render/:template', handlers.dev.render);
+    app.get('/dev/db/users', handlers.dev.db.users);
+    app.get('/dev/db/users/drop', handlers.dev.db.users.drop);
+    app.get('/dev/gapi/revoke', handlers.dev.gapi.revoke);
+    app.get('/dev/cron', handlers.dev.cron);
+    app.get('/dev/render/:template', handlers.dev.render);
   }
 
   app.get('/', handlers.root.index);
