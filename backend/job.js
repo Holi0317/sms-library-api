@@ -302,7 +302,8 @@ class UserFunctions {
       return calendar.events.listAsync({
         auth: this.oauth2client,
         calendarId: this.calendarID,
-        timeZone: TIMEZONE
+        timeZone: TIMEZONE,
+        maxResults: 2500
       });
     })
     .catch(err => {
@@ -320,6 +321,10 @@ class UserFunctions {
       let logUpdated = [];
       let logCreated = [];
       let touchedEvents = [];
+
+      if (events.nextSyncToken) {
+        this.log('More than 2500 events found in calendar (Seriously?). Some event may be missed out.', 'WARN');
+      }
 
       for (let book of this.library.borrowedBooks) {  // Fore each book.
         if (book.id === null) {
@@ -374,13 +379,13 @@ class UserFunctions {
       }
 
       if (logUpdated.length) {
-        this.log(`Calendar events of the following books will be updated: ${logUpdated.join(', ')}`);
+        this.log(`Calendar event(s) of the following books will be updated: ${logUpdated.join(', ')}`);
       }
       if (logCreated.length) {
-        this.log(`Calendar events of the following books will be created: ${logCreated.join(', ')}`);
+        this.log(`Calendar event(s) of the following books will be created: ${logCreated.join(', ')}`);
       }
       if (removes.length) {
-        this.log(`The following events will be removed: ${removes.join(', ')}`, 'DEBUG');
+        this.log(`The following event(s) will be removed: ${removes.join(', ')}`, 'DEBUG');
       }
 
       return Promise.all(promises);
