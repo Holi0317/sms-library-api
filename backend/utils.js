@@ -27,8 +27,10 @@ makePromise
   handleErr2(err);
 });
  * @class
+ * @extends Error
  */
 module.exports.BreakSignal = function BreakSignal() {};
+module.exports.BreakSignal.prototype = Error.prototype;
 
 /**
  * Supress all error when exception is thrown.
