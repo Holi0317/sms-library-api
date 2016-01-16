@@ -288,6 +288,34 @@ class UserFunctions {
       return Promise.resolve();
     }
 
+    let promises = [];
+    let touchedEvents = [];
+    let logUpdated = [];
+    let logCreated = [];
+
+    /**
+     * Process a book. Should it be updated in Google Calendar?
+     *
+     * @returns {Boolean} - Is the book already in Google Calendar.
+     */
+    let processBook = function (resource, events) {
+      for (let event of events.items) {   // For each event.
+        if (event.summary === resource.summary) {   // Is this event the one I want for this book?
+          if (event.end.date !== resource.end.date) {   // Is due date unchanged? (renewed?)
+            promises.push(calendar.events.updateAsync({
+              auth: this.oauth2client,
+              calendarId: this.calendarID,
+              eventId: event.id,
+              resource: resource
+            }));
+          }
+          touchedEvents.push(event.id);
+          return true;  // Already in Calendar
+        }
+      }
+      return false;   // Not in Calendar.
+    }.bind(this);
+
     return this._getCalendar()
     .then(this.library.reload.bind(this.library))
     .catch(err => {
@@ -319,12 +347,6 @@ class UserFunctions {
     })
     .then(events => {
 
-      let promises = [];
-      let logUpdated = [];
-      let logCreated = [];
-      let touchedEvents = [];
-      let state = 0;
-
       if (events.nextSyncToken) {
         this.log('More than 2500 events found in calendar (Seriously?). Some event may be missed out.', 'WARN');
       }
@@ -338,32 +360,8 @@ class UserFunctions {
         // Event resource for requesting
         let resource = this._createEventResource(book);
 
-        for (let event of events.items) {   // Fore each event.
-
-          if (event.summary === resource.summary) {   // Is this event the one I want for this book?
-            if (event.end.date !== resource.end.date) {  // Is due date unchanged? (renewed?)
-              promises.push(calendar.events.updateAsync({
-                auth: this.oauth2client,
-                calendarId: this.calendarID,
-                eventId: event.id,
-                resource: resource
-              }));
-
-              logUpdated.push(book.name);
-
-            }
-            touchedEvents.push(event.id);
-            state = 1;
-            break;
-          }
-          // Not the one I want. Continue looping.
-
-        }
-        // No event that I am interested.
-        // FIXME So ugly.
-        if (state === 1) {
-          state = 0;
-        } else {
+        // The book is not in Google Calendar. Create a new one.
+        if (!processBook(resource, events)) {
           promises.push(calendar.events.insertAsync({
             auth: this.oauth2client,
             calendarId: this.calendarID,
