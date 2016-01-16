@@ -50,13 +50,10 @@ describe('Library API', function() {
           user.borrowedBooks[0].should.have.property('id', '26968');
           user.borrowedBooks[0].should.have.property('name', 'Everlasting Sorrow /Robert ELEGANT.');
           user.borrowedBooks[0].borrowDate.should.be.a('Date');
-          console.log('Here1');
-          user.borrowedBooks[0].borrowDate.valueOf().should.equal(1448985600000);  // 2015/12/2
+          user.borrowedBooks[0].borrowDate.valueOf().should.equal(new Date('2015/12/2').valueOf());  // 2015/12/2
           user.borrowedBooks[0].dueDate.should.be.a('Date');
-          user.borrowedBooks[0].dueDate.valueOf().should.equal(1453737600000);   // 2016/1/26
-          console.log('Here2');
+          user.borrowedBooks[0].dueDate.valueOf().should.equal(new Date('2016/1/26').valueOf());   // 2016/1/26
           user.borrowedBooks[0].should.have.property('renewal', '3');
-          console.log('Done');
         });
     });
 
