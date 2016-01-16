@@ -117,6 +117,17 @@ gulp.task('nodemon', cb => {
   }).on('restart', () => {
     setTimeout(reload, 1000);
   });
+});
+
+gulp.task('test', () => {
+  return gulp.src('test/*.js')
+    .pipe($.mocha())
+    .once('error', () => {
+      process.exit(1);
+    })
+    .once('end', () => {
+      process.exit();
+    });
 })
 
 gulp.task('build', ['js', 'js:browserify', 'styles:dist', 'images', 'fonts', 'extras'], () => {
