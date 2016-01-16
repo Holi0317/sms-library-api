@@ -4,4 +4,5 @@ node_js:
   - "4.2"
 before_script:
   - npm install -g gulp
+  - cp config.template.js config.js
 script: gulp test
