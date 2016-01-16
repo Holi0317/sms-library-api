@@ -386,7 +386,6 @@ describe('Cron job', function() {
     return functions.saveProfile()
       .then(() => {
         user.logs.should.have.length(100);
-        user.logs[99].message.should.have.string('Cron job');
       });
   });
 
