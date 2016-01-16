@@ -7,8 +7,8 @@ let chai = require('chai');
 chai.should();
 
 let Promise = require('bluebird');
-let fs = require('fs');
-let readAsync = Promise.promisify(fs.readFile);
+
+let responses = require('./responses');
 
 describe('Library API', function() {
   let api, request;
@@ -34,7 +34,7 @@ describe('Library API', function() {
   describe('Parser', function() {
 
     it('should correctly parse when no book is borrowed.', function() {
-      return readAsync(__dirname + '/responses/showRenew-no-book.html')
+      return Promise.resolve(responses.showRenewNoBook)
         .then(parser.showRenew.bind(parser))
         .then(() => {
           user.borrowedBooks.should.be.empty;
@@ -42,7 +42,7 @@ describe('Library API', function() {
     });
 
     it('should parse 2 books when 2 is borrowed.', function() {
-      return readAsync(__dirname + '/responses/showRenew-books.html')
+      return Promise.resolve(responses.showRenewHaveBook)
         .then(parser.showRenew.bind(parser))
         .then(() => {
           user.borrowedBooks.should.have.length(2);
@@ -50,7 +50,7 @@ describe('Library API', function() {
     });
 
     it('should parse books correctly', function() {
-      return readAsync(__dirname + '/responses/showRenew-books.html')
+      return Promise.resolve(responses.showRenewHaveBook)
         .then(parser.showRenew.bind(parser))
         .then(() => {
           user.borrowedBooks[0].should.have.property('id', '26968');
@@ -65,7 +65,7 @@ describe('Library API', function() {
 
     it('should parse reader ID from information page.', function() {
       user.language = 'english';
-      return readAsync(__dirname + '/responses/info.html')
+      return Promise.resolve(responses.info)
         .then(parser.info.bind(parser))
         .then(() => {
           user.readerId.should.equal('0001');
