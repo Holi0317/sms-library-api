@@ -8,8 +8,5 @@
   "rules": {
     "quotes": [2, "single"],
     "no-console": [0]
-  },
-  "globals": {
-    "Polymer": false
   }
 }

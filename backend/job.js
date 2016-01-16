@@ -99,7 +99,7 @@ class UserFunctions {
       console.error('Error when refreshing access token. Error: ', err);
       this.log('Cannot refresh Google token. Aborting.', 'FATAL');
       this.failed = true;
-      throw err;
+      throw new utils.BreakSignal();
     })
     .then(newTokens => {
       this.log('Refreshed Google tokens.', 'DEBUG')
@@ -127,7 +127,7 @@ class UserFunctions {
       console.error('Error when logging into library system. Error: ', err);
       this.log('Cannot login library system. Is password changed?', 'FATAL');
       this.failed = true;
-      throw err;
+      throw new utils.BreakSignal();
     })
     .then(() => {
       let now = new Date();
@@ -256,14 +256,17 @@ class UserFunctions {
    * @private
    */
   _createEventResource (book) {
+    let _date = book.dueDate;
+    let date = `${_date.getFullYear()}-${('0' + (_date.getMonth()+1)).slice(-2)}-${('0' + _date.getDate()).slice(-2)}`;
+
     return {
       summary: `Due date for book ${book.name}. ID: ${book.id}`,
       start: {
-        date: `${book.dueDate.getFullYear()}-${book.dueDate.getMonth()+1}-${book.dueDate.getDate()}`,  // JS use 0 as January and 11 as December.
+        date: date,
         timeZone: TIMEZONE
       },
       end: {
-        date: `${book.dueDate.getFullYear()}-${book.dueDate.getMonth()+1}-${book.dueDate.getDate()}`,
+        date: date,
         timeZone: TIMEZONE
       }
     };
@@ -276,7 +279,6 @@ class UserFunctions {
    * @throws {Errors} - Cannot reload library content.
    * @throws {Errors} - Cannot get Google Calendar ID.
    * @throws {Errors} - Cannot insert Calendar event.
-   * @FIXME Remove returned books.
    */
   refreshCalendar() {
     // Refresh user's google calendar
@@ -321,6 +323,7 @@ class UserFunctions {
       let logUpdated = [];
       let logCreated = [];
       let touchedEvents = [];
+      let state = 0;
 
       if (events.nextSyncToken) {
         this.log('More than 2500 events found in calendar (Seriously?). Some event may be missed out.', 'WARN');
@@ -350,16 +353,23 @@ class UserFunctions {
 
             }
             touchedEvents.push(event.id);
+            state = 1;
+            break;
           }
           // Not the one I want. Continue looping.
 
         }
         // No event that I am interested.
-        promises.push(calendar.events.insertAsync({
-          auth: this.oauth2client,
-          calendarId: this.calendarID,
-          resource: resource
-        }));
+        // FIXME So ugly.
+        if (state === 1) {
+          state = 0;
+        } else {
+          promises.push(calendar.events.insertAsync({
+            auth: this.oauth2client,
+            calendarId: this.calendarID,
+            resource: resource
+          }));
+        }
 
         logCreated.push(book.name);
 
