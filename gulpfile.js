@@ -20,7 +20,7 @@ function styleTask(src, outputStyle) {
   return gulp.src(src)
     .pipe($.sass(opt)).on('error', $.sass.logError)
     .pipe($.postcss([
-      require('cssnext')
+      require('postcss-cssnext')()
     ]));
 }
 
