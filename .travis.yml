@@ -8,4 +8,4 @@ cache:
 before_script:
   - npm install -g gulp
   - cp config.template.js config.js
-script: gulp test
+script: node_modules/mocha/bin/_mocha

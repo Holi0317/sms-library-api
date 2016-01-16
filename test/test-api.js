@@ -41,25 +41,22 @@ describe('Library API', function() {
         });
     });
 
-    it('should parse 2 books when 2 is borrowed.', function() {
+    it('should parse books correctly.', function() {
       return Promise.resolve(responses.showRenewHaveBook)
         .then(parser.showRenew.bind(parser))
         .then(() => {
           user.borrowedBooks.should.have.length(2);
-        });
-    });
 
-    it('should parse books correctly', function() {
-      return Promise.resolve(responses.showRenewHaveBook)
-        .then(parser.showRenew.bind(parser))
-        .then(() => {
           user.borrowedBooks[0].should.have.property('id', '26968');
           user.borrowedBooks[0].should.have.property('name', 'Everlasting Sorrow /Robert ELEGANT.');
           user.borrowedBooks[0].borrowDate.should.be.a('Date');
+          console.log('Here1');
           user.borrowedBooks[0].borrowDate.valueOf().should.equal(1448985600000);  // 2015/12/2
           user.borrowedBooks[0].dueDate.should.be.a('Date');
           user.borrowedBooks[0].dueDate.valueOf().should.equal(1453737600000);   // 2016/1/26
+          console.log('Here2');
           user.borrowedBooks[0].should.have.property('renewal', '3');
+          console.log('Done');
         });
     });
 
