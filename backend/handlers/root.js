@@ -4,7 +4,6 @@
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *
- * @requires express
  * @requires googleapis
  * @requires bluebird
  * @requires assert
@@ -277,14 +276,16 @@ module.exports.user.delete = (req, res) => {
     })
     .remove();
   })
-  .then(new Promise(function(resolve, reject) {
-    // Express session cannot be promisify-ed by Bluebird. Donno why(Just me being lazy)
-    // Quick and dirty promise wrapper for req.session.regenerate
-    req.session.regenerate(err => {
-      if (err) reject(err)
-      else resolve();
+  .then(() => {
+    return new Promise(function(resolve, reject) {
+      // Express session cannot be promisify-ed by Bluebird. Donno why(Just me being lazy)
+      // Quick and dirty promise wrapper for req.session.regenerate
+      req.session.regenerate(err => {
+        if (err) reject(err)
+        else resolve();
+      });
     });
-  }))
+  })
   .then(function response() {
     req.session.flash = 'Your account has been delected.';
     return res.json({
@@ -306,7 +307,7 @@ module.exports.user.delete = (req, res) => {
  * Logout handler.
  * Just clear session.
  */
-module.exports.logout =  (req, res) => {
+module.exports.logout = (req, res) => {
   req.session.regenerate(err => {
     if (err) return res.status(500).render('error');
     req.session.flash = 'Logout succeed. Hope to see you in the future.';
