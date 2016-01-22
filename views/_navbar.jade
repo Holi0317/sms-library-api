@@ -8,7 +8,8 @@
       a.navbar-brand(href=urlFor('index')) Home
     .navbar-collapse.collapse.navbar-responsive-collapse
       ul.nav.navbar-nav
-        li: a(href='https://github.com/holi0317/sms-library-helper') Fork me on Github
+        li: a(href='https://github.com/holi0317/sms-library-helper', target='_blank') Fork me on Github
+        li: a(data-toggle='modal', data-target="#help-modal", href='#') Help
       if logined
         p.navbar-text.navbar-right
           | Hello, #{name} &nbsp;&nbsp;&nbsp;
