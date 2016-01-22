@@ -14,6 +14,8 @@ block content
     
   .container
     .jumbotron
+      .alert.alert-warning(role='alert')
+        p 注意: 請不要增加/修改指定Google日曆內的一切活動。所有不相關的活動將會被刪除。
       form.form-horizontal(data-async, action=urlFor('user'), method="POST")
         fieldset
           legend Informations update
@@ -45,44 +47,47 @@ block content
             label.col-md-2.control-label Google calendar name
             .col-md-10
               input.form-control(type='text', name='calendarName', placeholder='Google calendar name', value=user.calendarName)
+              p.help-block Read warning above!
           
           .form-group
             .col-md-10.col-md-offset-2
               button.btn.btn-primary.btn-raised(type='submit') Submit
             
   .container
-    .jumbotron
-      h3 Logs
-      .togglebutton
-        label
-          input#toggle-debug(type='checkbox')
-          | Show debug message
-      if user.logs.length > 0
-        -
-          var enumLogLevel = {
-            DEBUG: 'debug hidden',
-            INFO: 'info',
-            WARN: 'warning',
-            ERROR: 'danger',
-            FATAL: 'danger',
-            SUCCESS: 'success'}
-        .table-responsive
-          table.table.table-hover.logs-table
-            thead
-              th #
-              th Message
-              th Time
-            tbody
-              for log, i in user.logs
-                tr(class=enumLogLevel[log.level])
-                  td= i + 1
-                  td.dynamic-dialog-entry(data-message=log.message, data-level=log.level, data-time=log.time.valueOf()): a= log.message
-                  td.moment.moment-relative(data-time=log.time.valueOf())
+    .panel.panel-info
+      .panel-heading
+        h3.panel-title Logs
+      .panel-body
+        .togglebutton
+          label
+            input#toggle-debug(type='checkbox') 
+            | Show debug message
+        if user.logs.length > 0
+          -
+            var enumLogLevel = {
+              DEBUG: 'debug hidden',
+              INFO: 'info',
+              WARN: 'warning',
+              ERROR: 'danger',
+              FATAL: 'danger',
+              SUCCESS: 'success'}
+          .table-responsive
+            table.table.table-hover.logs-table
+              thead
+                th #
+                th Message
+                th Time
+              tbody
+                for log, i in user.logs
+                  tr(class=enumLogLevel[log.level])
+                    td= i + 1
+                    td.dynamic-dialog-entry(data-message=log.message, data-level=log.level, data-time=log.time.valueOf()): a= log.message
+                    td.moment.moment-relative(data-time=log.time.valueOf())
 
-      else
-        //- No log
-        .alert.alert-info(role='alert')
-          p.text-center There is no log yet :(
+        else
+          //- No log
+          .alert.alert-info(role='alert')
+            p.text-center There is no log yet :(
   
   .container
     .panel.panel-danger
@@ -120,12 +125,13 @@ block content
       .modal-content
         .modal-header
           button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
-          h4.modal-title Are you sure?
+          h4.modal-title Are you sure to delete your account?
         .modal-body
+          p Really, there is no way to recover.
+          p: del Although it is very easy to create a new one.
           p This question is rather challenging.
           p Think carefully.
-          p I give you 3 minutes to do so.
           
         .modal-footer
-          button.btn.btn-primary(type='button', data-dismiss='modal') Don't delete my account
-          button.btn.btn-danger#delete-account(type='button', data-dismiss='modal') Fu*k that. Delete it.
+          button.btn.btn-primary(type='button', data-dismiss='modal') Wait. Don't delete.
+          button.btn.btn-danger#delete-account(type='button', data-dismiss='modal') Go ahead, delete it
