@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
+'use strict';
 
 var app = require('../backend/app');
 var debug = require('debug')('sms-library-helper:server');

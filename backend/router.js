@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function (app, handlers) {
   if (app.get('env') === 'development') {
     app.get('/dev', handlers.dev.index);
