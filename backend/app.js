@@ -51,7 +51,7 @@ let sess = {
 if (app.get('env') === 'production') {
   app.set('trust proxy', 1);
   sess.cookie.secure = true;
-  sess.store = new MongoStore({ url: config.sessionUrl });
+  sess.store = new MongoStore({ mongooseConnection: config.conn });
 }
 app.use(session(sess));
 
