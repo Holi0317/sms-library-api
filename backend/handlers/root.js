@@ -173,6 +173,7 @@ module.exports.user.get = (req, res) => {
  * This will serialize data, update user's record in database and return result as JSON.
  */
 module.exports.user.post = (req, res) => {
+  // FIXME This takes ~10,000 ms for the first time. This is too damn slow.
   // Update information
   if (!req.is('json')) {
     // Only accept JSON request
