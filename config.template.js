@@ -1,10 +1,19 @@
-var mongoose = require('mongoose');
+'use strict';
+
+let mongoose = require('mongoose');
 
 module.exports = {
   // Mongoose createConnection instance
-  conn: mongoose.createConnection('mongodb://localhost/slh'),
+  conn: mongoose.createConnection('mongodb://localhost/slh-development', {
+    user: 'slh-develop',
+    pass: '####',   // Of cause, I won't give you my password.
+    auth: {
+      authSource: 'admin'
+    }
+  }),
 
-  // Session secret for express.js
+  // Session secret for express.js.
+  // http://randomkeygen.com/ is recommended for generating keys.
   secret: 'Generate a totally random string here.',
 
   // Google AUTH
