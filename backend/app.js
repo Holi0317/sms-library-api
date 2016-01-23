@@ -69,7 +69,6 @@ app.locals.urlFor = (route, _sub) => {
 app.use((req, res, next) => {
   res.locals.session = req.session;
   req.logined = Boolean(req.session.tokens);
-  res.locals.name = req.session.name;
   res.locals.logined = req.logined;
   res.locals.env = app.get('env');
   next();

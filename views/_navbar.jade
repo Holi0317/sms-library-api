@@ -12,7 +12,7 @@
         li: a(data-toggle='modal', data-target="#help-modal", href='#') Help
       if logined
         p.navbar-text.navbar-right
-          | Hello, #{name} &nbsp;&nbsp;&nbsp;
+          | Hello, #{session.name} &nbsp;&nbsp;&nbsp;
           a.navbar-link(href=urlFor('logout')) Logout
       else
         p.navbar-text.navbar-right
