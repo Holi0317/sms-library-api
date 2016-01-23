@@ -28,7 +28,7 @@ body {
 }
 
 .logs-table {
-  table-layout:fixed;
+  table-layout: fixed;
   a {
     cursor: pointer;
   }
@@ -47,6 +47,23 @@ body {
   }
 }
 
+.mana-table {
+  th {
+    &:first-child {
+      width: 20%;
+    }
+    &:nth-child(2) {
+      width: 30%
+    }
+    &:nth-child(3) {
+      width: 5%
+    }
+    &:nth-child(4) {
+      width: 5%
+    }
+  }
+}
+
 h3.troll a {
   color: rgb(51, 51, 51);
 }
@@ -57,4 +74,8 @@ h3.troll a {
 
 a.no-light {
   color: rgb(51, 51, 51);
+}
+
+tr.clickable-row {
+  cursor: pointer;
 }

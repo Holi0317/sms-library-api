@@ -1,6 +1,6 @@
 /**
  * Main route for the whole program.
- * @module sms-library-helper/backend/routes/dev
+ * @module sms-library-helper/backend/handlers/dev
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *

@@ -17,6 +17,11 @@ let formLock = false;
 $(() => {
   $.material.init();
 
+  // Utils.
+  $('tr.clickable-row').on('click', function () {
+    location.href = $(this).data('href');
+  });
+
   // Route: index at logined
   $('form[data-async]').on('submit', function (event) {
     if (formLock) {

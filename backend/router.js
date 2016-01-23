@@ -23,5 +23,9 @@ module.exports = function (app, handlers) {
   app.get('/logout', handlers.root.logout);
   app.get('/418', handlers.root.troll);
 
-  // app.get('/');
+  if (app.get('env') === 'development') {
+    app.use('/mana', handlers.mana.middleware);
+  }
+  app.get('/mana', handlers.mana.index);
+  app.get('/mana/:user', handlers.mana.getUser)
 };

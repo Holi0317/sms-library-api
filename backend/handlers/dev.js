@@ -1,6 +1,6 @@
 /**
  * Debug routes. Should NOT be used in production, I really mean it.
- * @module sms-library-helper/backend/routes/dev
+ * @module sms-library-helper/backend/handlers/dev
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *

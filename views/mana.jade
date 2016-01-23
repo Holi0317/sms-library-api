@@ -1,0 +1,43 @@
+extends _base
+
+mixin cond(condition)
+  if condition
+    span.text-success &#10004;
+  else
+    span.text-danger &#10008;
+  
+block var
+  - var title = 'Management'
+
+block content
+  .container
+    .panel.panel-info
+      .panel-heading
+        h3.panel-title Overview
+      .panel-body
+        p Number of registered people: #{data.length}
+        p Current mode: #{env}
+
+  .container
+    .panel.panel-info
+      .panel-heading
+        h3.panel-title Users
+      .panel-body
+        .table-responsive
+          table.table.table-hover.mana-table
+            thead
+              th Google ID
+              th Library login name
+              th Enabled renew?
+              th Admin?
+            tbody
+              for people in data
+                //- FIXME Route is derped if there is a tailing slash in url.
+                tr.clickable-row(data-href=urlFor('mana', people.googleId))
+                  td= people.googleId
+                  if people.libraryLogin
+                    td= people.libraryLogin
+                  else
+                    td: i Undefined
+                  td: +cond(people.renewEnabled)
+                  td: +cond(people.isAdmin)

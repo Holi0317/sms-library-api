@@ -1,0 +1,86 @@
+extends _base
+
+mixin cond(condition)
+  if condition
+    span.text-success &#10004;
+  else
+    span.text-danger &#10008;
+  
+block var
+  - var title = 'Information for ' + name
+
+block content
+  .container
+    .panel.panel-info
+      .panel-heading
+        h3.panel-title Overview
+      .panel-body
+        p Name: #{name}
+        p GoogleID: #{data.googleId}
+        p Is admin? #[span: +cond(data.isAdmin)]
+        p Enabled renew? #[span: +cond(data.isAdmin)]
+        if data.libraryLogin
+          p Library login ID: #{data.libraryLogin}
+        else
+          p Library login ID: #[i undefined]
+        p Calendar name: #{data.calendarName}
+        p Renew date: #{data.renewDate}
+    
+  .container
+    .panel.panel-info
+      .panel-heading(data-toggle='collapse', href='#collapse-logs')
+        h3.panel-title Logs
+      #collapse-logs.panel-collapse.collapse
+        .panel-body
+          .togglebutton
+            label
+              input#toggle-debug(type='checkbox', checked)
+              | Show debug message
+          if data.logs.length > 0
+            -
+              var enumLogLevel = {
+                DEBUG: 'debug hidden',
+                INFO: 'info',
+                WARN: 'warning',
+                ERROR: 'danger',
+                FATAL: 'danger',
+                SUCCESS: 'success'}
+            .table-responsive
+              table.table.table-hover.logs-table
+                thead
+                  th #
+                  th Message
+                  th Time
+                tbody
+                  for log, i in data.logs
+                    tr(class=enumLogLevel[log.level])
+                      td= i + 1
+                      td.dynamic-dialog-entry(data-message=log.message, data-level=log.level, data-time=log.time.valueOf()): a= log.message
+                      td.moment.moment-relative(data-time=log.time.valueOf())
+
+          else
+            //- No log
+            .alert.alert-info(role='alert')
+              p.text-center There is no log yet :(
+
+  #dynamic-dialog.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+          h4.modal-title(replace-message)
+        .modal-body
+          .table-responsive
+            table.table.table-hover
+              tbody
+                tr
+                  td Date
+                  td(replace-time)
+                tr
+                  td Message
+                  td(replace-message)
+                tr
+                  td Log level
+                  td(replace-level)
+        .modal-footer
+          button.btn.btn-primary(type='button', data-dismiss='modal') Dismiss

@@ -71,6 +71,7 @@ app.use((req, res, next) => {
   req.logined = Boolean(req.session.tokens);
   res.locals.name = req.session.name;
   res.locals.logined = req.logined;
+  res.locals.env = app.get('env');
   next();
 });
 
@@ -78,7 +79,7 @@ app.use((req, res, next) => {
 router(app, {
   dev: require('./handlers/dev'),
   root: require('./handlers/root'),
-  admin: require('./handlers/admin')
+  mana: require('./handlers/mana')
 });
 app.get('*', function(req, res) {
   res.status(404).render('error', {code: 404, message: 'Page not found'});
@@ -117,12 +118,14 @@ app.use(function(err, req, res) {
 });
 
 // Create cron job.
-new Cron({
-  cronTime: '00 00 00 * * *',
-  onTick: require('./job'),
-  start: true,
-  timeZone: 'UTC'
-});
+if (app.get('env') === 'production') {
+  new Cron({
+    cronTime: '00 00 00 * * *',
+    onTick: require('./job'),
+    start: true,
+    timeZone: 'UTC'
+  });
+}
 
 
 module.exports = app;

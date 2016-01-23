@@ -41,6 +41,10 @@ const schema = {
       type: String,
       default: 'slh autorenew'
     },
+    isAdmin: {
+      type: Boolean,
+      default: false
+    },
     logs: [{
       time: Date,
       message: String,
