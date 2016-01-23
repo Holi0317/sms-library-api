@@ -18,7 +18,7 @@ block content
         p Name: #{name}
         p GoogleID: #{data.googleId}
         p Is admin? #[span: +cond(data.isAdmin)]
-        p Enabled renew? #[span: +cond(data.isAdmin)]
+        p Enabled renew? #[span: +cond(data.renewEnabled)]
         if data.libraryLogin
           p Library login ID: #{data.libraryLogin}
         else
