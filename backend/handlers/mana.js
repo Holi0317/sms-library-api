@@ -5,6 +5,9 @@
  * @module sms-library-helper/handlers/api
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
+ *
+ * @requires googleapis
+ * @requires bluebird
  */
 
 'use strict';
@@ -54,6 +57,9 @@ module.exports.middleware = function (req, res, next) {
     })
 };
 
+/**
+ * Query from database and render management page.
+ */
 module.exports.index = function (req, res) {
   models.user.find()
   .sort({
@@ -63,6 +69,10 @@ module.exports.index = function (req, res) {
       res.render('mana', {data: result})
     });
 }
+
+/**
+ * Query database, get user name from Google and render user management page.
+ */
 module.exports.getUser = function (req, res) {
   let databaseRes;
   models.user.findOne({
