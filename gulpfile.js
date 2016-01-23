@@ -102,7 +102,7 @@ gulp.task('nodemon', cb => {
   let started = false;
 
   return $.nodemon({
-    script: 'bin/www',
+    script: 'startserver.js',
     watch: ['backend/', 'views/'],
     env: {
       PORT: '3002',
