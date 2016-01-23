@@ -347,7 +347,7 @@ class UserFunctions {
     })
     .then(events => {
 
-      if (events.nextSyncToken) {
+      if (events.nextPageToken) {
         this.log('More than 2500 events found in calendar (Seriously?). Some event may be missed out.', 'WARN');
       }
 
