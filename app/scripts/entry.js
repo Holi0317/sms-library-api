@@ -53,7 +53,16 @@ $(() => {
       form.find('[name="renewDate"]').focus().parents('.form-group:first').addClass('has-error');
       ok = false;
     }
-    if (!ok) return;
+
+    if (data.calendarName === '') {
+      form.find('[name="calendarName"]').focus().parents('.form-group:first').addClass('has-error');
+      ok = false;
+    }
+
+    if (!ok) {
+      formLock = false;
+      return;
+    }
 
     $('#req-success').slideUp();
     $('#req-fail').slideUp();

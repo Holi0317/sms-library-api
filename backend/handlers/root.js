@@ -204,6 +204,7 @@ module.exports.user.post = (req, res) => {
     assert(typeof body.renewEnabled === 'boolean', 'Renew enabled must be a boolean');
     assert(typeof body.renewDate === 'number', 'Renew date must be an integer');
     assert(typeof body.calendarName === 'string', 'Calendar name must be a string');
+    assert(body.calendarName !== '', 'Calendar name must not be empty');
     assert(body.renewDate >= 2 && body.renewDate < 14, 'Renew date must be an interger between 2 and 13, including both.');
 
     if (body.renewEnabled) {
