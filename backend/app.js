@@ -77,7 +77,8 @@ app.use((req, res, next) => {
 // Routes
 router(app, {
   dev: require('./handlers/dev'),
-  root: require('./handlers/root')
+  root: require('./handlers/root'),
+  admin: require('./handlers/admin')
 });
 app.get('*', function(req, res) {
   res.status(404).render('error', {code: 404, message: 'Page not found'});

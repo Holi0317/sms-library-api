@@ -1,0 +1,16 @@
+{
+  apps: [
+    {
+      name: "slh",
+      script: "startserver.js",
+      autorestart: true,
+      vizion: true,
+      "max_memory_restart" : "200M",
+      "post_update": ["npm install", "bower install", "gulp"],
+      env_production: {
+        NODE_ENV: "production",
+        PORT: "61337"
+      }
+    }
+  ]
+}

@@ -22,4 +22,6 @@ module.exports = function (app, handlers) {
   app.delete('/user', handlers.root.user.delete);
   app.get('/logout', handlers.root.logout);
   app.get('/418', handlers.root.troll);
+
+  // app.get('/');
 };
