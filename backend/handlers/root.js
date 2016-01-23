@@ -29,7 +29,7 @@ Promise.promisifyAll(google.auth.OAuth2.prototype);
 function requireLogin(req, res, next) {
   if (!req.session.tokens) {
     // No token
-    return res.redirect('login');
+    return res.redirect(req.app.namedRoutes.build('root.login'));
   } else {
     return next();
   }
@@ -95,7 +95,7 @@ module.exports.index = (req, res) => {
  */
 module.exports.login = (req, res) => {
   if (req.logined) {
-    return res.redirect('../');
+    return res.redirect(req.app.namedRoutes.build('root.index'));
   }
   // Step1, get authorize url
   let oauth2client = oauth2clientFactory();
@@ -147,8 +147,8 @@ module.exports.googleCallback = (req, res) => {
       upsert: true
     })
   })
-  .then(function goToMain() {
-    return res.redirect('../');
+  .then(function () {
+    return res.redirect(req.app.namedRoutes.build('root.index'));
   })
   .catch(err => {
     res.status(401).render('auth_fail');
@@ -312,7 +312,7 @@ module.exports.logout = (req, res) => {
   req.session.regenerate(err => {
     if (err) return res.status(500).render('error');
     req.session.flash = 'Logout succeed. Hope to see you in the future.';
-    return res.redirect('/');
+    return res.redirect(req.app.namedRoutes.build('root.index'));
   });
 }
 

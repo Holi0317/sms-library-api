@@ -12,7 +12,7 @@ html
     
     link(rel="stylesheet", href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons")
       
-    link(rel="stylesheet", href=urlFor('static', 'styles/style.css'))
+    link(rel="stylesheet", href=staticPath + 'styles/style.css')
     block head
 
   body
@@ -37,5 +37,5 @@ html
     
     include _help
     
-    script(src=urlFor('static', 'scripts/bundle.js'))
+    script(src=staticPath + 'scripts/bundle.js')
     block script

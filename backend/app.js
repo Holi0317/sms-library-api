@@ -14,7 +14,6 @@ let helmet = require('helmet');
 let session = require('express-session');
 let MongoStore = require('connect-mongo')(session);
 let Cron = require('cron').CronJob;
-let path = require('path');
 
 let router = require('./router');
 let config = require('../config');
@@ -55,22 +54,12 @@ if (app.get('env') === 'production') {
 }
 app.use(session(sess));
 
-// Inject flask-like urlFor function
-app.locals.urlFor = (route, _sub) => {
-  let sub = typeof _sub !== 'undefined' ?  _sub : '/';
-
-  if (route === 'index' || route === 'static') {
-    route = app.mountpath;
-  }
-
-  return path.join(route, sub);
-};
-
 app.use((req, res, next) => {
   res.locals.session = req.session;
   req.logined = Boolean(req.session.tokens);
   res.locals.logined = req.logined;
   res.locals.env = app.get('env');
+  res.locals.staticPath = app.mountpath;
   next();
 });
 

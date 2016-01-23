@@ -21,10 +21,12 @@ module.exports.index = (req, res) => {
   res.render('develop');
 };
 
+module.exports.session = {};
+
 /**
  * Returns what session contains as json.
  */
-module.exports.session = (req, res) => {
+module.exports.session.show = (req, res) => {
   res.json(req.session);
 };
 

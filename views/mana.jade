@@ -32,8 +32,7 @@ block content
               th Admin?
             tbody
               for people in data
-                //- FIXME Route is derped if there is a tailing slash in url.
-                tr.clickable-row(data-href=urlFor('mana', people.googleId))
+                tr.clickable-row(data-href=url('mana.getUser', {user: people.googleId}))
                   td= people.googleId
                   if people.libraryLogin
                     td= people.libraryLogin
