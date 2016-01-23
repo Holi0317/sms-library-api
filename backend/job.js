@@ -14,7 +14,6 @@ let google = require('googleapis');
 let Promise = require('bluebird');
 let LibraryApi = require('./api');
 let models = require('./models');
-let config = require('../config');
 let utils = require('./utils');
 
 /**
@@ -35,8 +34,6 @@ const TIMEZONE = 'Asia/Hong_Kong';
  * @default 100
  */
 const MAX_LOG_RECORD = 100;
-
-Promise.promisifyAll(google.auth.OAuth2.prototype);
 
 // Google apis
 let calendar = google.calendar('v3');
@@ -67,7 +64,7 @@ class UserFunctions {
    */
   constructor(user) {
     this.user = user;
-    this.oauth2client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
+    this.oauth2client = utils.oauth2clientFactory();
     this.oauth2client.setCredentials(this.user.tokens);
     this.library = new LibraryApi();
     this.calendarID = null;

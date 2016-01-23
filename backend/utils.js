@@ -5,11 +5,17 @@
  * @license MIT
  *
  * @requires bluebird
+ * @requires googleapis
  */
 
 'use strict';
 
 let Promise = require('bluebird');
+let google = require('googleapis');
+
+let config = require('../config');
+
+Promise.promisifyAll(google.auth.OAuth2.prototype);
 
 /**
  * The exception to be thrown when a promise is broken (have exception) and it is already handled.
@@ -63,4 +69,16 @@ module.exports.diff = function (a, b) {
   return a.filter(function(i) {
     return b.indexOf(i) < 0;
   });
+}
+
+/**
+ * Factory function for creating google.auth.OAuth2 client.
+ * Just because copying code is too stubid.
+ *
+ * @static
+ * @returns {google.auth.OAuth2} - New OAuth2 object that have client ID,
+ * secret and redirect url set.
+ */
+module.exports.oauth2clientFactory = function () {
+  return new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
 }

@@ -3,16 +3,13 @@
  * @module sms-library-helper/backend/handlers/dev
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
- *
- * @requires googleapis
  */
 
 'use strict';
 
-let google = require('googleapis');
 let models = require('../models');
-let config = require('../../config');
 let cron = require('../job');
+let utils = require('../utils');
 
 /**
  * Render debug routing page, which shows operations can be done under develop mode.
@@ -117,7 +114,7 @@ module.exports.gapi.revoke = (req, res) => {
       ok: false
     });
   }
-  let oauth2client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
+  let oauth2client = utils.oauth2clientFactory();
   oauth2client.setCredentials(req.session.tokens);
   oauth2client.revokeCredentials(() => {
     return res.json({

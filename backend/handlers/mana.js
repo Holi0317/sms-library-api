@@ -16,10 +16,6 @@ let config = require('../../config');
 let models = require('../models');
 let utils = require('../utils');
 
-function oauth2clientFactory() {
-  return new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
-}
-
 /**
  * Check if user is qualified for accessing the mana page.
  * Return a 404 page is user is not qualified.
@@ -81,7 +77,7 @@ module.exports.getUser = function (req, res) {
 
       let plus = google.plus('v1');
       let getAsync = Promise.promisify(plus.people.get);
-      let oauth2client = oauth2clientFactory();
+      let oauth2client = utils.oauth2clientFactory();
       oauth2client.setCredentials(result.tokens);
 
       return getAsync({userId: 'me', auth: oauth2client});

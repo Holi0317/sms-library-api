@@ -15,12 +15,9 @@ let google = require('googleapis');
 let Promise = require('bluebird');
 let assert = require('assert');
 
-let config = require('../../config');
 let libApi = require('../api');
 let models = require('../models');
 let utils = require('../utils');
-
-Promise.promisifyAll(google.auth.OAuth2.prototype);
 
 /**
  * Express middleware that checks if user has logined. If not, redirect to login page.
@@ -55,18 +52,6 @@ function getUserProfile(googleId) {
 }
 
 /**
- * Factory function for creating google.auth.OAuth2 client.
- * Just because copying code is too stubid.
- *
- * @static
- * @returns {google.auth.OAuth2} - New OAuth2 object that have client ID,
- * secret and redirect url set.
- */
-function oauth2clientFactory() {
-  return new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
-}
-
-/**
  * Handles index logic.
  * If user is logined, query his/her information and then render user page.
  * Else, render welcome page.
@@ -98,7 +83,7 @@ module.exports.login = (req, res) => {
     return res.redirect(req.app.namedRoutes.build('root.index'));
   }
   // Step1, get authorize url
-  let oauth2client = oauth2clientFactory();
+  let oauth2client = utils.oauth2clientFactory();
   let authUrl = oauth2client.generateAuthUrl({
     access_type: 'offline',
     scope: ['https://www.googleapis.com/auth/calendar', 'profile']
@@ -119,7 +104,7 @@ module.exports.googleCallback = (req, res) => {
     return res.status(401).render('auth_fail');
   }
 
-  let oauth2client = oauth2clientFactory();
+  let oauth2client = utils.oauth2clientFactory();
 
   // Step2, exchange code
   oauth2client.getTokenAsync(req.query.code)
@@ -265,7 +250,7 @@ module.exports.user.post = (req, res) => {
  */
 module.exports.user.delete = (req, res) => {
   // Remove user
-  let oauth2client = oauth2clientFactory();
+  let oauth2client = utils.oauth2clientFactory();
   oauth2client.setCredentials(req.session.tokens);
   let googleId = req.session.googleId;
 
