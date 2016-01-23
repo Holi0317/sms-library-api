@@ -23,7 +23,7 @@ module.exports = function (app, handlers) {
   app.get('/logout', handlers.root.logout);
   app.get('/418', handlers.root.troll);
 
-  if (app.get('env') === 'development') {
+  if (app.get('env') !== 'development') {
     app.use('/mana', handlers.mana.middleware);
   }
   app.get('/mana', handlers.mana.index);
