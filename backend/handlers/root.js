@@ -222,7 +222,7 @@ module.exports.user.post = (req, res) => {
     result.renewDate = body.renewDate || undefined;
     result.calendarName = body.calendarName || undefined;
 
-    result.logs.push(new models.Log('Changed user profile.'));
+    result.log('Changed user profile.');
 
     return result.save()
   })

@@ -50,6 +50,7 @@ Promise.promisifyAll(calendar.events);
  * @prop {backend/api.User} library - Library API bound to user.
  * @prop {Number} celdnarID - Google calendar ID that matches the name of user defined.
  * @prop {bool} failed - Trye if any operation failed.
+ * @prop {function} log - Log message to user.
  *
  * @see {@link sms-library-helper/backend/job~UserFunctionFactory}
  */
@@ -69,19 +70,8 @@ class UserFunctions {
     this.library = new LibraryApi();
     this.calendarID = null;
     this.failed = false;
-  }
 
-  /**
-   * Log message into user log.
-   * Just a wrapper for creating {@link backend/models.Log} object and pushing it into
-   * user.logs.
-   *
-   * @param {object} a - First option to be passed into Log constructor.
-   * @param {object} b - Second option to be passed into Log constructor.
-   * @see backend/models.Log
-   */
-  log(a, b) {
-    this.user.logs.push(new models.Log(a, b));
+    this.log = this.user.log.bind(this.user);
   }
 
   /**
@@ -461,8 +451,8 @@ class UserFunctionFactory {
 
     users.forEach(user => {
       let uf = new UserFunctions(user);
+      user.log('Started cron job.');
       this.users.push(uf);
-      uf.log('Started cron job.');
       promises.push(uf.refreshToken().catch(utils.catchIgnore));
     })
 

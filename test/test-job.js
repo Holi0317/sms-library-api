@@ -70,7 +70,8 @@ describe('Cron job', function() {
       renewDate: 3,
       renewEnabled: false,
       calendarName: 'slh autorenew',
-      logs: []
+      logs: [],
+      log: sinon.stub()
     }
     user.save = sinon.stub();
     user.save.returns(Promise.resolve());

@@ -18,10 +18,10 @@ mongoose.Promise = require('bluebird');
 
 /**
  * Defines schema to be used in mongoDB.
- * @const {Object.<string, mongoose.Schema>} schema
+ * @var {Object.<string, mongoose.Schema>} schema
  * @alias module:sms-library-helper/backend/models._schema
  */
-const schema = {
+let schema = {
   user: new mongoose.Schema({
     tokens: mongoose.Schema.Types.Mixed,
     googleId: String,
@@ -57,9 +57,24 @@ const schema = {
 };
 
 /**
+ * Instance method.
+ * Append a log entry into user document.
+ * Does NOT perform save action.
+ *
+ * @param {string} message - Message to be logged.
+ * @param {string} [level=DEBUG] - Level of the log message. Valid levels: DEBUG, INFO, WARN, ERROR, FATAL, SUCCESS.
+ * They will not be validicated until it is written into database.
+ */
+schema.user.methods.log = function(message, level) {
+  let msg = new Log(message, level);
+  this.logs.push(msg);
+}
+
+/**
  * Helper class for a log message.
  *
  * @class
+ * @private
  * @param {string} message - Message to be logged.
  * @param {string} [level=DEBUG] - Level of the log message. Valid levels: DEBUG, INFO, WARN, ERROR, FATAL, SUCCESS.
  * They will not be validicated until it is written into database.
@@ -68,7 +83,7 @@ const schema = {
  * @prop {string} message - Message content.
  * @prop {Date} time - Time of this message being created.
  *
- * @alias module:sms-library-helper/backend/models.Log
+ * @alias module:sms-library-helper/backend/models._Log
  */
 function Log(message, level) {
   this.level = typeof level !== 'undefined' ?  level : 'INFO';
@@ -79,4 +94,4 @@ function Log(message, level) {
 /** Model of the user. */
 module.exports.user = conn.model('User', schema.user);
 module.exports._schema = schema;
-module.exports.Log = Log;
+module.exports._Log = Log;
