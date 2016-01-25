@@ -16,10 +16,6 @@ describe('Cron job', function() {
   let user;
   let google, calendar, OAuth2, config, LibraryApi, _utils;
 
-  before(function supressConnError() {
-    require('../config').conn.on('error', function(){});
-  });
-
   beforeEach(function mockExternalLib() {
     OAuth2 = {};
     OAuth2.setCredentials = sinon.stub();

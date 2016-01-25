@@ -120,6 +120,7 @@ gulp.task('nodemon', cb => {
 });
 
 gulp.task('test', () => {
+  require('./config').conn.on('error', function(){});
   return gulp.src('test/test-*.js')
     .pipe($.mocha())
     .once('end', () => {
