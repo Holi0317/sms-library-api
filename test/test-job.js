@@ -14,7 +14,7 @@ let utils = require('../backend/utils');
 describe('Cron job', function() {
   let job, functions;
   let user;
-  let google, calendar, OAuth2, config, LibraryApi, _OAuth2;
+  let google, calendar, OAuth2, config, LibraryApi, _utils;
 
   before(function supressConnError() {
     require('../config').conn.on('error', function(){});
@@ -23,8 +23,6 @@ describe('Cron job', function() {
   beforeEach(function mockExternalLib() {
     OAuth2 = {};
     OAuth2.setCredentials = sinon.stub();
-    _OAuth2 = sinon.stub();
-    _OAuth2.returns(OAuth2);
 
     calendar = {
       calendarList: {
@@ -42,9 +40,6 @@ describe('Cron job', function() {
     };
 
     google = {
-      auth: {
-        OAuth2: _OAuth2
-      },
       calendar: function() {
         return calendar
       }
@@ -82,10 +77,16 @@ describe('Cron job', function() {
     LibraryApi.reload = sinon.stub();
     LibraryApi.borrowedBooks = [];
 
+    _utils = {
+      oauth2clientFactory: sinon.stub()
+    };
+    _utils.oauth2clientFactory.returns(OAuth2);
+
     job = proxyquire('../backend/job', {
       googleapis: google,
       '../config': config,
-      './api': function() {}
+      './api': function() {},
+      './utils' : _utils
     });
     functions = new job._UserFunctions(user);
     functions.library = LibraryApi;
@@ -101,8 +102,6 @@ describe('Cron job', function() {
   })
 
   it('should initialize.', function() {
-    _OAuth2.should.be.calledWithNew;
-    _OAuth2.should.have.been.calledWithExactly('config.ClientId', 'config.clientSecret', 'config.redirectUrl');
     OAuth2.setCredentials.should.have.been.calledWithExactly(user.tokens);
   });
 
@@ -138,9 +137,8 @@ describe('Cron job', function() {
       .catch(err => {
         functions.failed.should.be.true;
         err.should.be.an.instanceof(utils.BreakSignal);
-        user.logs[0].should.have.property('message');
-        user.logs[0].message.should.have.string('Aborting');
-        user.logs[0].should.have.property('level', 'FATAL');
+        user.log.should.have.been.calledOnce;
+        user.log.should.have.been.calledWithExactly('Cannot refresh Google token. Aborting.', 'FATAL');
         console.error.should.be.called;
       });
   })
@@ -188,13 +186,17 @@ describe('Cron job', function() {
         LibraryApi.renew.should.have.been.calledOnce;
         LibraryApi.renew.should.have.been.calledWithExactly(LibraryApi.borrowedBooks[0]);
 
-        user.logs[0].message.should.have.string('borrowed');
-        user.logs[0].message.should.have.string('Example book A');
-        user.logs[0].message.should.have.string('Example book B');
-        user.logs[0].message.should.have.string('Example book C');
+        user.log.should.have.been.calledTwice;
 
-        user.logs[1].message.should.have.string('renewed');
-        user.logs[1].message.should.have.string('Example book A');
+        let args = user.log.args;
+
+        args[0][0].should.have.string('borrowed');
+        args[0][0].should.have.string('Example book A');
+        args[0][0].should.have.string('Example book B');
+        args[0][0].should.have.string('Example book C');
+
+        args[1][0].should.have.string('renewed');
+        args[1][0].should.have.string('Example book A');
 
         clock.restore();
       })
