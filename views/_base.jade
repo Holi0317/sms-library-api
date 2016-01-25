@@ -1,4 +1,5 @@
 doctype html
+include mixin/all
 block var
 html
   head
@@ -16,26 +17,11 @@ html
     block head
 
   body
-    include _navbar
-    
-    if session.flash
-      .container
-        .alert.alert-info.fade.in(role='alert')
-          button.close(type='button', data-dismiss='alert', aria-label='close')
-            span(aria-hidden='true') &times;
-          p=session.flash
-      - session.flash = null;
-      
-    if env === 'development'
-      .container
-        .alert.alert-warning.fade.in(role='alert')
-          button.close(type='button', data-dismiss='alert', aria-label='close')
-            span(aria-hidden='true') &times;
-          p Development mode is enabled. Disable it in production!
+    +navbar()
+    +flash()
+    +envWarn()
     
     block content
-    
-    include _help
     
     script(src=staticPath + 'scripts/bundle.js')
     block script

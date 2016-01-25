@@ -1,0 +1,7 @@
+mixin envWarn()
+  if env === 'development'
+    .container
+      .alert.alert-warning.fade.in(role='alert')
+        button.close(type='button', data-dismiss='alert', aria-label='close')
+          span(aria-hidden='true') &times;
+        p Development mode is enabled. Disable it in production!

@@ -60,8 +60,10 @@ const constraints = {
 
 module.exports = function(data) {
   return validate.async(data, constraints, {format: 'flat'})
-    .catch(err => {
-      let newError = new Error(err.join(';\n'));
-      return Promise.reject(newError);
-    })
+  .catch(err => {
+    let newError = new Error(err.join(';\n'));
+    return Promise.reject(newError);
+  })
 }
+
+module.exports._constraints = constraints;

@@ -36,5 +36,6 @@ module.exports = function (app, handlers) {
     app.use('/mana', handlers.mana.middleware);
   }
   app.get('/mana', 'mana.index', handlers.mana.index);
-  app.get('/mana/:user', 'mana.getUser', handlers.mana.getUser)
+  app.get('/mana/:user', 'mana.getUser', handlers.mana.getUser);
+  app.post('/mana/:user', 'mana.postUser', handlers.mana.postUser);
 };

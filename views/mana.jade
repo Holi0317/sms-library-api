@@ -1,12 +1,6 @@
 extends _base
 
-mixin cond(condition)
-  if condition
-    span.text-success &#10004;
-  else
-    span.text-danger &#10008;
-  
-block var
+block var;
   - var title = 'Management'
 
 block content
@@ -15,7 +9,10 @@ block content
       .panel-heading
         h3.panel-title Overview
       .panel-body
-        p Number of registered people: #{data.length}
+        p Node version: #{data.versions.node}
+        p v8 version: #{data.versions.v8}
+        p Platform: #{data.platform}, Arch: #{data.arch}
+        p Number of registered people: #{data.db.length}
         p Current mode: #{env}
 
   .container
@@ -31,12 +28,12 @@ block content
               th Enabled renew?
               th Admin?
             tbody
-              for people in data
+              for people in data.db
                 tr.clickable-row(data-href=url('mana.getUser', {user: people.googleId}))
                   td= people.googleId
                   if people.libraryLogin
                     td= people.libraryLogin
                   else
                     td: i Undefined
-                  td: +cond(people.renewEnabled)
-                  td: +cond(people.isAdmin)
+                  td: +tickCross(people.renewEnabled)
+                  td: +tickCross(people.isAdmin)

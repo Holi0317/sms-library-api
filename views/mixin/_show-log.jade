@@ -1,0 +1,51 @@
+mixin showLog(logs)
+  .container
+    .panel.panel-info
+      .panel-heading
+        h3.panel-title Logs
+      .panel-body
+        .togglebutton
+          label
+            input#toggle-debug(type='checkbox') 
+            | Show debug message
+        if logs.length > 0
+          .table-responsive
+            table.table.table-hover.logs-table
+              thead
+                th #
+                th Message
+                th Time
+              tbody
+                for log, i in logs
+                  tr(class=enumLogLevel[log.level])
+                    td= i + 1
+                    td.log-detail-dialog-entry(data-message=log.message, data-level=log.level, data-time=log.time.valueOf()): a= log.message
+                    td.moment.moment-relative(data-time=log.time.valueOf())
+        else
+          //- No log
+          .alert.alert-info(role='alert')
+            p.text-center There is no log yet :(
+            
+  
+  #log-detail-dialog.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+          h4.modal-title(replace-message)
+        .modal-body
+          .table-responsive
+            table.table.table-hover
+              tbody
+                tr
+                  td Date
+                  td(replace-time)
+                tr
+                  td Message
+                  td(replace-message)
+                tr
+                  td Log level
+                  td(replace-level)
+        .modal-footer
+          button.btn.btn-primary(type='button', data-dismiss='modal') Dismiss
+  

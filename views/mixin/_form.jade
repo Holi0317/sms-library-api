@@ -1,0 +1,24 @@
+//- Guideline: All mixin must begin with form_
+//- All mixin should have same function signiture, which is
+//- showName(human-readable name), name, value, [help], [others]
+
+mixin form_togglebutton(showName, name, value, help)
+  .form-group
+    .col-md-offset-2.col-md-10
+      .togglebutton
+        label
+          input(type='checkbox', name=name, checked=value)
+          | #{showName}
+  
+mixin form_input(showName, name, value, help, type)
+  .form-group
+    label.col-md-2.control-label= showName
+    .col-md-10
+      input.form-control(type=type, name=name, placeholder=showName, value=value)
+      if help
+        p.help-block.help-block-disp= help
+  
+mixin form_submit(text)
+  .form-group
+    .col-md-10.col-md-offset-2
+      button.btn.btn-primary.btn-raised(type='submit')= text

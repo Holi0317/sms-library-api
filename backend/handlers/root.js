@@ -95,13 +95,13 @@ module.exports.login = (req, res) => {
  * Handles callback from Google OAuth2 process.
  * This will request for user's Google ID, their name and write into MongoDB.
  * Then redirect them to index page.
- * If any error occured, render auth_fail page.
+ * If any error occured, render auth-fail page.
  */
 module.exports.googleCallback = (req, res) => {
   // OAUTH2 callback
   if (!req.query.code) {
     // Error occured. No code is responsed.
-    return res.status(401).render('auth_fail');
+    return res.status(401).render('auth-fail');
   }
 
   let oauth2client = utils.oauth2clientFactory();
@@ -136,7 +136,7 @@ module.exports.googleCallback = (req, res) => {
     return res.redirect(req.app.namedRoutes.build('root.index'));
   })
   .catch(err => {
-    res.status(401).render('auth_fail');
+    res.status(401).render('auth-fail');
     throw err;
   })
 }

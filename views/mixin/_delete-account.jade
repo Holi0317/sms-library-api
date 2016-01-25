@@ -1,0 +1,25 @@
+mixin deleteAccount()
+  .container
+    .panel.panel-danger
+      .panel-heading
+        h3.panel-title Delete Account
+      .panel-body
+        p Once your account is deleted, there is no way to recover it.
+        p: del You may ask NSA for recover process.
+        button.btn.btn-danger(type='button', data-toggle='modal', data-target='#'+dialogID.accountDelete) Delete my account
+          
+  .modal.fade(id=dialogID.accountDelete)
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+          h4.modal-title Are you sure to delete your account?
+        .modal-body
+          p Really, there is no way to recover.
+          p: del Although it is very easy to create a new one.
+          p This question is rather challenging.
+          p Think carefully.
+          
+        .modal-footer
+          button.btn.btn-primary(type='button', data-dismiss='modal') Wait. Don't delete.
+          button.btn.btn-danger#delete-account(type='button', data-dismiss='modal') Go ahead, delete it
