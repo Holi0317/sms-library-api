@@ -13,11 +13,11 @@
 
 let google = require('googleapis');
 let Promise = require('bluebird');
-let assert = require('assert');
 
 let libApi = require('../api');
 let models = require('../models');
 let utils = require('../utils');
+let validateUser = require('../validate/user-update');
 
 /**
  * Express middleware that checks if user has logined. If not, redirect to login page.
@@ -167,40 +167,9 @@ module.exports.user.post = (req, res) => {
     });
   }
 
-  // Serialize
-  let body = {
-    libraryLogin: (req.body.renewEnabled) ? req.body.libraryLogin: '',
-    libraryPassword: (req.body.renewEnabled) ? req.body.libraryPassword: '',
-    renewEnabled: req.body.renewEnabled,
-    renewDate: (req.body.renewDate) ? req.body.renewDate: 2,
-    calendarName: (req.body.calendarName) ? req.body.calendarName: ''
-  };
+  let body = req.body;  // Because I am too lazy to type.
 
-  function errorHandle(err) {
-    res.status(400).json({
-      ok: false,
-      message: err.message
-    });
-    throw(new utils.BreakSignal());
-  }
-
-  new Promise(resolve => {
-    // assertions for data checking
-    assert(typeof body.renewEnabled === 'boolean', 'Renew enabled must be a boolean');
-    assert(typeof body.renewDate === 'number', 'Renew date must be an integer');
-    assert(typeof body.calendarName === 'string', 'Calendar name must be a string');
-    assert(body.calendarName !== '', 'Calendar name must not be empty');
-    assert(body.renewDate >= 2 && body.renewDate < 14, 'Renew date must be an interger between 2 and 13, including both.');
-
-    if (body.renewEnabled) {
-      assert(typeof body.libraryLogin === 'string', 'Library login must be a string');
-      assert(typeof body.libraryPassword === 'string', 'Library password must be a string');
-    } else {
-      assert(typeof body.libraryLogin === 'string' || typeof body.libraryLogin === 'undefined', 'Library login must either be a string or undefined.');
-      assert(typeof body.libraryPassword === 'string' || typeof body.libraryPassword === 'undefined', 'Library password must either be a string or undefined.');
-    }
-    resolve();
-  })
+  validateUser(body)
   .then(() => {
     if (body.renewEnabled) {
       let userLibrary = new libApi();
@@ -209,18 +178,24 @@ module.exports.user.post = (req, res) => {
       return Promise.resolve()
     }
   })
-  .catch(errorHandle)
+  .catch(err => {
+    res.status(400).json({
+      ok: false,
+      message: err.message
+    });
+    throw(new utils.BreakSignal());
+  })
   .then(() => {
     return models.user.findOne({
       googleId: req.session.googleId
     })
   })
   .then(result => {
-    result.libraryLogin = body.libraryLogin || undefined;
-    result.libraryPassword = body.libraryPassword || undefined;
+    result.libraryLogin = body.libraryLogin;
+    result.libraryPassword = body.libraryPassword;
     result.renewEnabled = body.renewEnabled;
-    result.renewDate = body.renewDate || undefined;
-    result.calendarName = body.calendarName || undefined;
+    result.renewDate = body.renewDate;
+    result.calendarName = body.calendarName;
 
     result.log('Changed user profile.');
 
