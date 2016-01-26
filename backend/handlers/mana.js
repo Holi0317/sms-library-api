@@ -132,37 +132,40 @@ module.exports.postUser = function(req, res) {
   .catch(err => {
     req.session.flash = `[Error] form is invalid or library login/password is invalid. Message: ${err.message}`;
     res.redirect(req.app.namedRoutes.build('mana.index'));
-    throw(new utils.BreakSignal());
+    throw new utils.BreakSignal();
   })
   .then(() => {
-    return models.user.findOne({
+    let message = new models._Log('An admin has changed your configuration.', 'WARN');
+
+    return models.user.findOneAndUpdate({
       googleId: req.params.user
-    })
+    }, {
+      $set: {
+        libraryLogin: body.libraryLogin,
+        libraryPassword: body.libraryPassword,
+        renewEnabled: body.renewEnabled,
+        renewDate: body.renewDate,
+        calendarName: body.calendarName
+      },
+      $push: {
+        logs: message
+      }
+    });
+
   })
   .then(DBres => {
     if (!DBres) {
       res.render('mana-no-user');
       throw new utils.BreakSignal();
     }
-    DBres.libraryLogin = body.libraryLogin;
-    DBres.libraryPassword = body.libraryPassword;
-    DBres.renewEnabled = body.renewEnabled;
-    DBres.renewDate = body.renewDate;
-    DBres.calendarName = body.calendarName;
-
-    DBres.log('An admin has changed your configuration.', 'WARN');
-
-    return DBres.save();
-  })
-  .then(() => {
     req.session.flash = 'Data has been overridden.'
     res.redirect(req.app.namedRoutes.build('mana.index'));
-    return;
+    return Promise.resolve();
   })
   .catch(err => {
     if (!err instanceof utils.BreakSignal) {
       res.status(500).render('error');
     }
     return Promise.resolve();
-  })
+  });
 }
