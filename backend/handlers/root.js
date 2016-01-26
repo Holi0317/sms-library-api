@@ -186,26 +186,32 @@ module.exports.user.post = (req, res) => {
     throw(new utils.BreakSignal());
   })
   .then(() => {
-    return models.user.findOne({
+    let message = new models._Log('Changed user profile.');
+
+    return models.user.findOneAndUpdate({
       googleId: req.session.googleId
+    }, {
+      $set: {
+        libraryLogin: body.libraryLogin,
+        libraryPassword: body.libraryPassword,
+        renewEnabled: body.renewEnabled,
+        renewDate: body.renewDate,
+        calendarName: body.calendarName
+      },
+      $push: {
+        logs: message
+      }
     })
   })
-  .then(result => {
-    result.libraryLogin = body.libraryLogin;
-    result.libraryPassword = body.libraryPassword;
-    result.renewEnabled = body.renewEnabled;
-    result.renewDate = body.renewDate;
-    result.calendarName = body.calendarName;
-
-    result.log('Changed user profile.');
-
-    return result.save()
-  })
-  .then(() => {
-    return res.json({
-      message: 'Successfuly updated data.',
-      ok: true
-    });
+  .then(doc => {
+    if (doc) {
+      return res.json({
+        message: 'Successfuly updated data.',
+        ok: true
+      });
+    } else {
+      throw new Error('Document not found.');
+    }
   })
   .catch(err => {
     if (err instanceof utils.BreakSignal) {
