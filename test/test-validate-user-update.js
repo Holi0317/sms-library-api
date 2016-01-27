@@ -1,14 +1,52 @@
 'use strict';
 
 let chai = require('chai');
+let proxyquire = require('proxyquire');
+let sinon = require('sinon');
+let sinonChai = require('sinon-chai');
+let Promise = require('bluebird');
 
+chai.use(sinonChai);
 chai.should();
-
-let check = require('../backend/validate/user-update');
 
 function shouldThrowError() {}
 
 describe('Validate user update form', function() {
+
+  let check;
+  let libraryMock, _libraryMock;
+
+  beforeEach(function() {
+
+    libraryMock = {
+      checkLogin: sinon.stub()
+    };
+    libraryMock.checkLogin.returns(Promise.resolve());
+
+    _libraryMock = sinon.stub();
+    _libraryMock.returns(libraryMock);
+
+    check = proxyquire('../backend/validate/user-update', {
+      '../api': _libraryMock
+    });
+  });
+
+  it('should send request for validation of library login and password.', function() {
+    let data = {
+      renewEnabled: true,
+      renewDate: 3,
+      calendarName: 'calendar Name',
+      libraryLogin: 'Login name',
+      libraryPassword: 'Password'
+    }
+
+    return check(data)
+    .then(() => {
+      _libraryMock.should.have.been.calledWithNew;
+      libraryMock.checkLogin.should.have.been.calledOnce;
+      libraryMock.checkLogin.should.have.calledWithExactly('Login name', 'Password');
+    });
+  });
 
   it('should pass if all field is presence with correct type.', function() {
     let data = {
