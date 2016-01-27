@@ -68,6 +68,16 @@ function Book ($) {
 }
 
 /**
+ * Create request-promise with resolved object.
+ *
+ * @param {Object} options - Object that will be passed into request-promise.
+ * @returns {Promise} - Request-promise.
+ */
+function createReq(options) {
+  return request(options);
+}
+
+/**
  * Parser and request constructor for views in library system.
  * @prop {User} self - User object that this parser is bounded to.
  * @see {@link sms-library-helper/backend/api~User}
@@ -93,7 +103,7 @@ class Parser {
    * @param {object} res - Response object from requesting URLS.auth,
    * using request-promise and set resolveWithFullResponse = true.
    *
-   * @returns {Promise} - Request for info view. Meant to be chained with this.info.
+   * @returns {Object} - Request option for info view.
    *
    * @throws {Error} - Login failed. Perhaps id or password is incorrect.
    */
@@ -111,13 +121,11 @@ class Parser {
     }
 
     // Request for user record
-    let options = {
+    return {
       uri: self._formatUrl(URLS.info),
       jar: self._jar,
       encoding: null
     };
-
-    return request(options);
   }
 
   /**
@@ -135,7 +143,7 @@ class Parser {
     self.readerId = $('form[name="PATRONF"]>table font').last().text().replace(/\s/g, '');
 
     // Request for borrowed books
-    let options = {
+    return {
       uri: self._formatUrl(URLS.showRenew),
       jar: self._jar,
       encoding: null,
@@ -143,8 +151,6 @@ class Parser {
         PCode: self.readerId
       }
     };
-
-    return request(options);
   }
 
   /**
@@ -240,9 +246,39 @@ class User {
 
     return request(options)
     .then(this.parser.auth.bind(this.parser))
+    .then(createReq)
     .then(this.parser.info.bind(this.parser))
+    .then(createReq)
     .then(this.parser.showRenew.bind(this.parser));
   }
+
+  /**
+   * Send login request and check if given id and password is valid.
+   * If it is invalid, the promise will be rejected.
+   *
+   * @param {string} id - Login id of the user.
+   * @param {string} passwd - Login password of the user.
+   *
+   * @returns {Promise} - Promise that will be resolved if id and password is valid.
+   * Rejected if it is incorrect.
+   */
+   checkLogin(id, passwd) {
+     this.id = id;
+
+     let options = {
+       uri: URLS.auth,
+       jar: this._jar,
+       qs: {
+         UserID: id,
+         Passwd: passwd
+       },
+       resolveWithFullResponse: true
+     };
+
+     return request(options)
+     .then(this.parser.auth.bind(this.parser))
+     .then(() => {return Promise.resolve()});   // Supress result of previous action.
+   }
 
   /**
    * Reload borrowed books.
