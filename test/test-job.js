@@ -111,17 +111,17 @@ describe('Cron job', function() {
     }));
 
     return functions.refreshToken()
-      .then(() => {
-        functions.failed.should.be.false;
-        user.tokens.should.deep.equal({
-          expiry_date: 1452857436174,
-          id_token: 'new id_token',
-          token_type: 'Bearer',
-          access_token: 'new access_token',
-          refresh_token: 'refresh_token'
-        });
-        user.save.should.have.been.calledOnce;
-      })
+    .then(() => {
+      functions.failed.should.be.false;
+      user.tokens.should.deep.equal({
+        expiry_date: 1452857436174,
+        id_token: 'new id_token',
+        token_type: 'Bearer',
+        access_token: 'new access_token',
+        refresh_token: 'refresh_token'
+      });
+      user.save.should.have.been.calledOnce;
+    })
   });
 
   it('should handle fail of refresh token.', function() {
@@ -130,20 +130,20 @@ describe('Cron job', function() {
     OAuth2.refreshAccessTokenAsync.returns(Promise.reject(e));
 
     return functions.refreshToken()
-      .catch(err => {
-        functions.failed.should.be.true;
-        err.should.be.an.instanceof(utils.BreakSignal);
-        user.log.should.have.been.calledOnce;
-        user.log.should.have.been.calledWithExactly('Cannot refresh Google token. Aborting.', 'FATAL');
-        console.error.should.be.called;
-      });
+    .catch(err => {
+      functions.failed.should.be.true;
+      err.should.be.an.instanceof(utils.BreakSignal);
+      user.log.should.have.been.calledOnce;
+      user.log.should.have.been.calledWithExactly('Cannot refresh Google token. Aborting.', 'FATAL');
+      console.error.should.be.called;
+    });
   })
 
   it('should do nothing when renew is not enabled.', function() {
     return functions.renewBooks()
-      .then(res => {
-        (typeof res === 'undefined').should.be.true;
-      });
+    .then(res => {
+      (typeof res === 'undefined').should.be.true;
+    });
   });
 
   it('should process if renew is enabled.', function() {
@@ -176,26 +176,26 @@ describe('Cron job', function() {
     let clock = sinon.useFakeTimers(1452938366332);   // 1/16/2016 17:59
 
     return functions.renewBooks()
-      .then(() => {
-        functions.failed.should.be.false;
+    .then(() => {
+      functions.failed.should.be.false;
 
-        LibraryApi.renew.should.have.been.calledOnce;
-        LibraryApi.renew.should.have.been.calledWithExactly(LibraryApi.borrowedBooks[0]);
+      LibraryApi.renew.should.have.been.calledOnce;
+      LibraryApi.renew.should.have.been.calledWithExactly(LibraryApi.borrowedBooks[0]);
 
-        user.log.should.have.been.calledTwice;
+      user.log.should.have.been.calledTwice;
 
-        let args = user.log.args;
+      let args = user.log.args;
 
-        args[0][0].should.have.string('borrowed');
-        args[0][0].should.have.string('Example book A');
-        args[0][0].should.have.string('Example book B');
-        args[0][0].should.have.string('Example book C');
+      args[0][0].should.have.string('borrowed');
+      args[0][0].should.have.string('Example book A');
+      args[0][0].should.have.string('Example book B');
+      args[0][0].should.have.string('Example book C');
 
-        args[1][0].should.have.string('renewed');
-        args[1][0].should.have.string('Example book A');
+      args[1][0].should.have.string('renewed');
+      args[1][0].should.have.string('Example book A');
 
-        clock.restore();
-      })
+      clock.restore();
+    })
   });
 
   it('should get calendar when match is found.', function() {
@@ -221,10 +221,10 @@ describe('Cron job', function() {
     }));
 
     return functions._getCalendar()
-      .then(() => {
-        functions.failed.should.be.false;
-        functions.calendarID.should.be.equal('1000');
-      });
+    .then(() => {
+      functions.failed.should.be.false;
+      functions.calendarID.should.be.equal('1000');
+    });
   });
 
   it('should create calendar if match is not found.', function() {
@@ -251,10 +251,10 @@ describe('Cron job', function() {
     }));
 
     return functions._getCalendar()
-      .then(() => {
-        functions.failed.should.be.false;
-        functions.calendarID.should.be.equal('1000');
-      });
+    .then(() => {
+      functions.failed.should.be.false;
+      functions.calendarID.should.be.equal('1000');
+    });
   });
 
   it('should create correct event resource', function() {
@@ -356,25 +356,25 @@ describe('Cron job', function() {
     });
 
     return functions.refreshCalendar()
-      .then(() => {
-        calendar.events.listAsync.should.have.been.calledOnce;
-        let opt = calendar.events.listAsync.args[0][0];
-        opt.should.have.property('calendarId', '1000');
+    .then(() => {
+      calendar.events.listAsync.should.have.been.calledOnce;
+      let opt = calendar.events.listAsync.args[0][0];
+      opt.should.have.property('calendarId', '1000');
 
-        calendar.events.updateAsync.should.have.been.calledOnce;
-        opt = calendar.events.updateAsync.args[0][0];
-        opt.should.have.property('eventId', '2001');
-        opt.should.have.deep.property('resource.start.date', new Date('1/30/2016').valueOf());
+      calendar.events.updateAsync.should.have.been.calledOnce;
+      opt = calendar.events.updateAsync.args[0][0];
+      opt.should.have.property('eventId', '2001');
+      opt.should.have.deep.property('resource.start.date', new Date('1/30/2016').valueOf());
 
-        calendar.events.insertAsync.should.have.been.calledOnce;
-        opt = calendar.events.insertAsync.args[0][0];
-        opt.should.have.deep.property('resource.summary', '0003');
-        opt.should.have.deep.property('resource.start.date', new Date('1/30/2016').valueOf());
+      calendar.events.insertAsync.should.have.been.calledOnce;
+      opt = calendar.events.insertAsync.args[0][0];
+      opt.should.have.deep.property('resource.summary', '0003');
+      opt.should.have.deep.property('resource.start.date', new Date('1/30/2016').valueOf());
 
-        calendar.events.deleteAsync.should.have.been.calledOnce;
-        opt = calendar.events.deleteAsync.args[0][0];
-        opt.should.have.property('eventId', '2004');
-      });
+      calendar.events.deleteAsync.should.have.been.calledOnce;
+      opt = calendar.events.deleteAsync.args[0][0];
+      opt.should.have.property('eventId', '2004');
+    });
 
   });
 
@@ -387,9 +387,9 @@ describe('Cron job', function() {
     }
 
     return functions.saveProfile()
-      .then(() => {
-        user.logs.should.have.length(100);
-      });
+    .then(() => {
+      user.logs.should.have.length(100);
+    });
   });
 
 });
