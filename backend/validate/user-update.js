@@ -16,6 +16,8 @@ let Promise = require('bluebird');
 require('./validator-fn');
 require('./validator-type');
 
+let libApi = require('../api');
+
 validate.Promise = Promise;
 
 function libraryCheck(value, options, key, attributes) {
@@ -62,8 +64,17 @@ module.exports = function(data) {
   return validate.async(data, constraints, {format: 'flat'})
   .catch(err => {
     let newError = new Error(err.join(';\n'));
-    return Promise.reject(newError);
+    throw newError;
   })
+  .then(() => {
+    if (data.renewEnabled) {
+      let userLibrary = new libApi();
+      return userLibrary.checkLogin(data.libraryLogin, data.libraryPassword);
+    } else {
+      return Promise.resolve();
+    }
+  })
+  // TODO check for dupe libraryLogin in DB.
 }
 
 module.exports._constraints = constraints;

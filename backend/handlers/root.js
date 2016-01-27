@@ -14,7 +14,6 @@
 let google = require('googleapis');
 let Promise = require('bluebird');
 
-let libApi = require('../api');
 let models = require('../models');
 let utils = require('../utils');
 let validateUser = require('../validate/user-update');
@@ -170,20 +169,12 @@ module.exports.user.post = (req, res) => {
   let body = req.body;  // Because I am too lazy to type.
 
   validateUser(body)
-  .then(() => {
-    if (body.renewEnabled) {
-      let userLibrary = new libApi();
-      return userLibrary.login(body.libraryLogin, body.libraryPassword);
-    } else {
-      return Promise.resolve()
-    }
-  })
   .catch(err => {
     res.status(400).json({
       ok: false,
       message: err.message
     });
-    throw(new utils.BreakSignal());
+    throw new utils.BreakSignal();
   })
   .then(() => {
     let message = new models._Log('Changed user profile.');
