@@ -14,7 +14,7 @@ function shouldThrowError() {}
 describe('Validate user update form', function() {
 
   let check;
-  let libraryMock, _libraryMock;
+  let libraryMock, _libraryMock, models;
 
   beforeEach(function() {
 
@@ -26,8 +26,16 @@ describe('Validate user update form', function() {
     _libraryMock = sinon.stub();
     _libraryMock.returns(libraryMock);
 
+    models = {
+      user: {
+        find: sinon.stub()
+      }
+    };
+    models.user.find.returns(Promise.resolve([]));
+
     check = proxyquire('../backend/validate/user-update', {
-      '../api': _libraryMock
+      '../api': _libraryMock,
+      '../models': models
     });
   });
 
@@ -38,13 +46,81 @@ describe('Validate user update form', function() {
       calendarName: 'calendar Name',
       libraryLogin: 'Login name',
       libraryPassword: 'Password'
-    }
+    };
 
     return check(data)
     .then(() => {
       _libraryMock.should.have.been.calledWithNew;
       libraryMock.checkLogin.should.have.been.calledOnce;
       libraryMock.checkLogin.should.have.calledWithExactly('Login name', 'Password');
+    });
+  });
+
+  it('should fail if library login and password checks failes.', function() {
+    let data = {
+      renewEnabled: true,
+      renewDate: 3,
+      calendarName: 'calendar Name',
+      libraryLogin: 'Login name',
+      libraryPassword: 'Password'
+    };
+    let error = new Error('Reject promise.');
+
+    libraryMock.checkLogin.returns(Promise.reject(error));
+
+    return check(data)
+    .then(() => {
+      throw new shouldThrowError();
+    })
+    .catch(err => {
+      if (err instanceof shouldThrowError) {
+        throw new Error('Expected to fail. But succeed.');
+      }
+      _libraryMock.should.have.been.calledWithNew;
+      libraryMock.checkLogin.should.have.been.calledOnce;
+      libraryMock.checkLogin.should.have.calledWithExactly('Login name', 'Password');
+      error.message.should.equal(err.message);
+    });
+  });
+
+  it('should query Database for duplicate user record.', function() {
+    let data = {
+      renewEnabled: true,
+      renewDate: 3,
+      calendarName: 'calendar Name',
+      libraryLogin: 'Login name',
+      libraryPassword: 'Password'
+    };
+    let googleId = 'Fake google ID';
+
+    return check(data, googleId)
+    .then(() => {
+      models.user.find.should.have.been.calledOnce;
+      let args = models.user.find.args[0][0];
+      args.libraryLogin.should.equal('Login name');
+      args.googleId.$ne.should.equal(googleId);
+    });
+  });
+
+  it('should fail it duplicate user record found.', function() {
+    let data = {
+      renewEnabled: true,
+      renewDate: 3,
+      calendarName: 'calendar Name',
+      libraryLogin: 'Login name',
+      libraryPassword: 'Password'
+    };
+
+    models.user.find.returns(Promise.resolve(['Fake user record.']));
+
+    return check(data)
+    .then(() => {
+      throw new shouldThrowError();
+    })
+    .catch(err => {
+      if (err instanceof shouldThrowError) {
+        throw new Error('Expected to fail. But succeed.');
+      }
     });
   });
 

@@ -17,6 +17,7 @@ require('./validator-fn');
 require('./validator-type');
 
 let libApi = require('../api');
+let models = require('../models');
 
 validate.Promise = Promise;
 
@@ -60,7 +61,7 @@ const constraints = {
   }
 };
 
-module.exports = function(data) {
+module.exports = function(data, googleId) {
   return validate.async(data, constraints, {format: 'flat'})
   .catch(err => {
     let newError = new Error(err.join(';\n'));
@@ -74,7 +75,28 @@ module.exports = function(data) {
       return Promise.resolve();
     }
   })
-  // TODO check for dupe libraryLogin in DB.
+  .then(() => {
+    if (!data.libraryLogin) {
+      return Promise.resolve();
+    }
+
+    return models.user.find({
+      libraryLogin: data.libraryLogin,
+      googleId: {
+        $ne: googleId
+      }
+    });
+  })
+  .then(res => {
+    if (!data.libraryLogin) {
+      return Promise.resolve();
+    }
+
+    if (res.length) {
+      // Dupe login ID found.
+      throw new Error('Duplicate user ID found in Database. Did you register in the past?');
+    }
+  });
 }
 
 module.exports._constraints = constraints;

@@ -168,7 +168,7 @@ module.exports.user.post = (req, res) => {
 
   let body = req.body;  // Because I am too lazy to type.
 
-  validateUser(body)
+  validateUser(body, req.session.googleId)
   .catch(err => {
     res.status(400).json({
       ok: false,
