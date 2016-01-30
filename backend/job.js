@@ -298,8 +298,9 @@ class UserFunctions {
      */
     let processBook = function (resource, events) {
       for (let event of events.items) {   // For each event.
+        let resDate = resource.end.date;
         if (event.summary === resource.summary) {   // Is this event the one I want for this book?
-          if (event.end.date !== resource.end.date) {   // Is due date unchanged? (renewed?)
+          if (event.end.date !== resDate || event.start.date !== resDate) {   // Has event date changed? (renewed/touched?)
             promises.push(calendar.events.updateAsync({
               auth: this.oauth2client,
               calendarId: this.calendarID,
