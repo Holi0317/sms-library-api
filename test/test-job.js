@@ -277,16 +277,11 @@ describe('Cron job', function() {
     functions._getCalendar = function () {
       return Promise.resolve();
     };
+    let realCreateSRC = functions._createEventResource;
     functions._createEventResource = function (a) {
-      return {
-        summary: a.id,
-        start: {
-          date: a.dueDate.valueOf()
-        },
-        end: {
-          date: a.dueDate.valueOf()
-        }
-      }
+      let res = realCreateSRC(a);
+      res.summary = a.id;
+      return res;
     }
     LibraryApi.reload.returns(Promise.resolve());
 
@@ -319,11 +314,11 @@ describe('Cron job', function() {
         id: '2001',
         summary: '0001',
         start: {
-          date: new Date('1/17/2016').valueOf(),
+          date: '2016-01-17',
           timeZone: 'Asia/Hong_Kong'
         },
         end: {
-          date: new Date('1/17/2016').valueOf(),
+          date: '2016-01-17',
           timeZone: 'Asia/Hong_Kong'
         }
       }, {
@@ -332,11 +327,11 @@ describe('Cron job', function() {
         id: '2002',
         summary: '0002',
         start: {
-          date: new Date('1/30/2016').valueOf(),
+          date: '2016-01-30',
           timeZone: 'Asia/Hong_Kong'
         },
         end: {
-          date: new Date('1/30/2016').valueOf(),
+          date: '2016-01-30',
           timeZone: 'Asia/Hong_Kong'
         }
       }, {
@@ -344,11 +339,11 @@ describe('Cron job', function() {
         id: '2004',
         summary: '0004',
         start: {
-          date: new Date('1/1/2016').valueOf(),
+          date: '2016-01-01',
           timeZone: 'Asia/Hong_Kong'
         },
         end: {
-          date: new Date('1/1/2016').valueOf(),
+          date: '2016-01-01',
           timeZone: 'Asia/Hong_Kong'
         }
       }]
@@ -364,12 +359,12 @@ describe('Cron job', function() {
       calendar.events.updateAsync.should.have.been.calledOnce;
       opt = calendar.events.updateAsync.args[0][0];
       opt.should.have.property('eventId', '2001');
-      opt.should.have.deep.property('resource.start.date', new Date('1/30/2016').valueOf());
+      opt.should.have.deep.property('resource.start.date', '2016-01-30');
 
       calendar.events.insertAsync.should.have.been.calledOnce;
       opt = calendar.events.insertAsync.args[0][0];
       opt.should.have.deep.property('resource.summary', '0003');
-      opt.should.have.deep.property('resource.start.date', new Date('1/30/2016').valueOf());
+      opt.should.have.deep.property('resource.start.date', '2016-01-30');
 
       calendar.events.deleteAsync.should.have.been.calledOnce;
       opt = calendar.events.deleteAsync.args[0][0];

@@ -42,6 +42,18 @@ Promise.promisifyAll(calendar.calendars);
 Promise.promisifyAll(calendar.events);
 
 /**
+ * Convert Date object to Google calendar's format, 'yyyy-mm-dd'.
+ *
+ * @param {Date} date - Date object to be converted.
+ *
+ * @returns {string} - Date with yyyy-mm-dd as format.
+ * @private
+ */
+function dateToGoogle(date) {
+  return `${date.getFullYear()}-${('0' + (date.getMonth()+1)).slice(-2)}-${('0' + date.getDate()).slice(-2)}`
+}
+
+/**
  * A collection of promises that bind to a user's library and google account.
  * Use UserFunctionFactory for batch execution.
  *
@@ -243,8 +255,7 @@ class UserFunctions {
    * @private
    */
   _createEventResource (book) {
-    let _date = book.dueDate;
-    let date = `${_date.getFullYear()}-${('0' + (_date.getMonth()+1)).slice(-2)}-${('0' + _date.getDate()).slice(-2)}`;
+    let date = dateToGoogle(book.dueDate);
 
     return {
       summary: `Due date for book ${book.name}. ID: ${book.id}`,
@@ -354,9 +365,10 @@ class UserFunctions {
             calendarId: this.calendarID,
             resource: resource
           }));
-        }
 
-        logCreated.push(book.name);
+          logCreated.push(book.name);
+
+        }
 
       }
 
