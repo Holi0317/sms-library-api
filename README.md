@@ -16,3 +16,8 @@ Well, this tool will help user to auto-renew book and add due date to Google cal
 
 ## License
 This project is released under MIT License.
+
+## Deploy
+ - Checkout nginx-example.conf for nginx example.
+ - Use pm2 for deployment.
+ - Copy `config.template.js` to `config.js` and edit it by those comments.
