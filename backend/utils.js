@@ -82,3 +82,15 @@ module.exports.diff = function (a, b) {
 module.exports.oauth2clientFactory = function () {
   return new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
 }
+
+/**
+ * Error catcher for validate.js.
+ * Validate.js throws an array as error in flat mode. This handler will join the array
+ * with ';\n' and throw an error object.
+ *
+ * @param {Array} err - Error array thrown by validate.js in flat mode.
+ * @throws {Error} - Error object with error accepted.
+ */
+module.exports.validateErrorHandle = function(err) {
+  throw new Error(err.join(';\n'));
+};

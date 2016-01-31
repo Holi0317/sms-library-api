@@ -18,6 +18,7 @@ require('./validator-type');
 
 let libApi = require('../api');
 let models = require('../models');
+let utils = require('../utils');
 
 validate.Promise = Promise;
 
@@ -61,21 +62,30 @@ const constraints = {
   }
 };
 
-module.exports = function(data, googleId) {
-  return validate.async(data, constraints, {format: 'flat'})
-  .catch(err => {
-    let newError = new Error(err.join(';\n'));
-    throw newError;
-  })
-  .then(() => {
+/**
+ * Post-validate.js validation checks.
+ * This will check if library login is correct, if there is duplicate library login ID
+ * in database.
+ *
+ * @private
+ * @param {Object} data - Data to be validated, which has passed validate.js.
+ * @param {string} googleId - Google ID of the user. Used to check dupe login ID.
+ * @returns {function->Promise} - Promise to be chained after validate.js.
+ * @throws {error} - Library login/password is incorrect.
+ * @throws {error} - Duplicate user ID found in database.
+ */
+let afterValidate = function(data, googleId) {
+
+  function checkLogin() {
     if (data.renewEnabled) {
       let userLibrary = new libApi();
       return userLibrary.checkLogin(data.libraryLogin, data.libraryPassword);
     } else {
-      return Promise.resolve();
+      return Promise.resolve()
     }
-  })
-  .then(() => {
+  }
+
+  function makeCheckDupe() {
     if (!data.libraryLogin) {
       return Promise.resolve();
     }
@@ -86,8 +96,9 @@ module.exports = function(data, googleId) {
         $ne: googleId
       }
     });
-  })
-  .then(res => {
+  }
+
+  function checkDupe(res) {
     if (!data.libraryLogin) {
       return Promise.resolve();
     }
@@ -96,7 +107,31 @@ module.exports = function(data, googleId) {
       // Dupe login ID found.
       throw new Error('Duplicate user ID found in Database. Did you register in the past?');
     }
-  });
+  }
+
+  return function() {
+    return Promise.resolve()
+    .then(checkLogin)
+    .then(makeCheckDupe)
+    .then(checkDupe);
+  }
+}
+
+/**
+ * Validate user post data.
+ * Will check if data is valid, can login into library and if there is duplicate ID.
+ *
+ * @param {object} data - Data to be validated.
+ * @param {string} googleId - Google ID of the user. For querying DB for dupe ID.
+ * @returns {Promise}
+ * @throws {error} - Validation failed because of various reasons. Human-readable
+ * reason is in error.message.
+ */
+module.exports = function(data, googleId) {
+  return validate.async(data, constraints, {format: 'flat'})
+  .catch(utils.validateErrorHandle)
+  .then(afterValidate(data, googleId));
 }
 
 module.exports._constraints = constraints;
+module.exports._afterValidate = afterValidate;
