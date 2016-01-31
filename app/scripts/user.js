@@ -1,4 +1,5 @@
 let moment = require('moment');
+let validate = require('./validate');
 
 function _markError(name) {
   this.find(`[name='${name}']`).parents('.form-group:first').addClass('has-error');
@@ -17,8 +18,7 @@ module.exports = function($) {
 
     // Make variables.
     let form = $(this);
-    let markError = _markError.bind(form);
-    let ok = true;
+    let ok;
 
     // Serialize form
     let data = {};
@@ -32,26 +32,8 @@ module.exports = function($) {
       form.find(`[name='${element}']`).parents('.form-group:first').removeClass('has-error');
     }
 
-    // Change type
-    data.renewDate = Number(data.renewDate);
-    data.renewEnabled = Boolean(data.renewEnabled);
-
     // Validate
-    if (data.renewEnabled && (data.libraryLogin === '' || data.libraryPassword === '')) {
-      markError('libraryLogin');
-      markError('libraryPassword');
-      ok = false;
-    }
-
-    if (data.renewDate < 2 || data.renewDate >= 14) {
-      markError('renewDate');
-      ok = false;
-    }
-
-    if (data.calendarName === '') {
-      markError('calendarName');
-      ok = false;
-    }
+    [data, ok] = validate[form.attr('validator')](data, _markError.bind(form));
 
     if (!ok) {
       formLock = false;

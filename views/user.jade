@@ -16,7 +16,7 @@ block content
     .jumbotron
       .alert.alert-warning(role='alert')
         p 注意: 請不要增加/修改指定Google日曆內的一切活動。所有不相關的活動將會被刪除。
-      form.form-horizontal(data-async, action=url('root.user'), method="POST")
+      form.form-horizontal(data-async, action=url('root.user'), method='POST', validator='user')
         fieldset
           legend Informations update
 
