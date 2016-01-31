@@ -19,3 +19,4 @@ $(() => {
 $(require('./utils'));
 $(require('./user'));
 $(require('./troll'));
+$(require('./form'));
