@@ -4,15 +4,18 @@
  * @module sms-library-helper/validate/user-update
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
+ *
+ * @requires lodash.clonedeep
+ * @requires validate.js
  */
 
 'use strict';
 
 let cloneDeep = require('lodash.clonedeep');
 let validate = require('validate.js');
-let Promise = require('bluebird');
 
 let _userUpdate = require('./user-update');
+let utils = require('../utils');
 let constraints = cloneDeep(_userUpdate);
 
 constraints.isAdmin = {
@@ -20,12 +23,10 @@ constraints.isAdmin = {
   presence: true
 };
 
-module.exports = function(data) {
+module.exports = function(data, googleId) {
   return validate.async(data, constraints, {format: 'flat'})
-  .catch(err => {
-    let newError = new Error(err.join(';\n'));
-    return Promise.reject(newError);
-  })
+  .catch(utils.validateErrorHandle)
+  .then(_userUpdate._afterValidate(data, googleId));
 }
 
 module.exports._constraints = constraints;

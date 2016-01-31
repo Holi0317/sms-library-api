@@ -17,7 +17,6 @@ let google = require('googleapis');
 let Promise = require('bluebird');
 
 let config = require('../../config');
-let libApi = require('../api');
 let models = require('../models');
 let utils = require('../utils');
 let validateUser = require('../validate/user-update');
@@ -44,7 +43,6 @@ module.exports.middleware = function (req, res, next) {
       res.status(404).render('error', {code: 404, message: 'Page not found'});
       throw new utils.BreakSignal();
     }
-    req.user = result;
     return result.save();
   })
   .then(() => {
@@ -93,6 +91,9 @@ module.exports.getUser = function (req, res) {
       res.render('mana-no-user');
       throw new utils.BreakSignal();
     }
+    result.logs.sort((a, b) => {
+      return b.time - a.time;
+    });
     databaseRes = result;
 
     let plus = google.plus('v1');
@@ -115,23 +116,25 @@ module.exports.getUser = function (req, res) {
 }
 
 /**
- *
+ * Edit user data, by the command of magic/mana.
  */
 module.exports.postUser = function(req, res) {
+  if (!req.is('json')) {
+    // Only accept JSON request
+    return res.status(406).json({
+      message: 'Only accept application/json body request',
+      ok: false
+    });
+  }
+
   let body = req.body;
 
-  validateUser(body)
-  .then(() => {
-    if (body.renewEnabled) {
-      let userLibrary = new libApi();
-      return userLibrary.login(body.libraryLogin, body.libraryPassword);
-    } else {
-      return Promise.resolve()
-    }
-  })
+  validateUser(body, req.params.user)
   .catch(err => {
-    req.session.flash = `[Error] form is invalid or library login/password is invalid. Message: ${err.message}`;
-    res.redirect(req.app.namedRoutes.build('mana.index'));
+    res.status(400).json({
+      message: err.message,
+      ok: false
+    });
     throw new utils.BreakSignal();
   })
   .then(() => {
@@ -145,7 +148,8 @@ module.exports.postUser = function(req, res) {
         libraryPassword: body.libraryPassword,
         renewEnabled: body.renewEnabled,
         renewDate: body.renewDate,
-        calendarName: body.calendarName
+        calendarName: body.calendarName,
+        isAdmin: body.isAdmin
       },
       $push: {
         logs: message
@@ -155,17 +159,25 @@ module.exports.postUser = function(req, res) {
   })
   .then(DBres => {
     if (!DBres) {
-      res.render('mana-no-user');
+      res.status(404).json({
+        message: 'No such user.',
+        ok: false
+      });
       throw new utils.BreakSignal();
     }
-    req.session.flash = 'Data has been overridden.'
-    res.redirect(req.app.namedRoutes.build('mana.index'));
-    return Promise.resolve();
+    return res.status(202).json({
+      message: 'Data has been overridden.',
+      ok: true
+    });
+    // return Promise.resolve();
   })
   .catch(err => {
     if (!err instanceof utils.BreakSignal) {
-      res.status(500).render('error');
+      res.status(500).json({
+        message: 'Internal server error.',
+        ok: false
+      });
     }
-    return Promise.resolve();
+    // return Promise.resolve();
   });
 }

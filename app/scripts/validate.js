@@ -26,8 +26,14 @@ let user = function (data, markError) {
   return [data, ok];
 };
 
-let mana = function () {
-  
+let mana = function (data, markError) {
+  let ok;
+
+  [data, ok] = user(data, markError);
+
+  data.isAdmin = Boolean(data.isAdmin);
+
+  return [data, ok];
 };
 
 module.exports = {
