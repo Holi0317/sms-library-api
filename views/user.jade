@@ -2,16 +2,7 @@ extends _base
 block var
   - var title = 'SMS library helper'
 block content
-  .container
-    .alert.alert-success.alert-dismissible.fade.in#req-success(role='alert')
-      button.close(type='button', data-dismiss='alert', aria-label='close')
-        span(aria-hidden='true') &times;
-      span
-    .alert.alert-danger.alert-dismissible.fade.in#req-fail(role='alert')
-      button.close(type='button', data-dismiss='alert', aria-label='close')
-        span(aria-hidden='true') &times;
-      span
-    
+  +formAlert()
   .container
     .jumbotron
       .alert.alert-warning(role='alert')
