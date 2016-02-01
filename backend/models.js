@@ -85,10 +85,12 @@ schema.user.methods.log = function(message, level) {
  *
  * @alias module:sms-library-helper/backend/models._Log
  */
-function Log(message, level) {
-  this.level = typeof level !== 'undefined' ?  level : 'INFO';
-  this.time = new Date();
-  this.message = message;
+class Log {
+  constructor(message, level) {
+    this.level = typeof level !== 'undefined' ?  level : 'INFO';
+    this.time = new Date();
+    this.message = message;
+  }
 }
 
 /** Model of the user. */

@@ -35,8 +35,7 @@ makePromise
  * @class
  * @extends Error
  */
-module.exports.BreakSignal = function BreakSignal() {};
-module.exports.BreakSignal.prototype = Error.prototype;
+module.exports.BreakSignal = class BreakSignal extends Error{}
 
 /**
  * Supress all error when exception is thrown.
