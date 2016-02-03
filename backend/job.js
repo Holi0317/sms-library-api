@@ -141,7 +141,7 @@ class UserFunctions {
         let diff = book.dueDate - now;
         if (diff <= this.user.renewDate * ONE_DAY && diff > 0 && book.id) {
           // If Logic: Less than defined date, more than 0 day and have book ID.
-          promises.push(this.library.renew(book));    // Create promise.
+          promises.push(this.library.renewBook(book));    // Create promise.
           renewBooks.push(book.name);    // Logging.
         }
       }

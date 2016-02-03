@@ -323,8 +323,11 @@ class User {
       jar: this._jar,
       encoding: null,
       method: 'POST',
-      formData: {
-        PatCode: this.id,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      form: {
+        PatCode: this.readerId,
         sel1: book.id,
         subbut: 'Renew'
       }
