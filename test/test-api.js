@@ -71,7 +71,8 @@ describe('Library API', function() {
   describe('User', function() {
     it('should send renew request to server when requested.', function() {
 
-      user.id = '0001';
+      user.id = 'LoginID';
+      user.readerId = '0001';
       user.language = 'english';
 
       return user.renewBook({
@@ -81,9 +82,9 @@ describe('Library API', function() {
         request.calledOnce.should.be.true;
         let opt = request.args[0][0];
         opt.should.have.deep.property('method', 'POST');
-        opt.should.have.deep.property('formData.PatCode', '0001');
-        opt.should.have.deep.property('formData.sel1', '3000');
-        opt.should.have.deep.property('formData.subbut', 'Renew');
+        opt.should.have.deep.property('form.PatCode', '0001');
+        opt.should.have.deep.property('form.sel1', '3000');
+        opt.should.have.deep.property('form.subbut', 'Renew');
       })
     });
   })

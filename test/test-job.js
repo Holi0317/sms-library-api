@@ -69,7 +69,7 @@ describe('Cron job', function() {
 
     LibraryApi = sinon.stub();
     LibraryApi.login = sinon.stub();
-    LibraryApi.renew = sinon.stub();
+    LibraryApi.renewBook = sinon.stub();
     LibraryApi.reload = sinon.stub();
     LibraryApi.borrowedBooks = [];
 
@@ -149,7 +149,7 @@ describe('Cron job', function() {
   it('should process if renew is enabled.', function() {
     user.renewEnabled = true;
     LibraryApi.login.returns(Promise.resolve());
-    LibraryApi.renew.returns(Promise.resolve());
+    LibraryApi.renewBook.returns(Promise.resolve());
     LibraryApi.borrowedBooks = [{
       // Should be renewed
       id: '0001',
@@ -179,8 +179,8 @@ describe('Cron job', function() {
     .then(() => {
       functions.failed.should.be.false;
 
-      LibraryApi.renew.should.have.been.calledOnce;
-      LibraryApi.renew.should.have.been.calledWithExactly(LibraryApi.borrowedBooks[0]);
+      LibraryApi.renewBook.should.have.been.calledOnce;
+      LibraryApi.renewBook.should.have.been.calledWithExactly(LibraryApi.borrowedBooks[0]);
 
       user.log.should.have.been.calledTwice;
 
