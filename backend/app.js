@@ -108,7 +108,7 @@ app.use(function(err, req, res) {
 // Create cron job.
 if (app.get('env') === 'production') {
   new Cron({
-    cronTime: '00 00 00 * * *',
+    cronTime: '00 00 00,08 * * *',
     onTick: require('./job'),
     start: true,
     timeZone: 'UTC'
