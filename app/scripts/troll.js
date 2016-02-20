@@ -1,7 +1,8 @@
 let cheet = require('cheet.js');
+let serverData = require('./server-data');
 
 module.exports = function() {
-  cheet('↑ ↑ ↓ ↓ ← → ← → b a', function () {
-    location.href = global.slh.route.troll;
+  cheet('↑ ↑ ↓ ↓ ← → ← → b a', () => {
+    location.href = serverData.route.troll;
   });
 };

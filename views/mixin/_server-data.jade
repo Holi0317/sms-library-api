@@ -1,0 +1,4 @@
+mixin serverData()
+  - var routeJSON = JSON.stringify({troll: url('root.troll')});
+  - var dialogIDJSON = JSON.stringify(dialogID);
+  #server-data(data-dialogID=dialogIDJSON, data-route=routeJSON)
