@@ -35,12 +35,6 @@ gulp.task('styles:dist', () => {
 });
 
 gulp.task('js', () => {
-  return gulp.src(['app/scripts/**/*.js', '!app/scripts/**/_*.js', '!app/scripts/entry.js'])
-    .pipe($.babel())
-    .pipe(gulp.dest('.tmp/scripts'));
-});
-
-gulp.task('js:browserify', () => {
   let b = browserify({
     entries: 'app/scripts/entry.js',
     paths: ['node_modules', 'bower_components']
@@ -86,7 +80,7 @@ gulp.task('extras', () => {
 
 gulp.task('clean', del.bind(null, ['.tmp', DIST]));
 
-gulp.task('serve', ['styles', 'js', 'js:browserify', 'fonts', 'nodemon'], () => {
+gulp.task('serve', ['styles', 'js', 'fonts', 'nodemon'], () => {
 
   browserSync.init({
     proxy: 'localhost:3002',
@@ -94,7 +88,7 @@ gulp.task('serve', ['styles', 'js', 'js:browserify', 'fonts', 'nodemon'], () => 
   });
 
   gulp.watch('app/styles/*.scss', ['styles', reload]);
-  gulp.watch('app/scripts/**/*.js', ['js', 'js:browserify', reload]);
+  gulp.watch('app/scripts/**/*.js', ['js', reload]);
 });
 
 gulp.task('nodemon', cb => {
@@ -128,7 +122,7 @@ gulp.task('test', () => {
     });
 })
 
-gulp.task('build', ['js', 'js:browserify', 'styles:dist', 'images', 'fonts', 'extras'], () => {
+gulp.task('build', ['js', 'styles:dist', 'images', 'fonts', 'extras'], () => {
   return gulp.src('.tmp/**/*')
     .pipe($.if('*.js', $.uglify()))
     // CSS minification is done by sass

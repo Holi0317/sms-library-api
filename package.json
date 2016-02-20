@@ -34,7 +34,6 @@
     "cheet.js": "^0.3.3",
     "del": "^2.2.0",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
     "gulp-cache": "^0.4.2",
     "gulp-flatten": "^0.2.0",
     "gulp-if": "^2.0.0",
