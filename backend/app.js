@@ -32,6 +32,7 @@ switch (app.get('env')) {
     app.use(express.static('.tmp'));
     app.use(express.static('app'));
     app.set('json spaces', 4);
+    app.locals.pretty = true;
     break;
   case 'production':
     app.use(express.static('static'));
