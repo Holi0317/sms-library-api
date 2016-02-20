@@ -3,10 +3,8 @@
 let gulp = require('gulp');
 let $ = require('gulp-load-plugins')();
 let del = require('del');
-let browserify = require('browserify');
+let webpackStream = require('webpack-stream');
 let browserSync = require('browser-sync').create();
-let source = require('vinyl-source-stream');
-let buffer = require('vinyl-buffer');
 
 const DIST = 'static';
 const reload = browserSync.reload;
@@ -35,14 +33,21 @@ gulp.task('styles:dist', () => {
 });
 
 gulp.task('js', () => {
-  let b = browserify({
-    entries: 'app/scripts/entry.js',
-    paths: ['node_modules', 'bower_components']
-  });
-
-  return b.bundle()
-    .pipe(source('bundle.js'))
-    .pipe(buffer())
+  return gulp.src('app/scripts/entry.js')
+    .pipe(webpackStream({
+      module: {
+        loaders: [
+          { test: /\.js$/, loader: 'babel?cacheDirectory', exclude: /(?:node_modules|bower_components)/ }
+        ]
+      },
+      output: {
+        filename: 'bundle.js'
+      },
+      resolve: {
+        extensions: ['', '.js'],
+        modulesDirectories: ['web_modules', 'node_modules', 'bower_components']
+      }
+    }))
     .pipe(gulp.dest('.tmp/scripts'));
 });
 
