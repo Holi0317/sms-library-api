@@ -48,23 +48,32 @@ function decode(buffer) {
 /**
  * Represent a borrowed book.
  *
- * @param {object} $ - table row fetched from library, cheerio parsed.
- *
  * @prop {string} id - ID of the book. Or, precisely, Material Code. Can be null if renew page did not provide it (probably overdued).
+ * @prop {string} mcode - Material code of the book. Identical to this.id.
  * @prop {string} name - Book name. Also contains other informations like author.
  * @prop {Date} borrowDate - Borrow date.
  * @prop {Date} dueDate - Due date.
  * @prop {string} renewal - How many time has this book been renewed.
  * @constructor
  */
-function Book ($) {
-  let childrens = $.children();
+class Book {
+  /**
+   * Construct a book from table row fetched from URLS.showRenew, cheerio parsed.
+   *
+   * @param {object} $ - table row fetched from library, cheerio parsed.
+   * @constructor
+   */
+  constructor($) {
+    let childrens = $.children();
 
-  this.id = $.find('input').attr('value') || null;
-  this.name = cheerio(childrens[1]).text();
-  this.borrowDate = new Date(cheerio(childrens[2]).text());
-  this.dueDate = new Date(cheerio(childrens[3]).text());
-  this.renewal = cheerio(childrens[4]).text();
+    this.id = $.find('input').attr('value') || null;
+    this.mcode = this.id;
+    this.accessionNo = null;  // TODO Ability to parse accession number.
+    this.name = cheerio(childrens[1]).text();
+    this.borrowDate = new Date(cheerio(childrens[2]).text());
+    this.dueDate = new Date(cheerio(childrens[3]).text());
+    this.renewal = cheerio(childrens[4]).text();
+  }
 }
 
 /**
@@ -316,6 +325,10 @@ class User {
   renewBook (book) {
     if (!this.id) {
       throw new Error('Not logined.');
+    }
+
+    if (!book.id) {
+      throw new Error('Book ID is not defined.');
     }
 
     let options = {
