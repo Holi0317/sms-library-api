@@ -417,7 +417,7 @@ class UserFunctions {
     this.user.logs.sort((a, b) => {
       return b.time - a.time;
     });
-    this.user.logs = this.user.logs.slice(-MAX_LOG_RECORD);
+    this.user.logs = this.user.logs.slice(0, MAX_LOG_RECORD);
     return this.user.save();
   }
 
