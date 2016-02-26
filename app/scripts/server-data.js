@@ -1,3 +1,5 @@
+'use strict';
+
 class ServerData {
   constructor() {
     this._data = {};

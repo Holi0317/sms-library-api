@@ -1,3 +1,5 @@
+'use strict';
+
 let cheet = require('cheet.js');
 let serverData = require('./server-data');
 
