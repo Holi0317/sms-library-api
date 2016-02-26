@@ -38,9 +38,24 @@ module.exports = function($) {
     [data, ok] = validate[form.attr('validator')](data, _markError.bind(form));
 
     if (!ok) {
+      swal({
+        title: 'Error :(',
+        type: 'error',
+        text: 'Error was found in the form. Fix them and submit again.',
+        allowOutsideClick: true
+      });
       formLock = false;
       return;
     }
+
+    swal({
+      title: 'Loading',
+      type: 'info',
+      text: 'Sit back, sir. Your request will be done in any second.',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      allowEscapeKey: false
+    });
 
     $.ajax({
       type: form.attr('method'),
