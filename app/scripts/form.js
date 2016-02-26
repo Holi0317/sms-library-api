@@ -1,6 +1,7 @@
 'use strict';
 
 let validate = require('./validate');
+let swal = require('sweetalert');
 
 function _markError(name) {
   this.find(`[name='${name}']`).parents('.form-group:first').addClass('has-error');
@@ -41,9 +42,6 @@ module.exports = function($) {
       return;
     }
 
-    $('#req-success').slideUp();
-    $('#req-fail').slideUp();
-
     $.ajax({
       type: form.attr('method'),
       url: form.attr('action'),
@@ -51,13 +49,21 @@ module.exports = function($) {
       data: JSON.stringify(data),
       dataType: 'json',
       success: res => {
-        $('#req-success > span').text(res.message);
-        $('#req-success').slideDown();
+        swal({
+          title: 'Success',
+          type: 'success',
+          allowOutsideClick: true,
+          text: res.message
+        });
         formLock = false;
       },
       error: jqxhr => {
-        $('#req-fail > span').text(jqxhr.responseJSON.message);
-        $('#req-fail').slideDown();
+        swal({
+          title: 'Error',
+          type: 'error',
+          allowOutsideClick: true,
+          text: jqxhr.responseJSON.message
+        });
         formLock = false;
       }
     });
