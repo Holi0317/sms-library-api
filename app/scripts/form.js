@@ -62,25 +62,25 @@ module.exports = function($) {
       url: form.attr('action'),
       contentType: 'application/json; charset=utf-8',
       data: JSON.stringify(data),
-      dataType: 'json',
-      success: res => {
-        swal({
-          title: 'Success',
-          type: 'success',
-          allowOutsideClick: true,
-          text: res.message
-        });
-        formLock = false;
-      },
-      error: jqxhr => {
-        swal({
-          title: 'Error',
-          type: 'error',
-          allowOutsideClick: true,
-          text: jqxhr.responseJSON.message
-        });
-        formLock = false;
-      }
+      dataType: 'json'
+    })
+    .done(res => {
+      swal({
+        title: 'Success',
+        type: 'success',
+        allowOutsideClick: true,
+        text: res.message
+      });
+      formLock = false;
+    })
+    .fail(jqxhr => {
+      swal({
+        title: 'Error',
+        type: 'error',
+        allowOutsideClick: true,
+        text: jqxhr.responseJSON.message
+      });
+      formLock = false;
     });
 
   });

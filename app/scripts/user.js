@@ -29,13 +29,10 @@ module.exports = function($) {
     $.ajax({
       type: 'DELETE',
       url: 'user',
-      contentType: 'application/json; charset=utf-8',
-      success: () => {
-        window.location.reload();
-      },
-      error: () => {
-        window.location.reload();
-      }
+      contentType: 'application/json; charset=utf-8'
+    })
+    .always(() => {
+      window.location.reload();
     });
   });
 
