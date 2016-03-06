@@ -131,7 +131,10 @@ module.exports.googleCallback = (req, res) => {
       upsert: true
     })
   })
-  .then(function () {
+  .then((ret) => {
+    if (ret === null) {
+      // New user. Show greeting in flash.
+    }
     return res.redirect(req.app.namedRoutes.build('root.index'));
   })
   .catch(err => {
