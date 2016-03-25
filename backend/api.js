@@ -53,7 +53,7 @@ function decode(buffer) {
  * @prop {string} name - Book name. Also contains other informations like author.
  * @prop {Date} borrowDate - Borrow date.
  * @prop {Date} dueDate - Due date.
- * @prop {string} renewal - How many time has this book been renewed.
+ * @prop {Number} renewal - How many time has this book been renewed.
  * @constructor
  */
 class Book {
@@ -72,7 +72,7 @@ class Book {
     this.name = cheerio(childrens[1]).text();
     this.borrowDate = new Date(cheerio(childrens[2]).text());
     this.dueDate = new Date(cheerio(childrens[3]).text());
-    this.renewal = cheerio(childrens[4]).text();
+    this.renewal = Number(cheerio(childrens[4]).text());
   }
 }
 

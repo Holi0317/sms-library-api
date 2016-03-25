@@ -12,9 +12,12 @@
 
 let google = require('googleapis');
 let Promise = require('bluebird');
+let template = require('lodash.template');
+
 let LibraryApi = require('./api');
 let models = require('./models');
 let utils = require('./utils');
+let config = require('../config');
 
 /**
  * One day in milisecond.
@@ -34,6 +37,51 @@ const TIMEZONE = 'Asia/Hong_Kong';
  * @default 100
  */
 const MAX_LOG_RECORD = 100;
+/**
+ * The maximum renew time for library system.
+ * @const {number} MAX_RENEW_TIME
+ * @default 5
+ */
+const MAX_RENEW_TIME = 5;
+/**
+ * Template for a mail that reminds user that this is the last time for renewal.
+ * This is in fact a lodash template function.
+ * @const {function} MAIL_TEMPLATE
+ * @default (Check the source. It is long.)
+ */
+const MAIL_TEMPLATE = template(`
+Good day,
+
+This mail is sent from Library helper. You know, that auto renew thingee.
+(By the way, my main function is to add due date to Google Calendar and many of you guys don't know this function. QAQ)
+
+I am here to remind you that the following books has hit their maximum renew time. They cannot be renewed in the future.
+Please renew them before due date.
+
+The book(s) are:
+<% books.forEach(function(book) { %>
+
+=====================
+Book name: <%- book.name %>
+
+Due date: <%- book.dueDate.toDateString() %>
+=====================
+
+<% }); %>
+Due date of these books should appear on your Google calendar. Please set notification on those events as I will not remind you to return books.
+
+Regards,
+Library Helper.
+
+P.S. This message is sent by a stupid robot. Please be nice and do not reply email to him.
+He is not clever enough to read these messages.
+`);
+/**
+ * Subject for the email.
+ * @const {string} MAIL_SUBJECT
+ * @default Library Helper reminder
+ */
+const MAIL_SUBJECT = 'Library Helper reminder';
 
 // Google apis
 let calendar = google.calendar('v3');
@@ -63,6 +111,8 @@ function dateToGoogle(date) {
  * @prop {Number} celdnarID - Google calendar ID that matches the name of user defined.
  * @prop {bool} failed - Trye if any operation failed.
  * @prop {function} log - Log message to user.
+ * @prop {[]String} emails - User's email retrived from Google.
+ * @prop {[]String} emailMsgID - Book ID that need to be warned to user.
  *
  * @see {@link sms-library-helper/backend/job~UserFunctionFactory}
  */
@@ -82,6 +132,8 @@ class UserFunctions {
     this.library = new LibraryApi();
     this.calendarID = null;
     this.failed = false;
+    this.emails = [];
+    this.emailMsgID = [];
 
     this.log = this.user.log.bind(this.user);
   }
@@ -106,6 +158,39 @@ class UserFunctions {
       newTokens.refresh_token = this.user.tokens.refresh_token;
       this.user.tokens = newTokens;
       return this.user.save();
+    });
+  }
+
+  /**
+   * Get user's emails from Google and write to local variable.
+   * All emails will be written into the local variable, this.emails.
+   * If renew is not enabled, an empty promise will be returned.
+   *
+   * @returns {Promise} - Promise for the above action.
+   * @throws {utils.BreakSignal} - Error when requesting google plus.
+   * @private
+   */
+  _getEmails() {
+    if (!this.user.renewEnabled) {
+      return Promise.resolve();
+    }
+    let plus = google.plus('v1');
+    let getAsync = Promise.promisify(plus.people.get);
+
+    return getAsync({userId: 'me', auth: this.oauth2client})
+    .then(plusRes => {
+      if ('emails' in plusRes) {
+        // Some user may not have email in their scope.
+        this.emails = plusRes.emails.map(a => a.value);
+      } else {
+        this.log('Cannot get your email due to permission not granted. Email service will be disenabled. Re-login to grant permission.', 'WARN');
+      }
+      return Promise.resolve();
+    })
+    .catch(err => {
+      console.warn('Error when requesting for Google plus. Error: ', err);
+      this.log('Cannot request Google Plus for emails. Email function will be disenabled.', 'WARN');
+      throw new utils.BreakSignal();
     });
   }
 
@@ -143,6 +228,11 @@ class UserFunctions {
           // If Logic: Less than defined date, more than 0 day and have book ID.
           promises.push(this.library.renewBook(book));    // Create promise.
           renewBooks.push(book.name);    // Logging.
+
+          // Create array of books that needs to be notified.
+          if (book.renewal === MAX_RENEW_TIME - 1) {
+            this.emailMessages.push(book);
+          }
         }
       }
 
@@ -159,6 +249,41 @@ class UserFunctions {
       return Promise.all(promises);
     });
 
+  }
+
+  /**
+   * Send notify emails using gmail.
+   * Notify emails means this is the last time for the renew of book and remind user
+   * to return book on date.
+   *
+   * @returns {Promise} - Promise for the above action.
+   */
+  consumeEmail() {
+    return this._getEmails()
+    .then(() => {
+      let promises = [];
+
+      let gmail = google.gmail('v1');
+      let send = Promise.promisify(gmail.users.messages.send);
+
+      let books = this.library.borrowedBooks.filter(b => this.emailMsgID.indexOf(b.id) !== -1);
+      let message = MAIL_TEMPLATE({books: books});
+
+      for (let address of this.emails) {
+        let email = utils.makeEmail(null, address, MAIL_SUBJECT, message);
+        let p = send({
+          auth: config.jwt,
+          userId: 'me',
+          resource: {
+            raw: email
+          }
+        });
+
+        promises.push(p);
+      }
+
+      return Promise.all(promises);
+    });
   }
 
   /**
@@ -254,7 +379,7 @@ class UserFunctions {
    * @static
    * @private
    */
-  _createEventResource (book) {
+  _createEventResource(book) {
     let date = dateToGoogle(book.dueDate);
 
     return {
@@ -483,6 +608,10 @@ class UserFunctionFactory {
   saveProfile() {
     return this._method('saveProfile');
   }
+
+  consumeEmail() {
+    return this._method('consumeEmail');
+  }
 }
 
 /**
@@ -501,6 +630,7 @@ function execute() {
   .then(factory.refreshToken.bind(factory))
   .then(factory.renewBooks.bind(factory))
   .then(factory.refreshCalendar.bind(factory))
+  .then(factory.consumeEmail.bind(factory))
   .then(factory.saveProfile.bind(factory))
   .then(() => {
     console.log('Cron job ended');

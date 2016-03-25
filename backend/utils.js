@@ -93,3 +93,28 @@ module.exports.oauth2clientFactory = function () {
 module.exports.validateErrorHandle = function(err) {
   throw new Error(err.join(';\n'));
 };
+
+/**
+ * Create a Email content following the RFC2822 format. (The one used by Gmail)
+ * This function can only create plain text email.
+ * (i.e. No email with attachment or using HTML)
+ *
+ * @param {String} from_ - Sender of the email. Optional (Ignore this using null).
+ * @param {String} to - Receiver of the email.
+ * @param {String} subject - Subject of the email.
+ * @param {String} body - Text content of the email.
+ * @returns {String} - Base64 encoded email message.
+ */
+module.exports.makeEmail = function (from_, to, subject, body) {
+  let lines = [
+    (from_) ? `From: ${from_}` : '',
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    `Content-Type: text/plain; charset="UTF-8"`,
+    `MIME-Version: 1.0`,
+    body
+  ];
+
+  let mail = lines.join('\r\n').trim();
+  return new Buffer(mail).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+};

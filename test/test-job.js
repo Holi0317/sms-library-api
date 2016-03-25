@@ -14,7 +14,7 @@ let utils = require('../backend/utils');
 describe('Cron job', function() {
   let job, functions;
   let user;
-  let google, calendar, OAuth2, config, LibraryApi, _utils;
+  let google, calendar, gmail, OAuth2, config, LibraryApi, _utils;
 
   beforeEach(function mockExternalLib() {
     OAuth2 = {};
@@ -35,16 +35,30 @@ describe('Cron job', function() {
       }
     };
 
+    gmail = {
+      users: {
+        messages: {
+          send: function(a, b) {
+            b();
+          }
+        }
+      }
+    };
+
     google = {
       calendar: function() {
         return calendar
+      },
+      gmail: function() {
+        return gmail
       }
     };
 
     config = {
       clientId: 'config.ClientId',
       clientSecret: 'config.clientSecret',
-      redirectUrl: 'config.redirectUrl'
+      redirectUrl: 'config.redirectUrl',
+      jwt: 'FAKE JWT OBJECT'  // For the sake of simplicity
     };
 
     user = {
@@ -57,7 +71,7 @@ describe('Cron job', function() {
       },
       googleId: 'GoogleID',
       libraryLogin: 'login',
-      libraryPassword: 'password',    // Worst password ever. Dont use it as real password
+      libraryPassword: 'password',    // Worst password ever. Don't use it as real password
       renewDate: 3,
       renewEnabled: false,
       calendarName: 'slh autorenew',
@@ -386,5 +400,52 @@ describe('Cron job', function() {
       user.logs.should.have.length(100);
     });
   });
+
+
+  it('should correctly consume email message', function() {
+    functions.emails = ['foo@bar.net'];
+    functions.emailMsgID = ['0001'];
+    LibraryApi.borrowedBooks = [{
+      id: '0001',
+      mcode: '0001',
+      name: 'Book name',
+      dueDate: new Date(),
+      borrowDate: new Date(),
+      renewal: 5
+    }]
+
+    functions._getEmails = sinon.stub().returns(Promise.resolve());
+
+    _utils.makeEmail = (a, b, c) => [a, b, c, 'message'];  // Just to make things clear
+
+    let spy = sinon.spy(gmail.users.messages.send);
+    gmail.users.messages.send = spy;
+
+    return functions.consumeEmail()
+    .then(() => {
+      spy.should.have.been.calledOnce;
+      spy.should.have.been.calledWith({
+        auth: config.jwt,
+        userId: 'me',
+        resource: {
+          raw: [null, 'foo@bar.net', 'Library Helper reminder', 'message']
+        }
+      });
+    });
+
+  });
+
+  it('should do no-op when email is none', function() {
+    functions.emails = [];
+    functions.emailMsgID = ['0001'];
+
+    functions._getEmails = sinon.stub().returns(Promise.resolve());
+
+    return functions.consumeEmail()
+    .then(() => {
+      gmail.users.messages.send.should.notCalled;
+    });
+
+  })
 
 });

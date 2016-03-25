@@ -6,7 +6,6 @@
  *
  * @requires googleapis
  * @requires bluebird
- * @requires assert
  */
 
 'use strict';
@@ -85,7 +84,11 @@ module.exports.login = (req, res) => {
   let oauth2client = utils.oauth2clientFactory();
   let authUrl = oauth2client.generateAuthUrl({
     access_type: 'offline',
-    scope: ['https://www.googleapis.com/auth/calendar', 'profile']
+    scope: [
+      'https://www.googleapis.com/auth/calendar',
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email'
+    ]
   });
   res.redirect(authUrl);
 }
