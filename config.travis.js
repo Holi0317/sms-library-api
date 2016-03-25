@@ -4,9 +4,11 @@
  */
 'use strict';
 
+let mongoose = require('mongoose');
+
 module.exports = {
   // Mongoose createConnection instance
-  conn: 'conn',
+  conn: mongoose.createConnection('mongodb://localhost/noop'),
 
   // Google ID for admin.
   // If blank, no one can access the admin page. Unless development mode is enabled.
@@ -26,3 +28,5 @@ module.exports = {
 
   jwt: 'JWT'
 };
+
+module.exports.conn.on('error', function(){});
