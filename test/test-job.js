@@ -428,7 +428,7 @@ describe('Cron job', function() {
         auth: config.jwt,
         userId: 'me',
         resource: {
-          raw: [null, 'foo@bar.net', 'Library Helper reminder', 'message']
+          raw: ['Library Helper', 'foo@bar.net', 'Library Helper reminder', 'message']
         }
       });
     });
