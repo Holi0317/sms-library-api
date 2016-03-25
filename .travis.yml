@@ -6,5 +6,5 @@ cache:
   directories:
     - node_modules
 before_script:
-  - cp config.template.js config.js
+  - cp config.travis.js config.js
 script: node_modules/.bin/gulp test

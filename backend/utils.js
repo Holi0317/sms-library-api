@@ -107,11 +107,12 @@ module.exports.validateErrorHandle = function(err) {
  */
 module.exports.makeEmail = function (from_, to, subject, body) {
   let lines = [
-    (from_) ? `From: ${from_}` : '',
-    `To: ${to}`,
-    `Subject: ${subject}`,
-    `Content-Type: text/plain; charset="UTF-8"`,
-    `MIME-Version: 1.0`,
+    'Content-Type: text/plain; charset="UTF-8"',
+    'MIME-Version: 1.0',
+    (from_) ? `from: ${from_}` : '',
+    `to: ${to}`,
+    `subject: ${subject}`,
+    '',
     body
   ];
 
