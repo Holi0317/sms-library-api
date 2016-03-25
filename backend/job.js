@@ -79,9 +79,15 @@ He is not clever enough to read these messages.
 /**
  * Subject for the email.
  * @const {string} MAIL_SUBJECT
- * @default Library Helper reminder
+ * @default 'Library Helper reminder'
  */
 const MAIL_SUBJECT = 'Library Helper reminder';
+/**
+ * Sender name of the email.
+ * @const {string} MAIL_SENDER
+ * @default 'Library Helper'
+ */
+const MAIL_SENDER = 'Library Helper';
 
 // Google apis
 let calendar = google.calendar('v3');
@@ -270,7 +276,7 @@ class UserFunctions {
       let message = MAIL_TEMPLATE({books: books});
 
       for (let address of this.emails) {
-        let email = utils.makeEmail(null, address, MAIL_SUBJECT, message);
+        let email = utils.makeEmail(MAIL_SENDER, address, MAIL_SUBJECT, message);
         let p = send({
           auth: config.jwt,
           userId: 'me',

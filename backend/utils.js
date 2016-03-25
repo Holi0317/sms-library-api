@@ -109,6 +109,7 @@ module.exports.makeEmail = function (from_, to, subject, body) {
   let lines = [
     'Content-Type: text/plain; charset="UTF-8"',
     'MIME-Version: 1.0',
+    'Content-Transfer-Encoding: 8bit',
     (from_) ? `from: ${from_}` : '',
     `to: ${to}`,
     `subject: ${subject}`,
