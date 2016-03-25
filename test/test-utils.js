@@ -17,12 +17,12 @@ describe('Utilities', function() {
   describe('makeEmail', function() {
     it('should leave "From" blank when it is not given', function() {
       let res = utils.makeEmail(null, 'foo@bar.net', 'subject', 'body');
-      res.should.equal('Q29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PSJVVEYtOCINCk1JTUUtVmVyc2lvbjogMS4wDQpDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiA4Yml0DQoNCnRvOiBmb29AYmFyLm5ldA0Kc3ViamVjdDogc3ViamVjdA0KDQpib2R5');
+      res.should.equal('Q29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PSJVVEYtOCIKTUlNRS1WZXJzaW9uOiAxLjAKQ29udGVudC1UcmFuc2Zlci1FbmNvZGluZzogOGJpdAoKdG86IGZvb0BiYXIubmV0CnN1YmplY3Q6IHN1YmplY3QKCmJvZHk=');
     });
 
     it('should render message', function() {
       let res = utils.makeEmail('foo@bar.net', 'bar@bar.net', 'subject', 'body');
-      res.should.equal('Q29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PSJVVEYtOCINCk1JTUUtVmVyc2lvbjogMS4wDQpDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiA4Yml0DQpmcm9tOiBmb29AYmFyLm5ldA0KdG86IGJhckBiYXIubmV0DQpzdWJqZWN0OiBzdWJqZWN0DQoNCmJvZHk=');
+      res.should.equal('Q29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PSJVVEYtOCIKTUlNRS1WZXJzaW9uOiAxLjAKQ29udGVudC1UcmFuc2Zlci1FbmNvZGluZzogOGJpdApmcm9tOiBmb29AYmFyLm5ldAp0bzogYmFyQGJhci5uZXQKc3ViamVjdDogc3ViamVjdAoKYm9keQ==');
     });
   });
 });

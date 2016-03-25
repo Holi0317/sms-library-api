@@ -117,6 +117,6 @@ module.exports.makeEmail = function (from_, to, subject, body) {
     body
   ];
 
-  let mail = lines.join('\r\n').trim();
-  return new Buffer(mail).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+  let mail = lines.join('\n');
+  return new Buffer(mail).toString('base64');
 };
