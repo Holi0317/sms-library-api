@@ -165,29 +165,29 @@ describe('Cron job', function() {
     LibraryApi.login.returns(Promise.resolve());
     LibraryApi.renewBook.returns(Promise.resolve());
     LibraryApi.borrowedBooks = [{
-      // Should be renewed
+      // Should be renewed. And listed in emailMsgID
       id: '0001',
       name: 'Example book A',
       borrowDate: new Date('1/6/2016'),
       dueDate: new Date('1/17/2016'),
-      renewal: '2'
+      renewal: 4
     }, {
       // Should be untouched
       id: null,
       name: 'Example book B overdued',
       borrowDate: new Date('12/30/2015'),
       dueDate: new Date('1/13/2016'),
-      renewal: '5'
+      renewal: 5
     }, {
       // Should be untouched
       id: '0003',
       name: 'Example book C',
       borrowDate: new Date('1/6/2016'),
       dueDate: new Date('1/30/2016'),
-      renewal: '3'
+      renewal: 3
     }];
 
-    let clock = sinon.useFakeTimers(1452938366332);   // 1/16/2016 17:59
+    let clock = sinon.useFakeTimers(1452938366332);   // 1/16/2016 17:59 GMT+8
 
     return functions.renewBooks()
     .then(() => {
@@ -207,6 +207,9 @@ describe('Cron job', function() {
 
       args[1][0].should.have.string('renewed');
       args[1][0].should.have.string('Example book A');
+
+      //functions.emailMsgID.should.have.lengthOf(1);
+      functions.emailMsgID.should.eql(['0001'])
 
       clock.restore();
     })
@@ -397,10 +400,9 @@ describe('Cron job', function() {
 
     return functions.saveProfile()
     .then(() => {
-      user.logs.should.have.length(100);
+      user.logs.should.have.lengthOf(100);
     });
   });
-
 
   it('should correctly consume email message', function() {
     functions.emails = ['foo@bar.net'];
@@ -412,7 +414,7 @@ describe('Cron job', function() {
       dueDate: new Date(),
       borrowDate: new Date(),
       renewal: 5
-    }]
+    }];
 
     functions._getEmails = sinon.stub().returns(Promise.resolve());
 
@@ -446,6 +448,6 @@ describe('Cron job', function() {
       gmail.users.messages.send.should.notCalled;
     });
 
-  })
+  });
 
 });
