@@ -5,6 +5,9 @@
   "scripts": {
     "start": "node ./startserver.js"
   },
+  "license": "MIT",
+  "author": "Holi0317 <holliswuhollis@gmail.com",
+  "repository": "Holi0317/sms-library-helper",
   "dependencies": {
     "bluebird": "^3.3.4",
     "body-parser": "^1.15.0",
