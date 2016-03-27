@@ -46,9 +46,6 @@ describe('Cron job', function() {
     };
 
     google = {
-      calendar: function() {
-        return calendar
-      },
       gmail: function() {
         return gmail
       }
@@ -96,7 +93,10 @@ describe('Cron job', function() {
       googleapis: google,
       '../config': config,
       './api': function() {},
-      './utils' : _utils
+      './utils' : _utils,
+      './promisify': {
+        calendar: calendar
+      }
     });
     functions = new job._UserFunctions(user);
     functions.library = LibraryApi;

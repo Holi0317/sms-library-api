@@ -10,12 +10,12 @@
 
 'use strict';
 
-let google = require('googleapis');
 let Promise = require('bluebird');
 
 let models = require('../models');
 let utils = require('../utils');
 let validateUser = require('../validate/user-update');
+let promisify = require('../promisify');
 
 /**
  * Express middleware that checks if user has logined. If not, redirect to login page.
@@ -114,10 +114,7 @@ module.exports.googleCallback = (req, res) => {
     req.session.tokens = tokens;
     oauth2client.setCredentials(tokens);
 
-    let plus = google.plus('v1');
-    let getAsync = Promise.promisify(plus.people.get);
-
-    return getAsync({userId: 'me', auth: oauth2client});
+    return promisify.plusPeopleGet({userId: 'me', auth: oauth2client});
   })
   .then(function makeDBQuery(plusResponse) {
     req.session.name = plusResponse.displayName;

@@ -18,6 +18,7 @@ let LibraryApi = require('./api');
 let models = require('./models');
 let utils = require('./utils');
 let config = require('../config');
+let promisify = require('./promisify');
 
 /**
  * One day in milisecond.
@@ -90,10 +91,7 @@ const MAIL_SUBJECT = 'Library Helper reminder';
 const MAIL_SENDER = 'Library Helper';
 
 // Google apis
-let calendar = google.calendar('v3');
-Promise.promisifyAll(calendar.calendarList);
-Promise.promisifyAll(calendar.calendars);
-Promise.promisifyAll(calendar.events);
+let calendar = promisify.calendar;
 
 /**
  * Convert Date object to Google calendar's format, 'yyyy-mm-dd'.

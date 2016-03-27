@@ -14,8 +14,7 @@ let Promise = require('bluebird');
 let google = require('googleapis');
 
 let config = require('../config');
-
-Promise.promisifyAll(google.auth.OAuth2.prototype);
+require('./promisify');
 
 /**
  * The exception to be thrown when a promise is broken (have exception) and it is already handled.

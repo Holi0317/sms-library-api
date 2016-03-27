@@ -13,13 +13,13 @@
 
 'use strict';
 
-let google = require('googleapis');
 let Promise = require('bluebird');
 
 let config = require('../../config');
 let models = require('../models');
 let utils = require('../utils');
 let validateUser = require('../validate/user-update');
+let promisify = require('../promisify');
 
 /**
  * Check if user is qualified for accessing the mana page.
@@ -96,12 +96,10 @@ module.exports.getUser = function (req, res) {
     });
     databaseRes = result;
 
-    let plus = google.plus('v1');
-    let getAsync = Promise.promisify(plus.people.get);
     let oauth2client = utils.oauth2clientFactory();
     oauth2client.setCredentials(result.tokens);
 
-    return getAsync({userId: 'me', auth: oauth2client});
+    return promisify.plusPeopleGet({userId: 'me', auth: oauth2client});
   })
   .then(googleRes => {
     res.render('mana-user', {data: databaseRes, name: googleRes.displayName});
