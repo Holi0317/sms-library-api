@@ -237,7 +237,7 @@ class UserFunctions {
 
           // Create array of books that needs to be notified.
           if (book.renewal === MAX_RENEW_TIME - 1) {
-            this.emailMessages.push(book);
+            this.emailMsgID.push(book.id);
           }
         }
       }
