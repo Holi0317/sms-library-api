@@ -4,13 +4,11 @@
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *
- * @requires googleapis
  * @requires bluebird
  */
 
 'use strict';
 
-let google = require('googleapis');
 let Promise = require('bluebird');
 let template = require('lodash.template');
 
@@ -178,10 +176,8 @@ class UserFunctions {
     if (!this.user.renewEnabled) {
       return Promise.resolve();
     }
-    let plus = google.plus('v1');
-    let getAsync = Promise.promisify(plus.people.get);
 
-    return getAsync({userId: 'me', auth: this.oauth2client})
+    return promisify.plusPeopleGet({userId: 'me', auth: this.oauth2client})
     .then(plusRes => {
       if ('emails' in plusRes) {
         // Some user may not have email in their scope.
@@ -267,15 +263,12 @@ class UserFunctions {
     .then(() => {
       let promises = [];
 
-      let gmail = google.gmail('v1');
-      let send = Promise.promisify(gmail.users.messages.send);
-
       let books = this.library.borrowedBooks.filter(b => this.emailMsgID.indexOf(b.id) !== -1);
       let message = MAIL_TEMPLATE({books: books});
 
       for (let address of this.emails) {
         let email = utils.makeEmail(MAIL_SENDER, address, MAIL_SUBJECT, message);
-        let p = send({
+        let p = promisify.gmailSend({
           auth: config.jwt,
           userId: 'me',
           resource: {

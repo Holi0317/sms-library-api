@@ -18,6 +18,7 @@ let Promise = require('bluebird');
 Promise.promisifyAll(google.auth.OAuth2.prototype);
 
 let plus = google.plus('v1');
+let gmail = google.gmail('v1');
 
 let calendar = google.calendar('v3');
 Promise.promisifyAll(calendar.calendarList);
@@ -26,5 +27,6 @@ Promise.promisifyAll(calendar.events);
 
 module.exports = {
   plusPeopleGet: Promise.promisify(plus.people.get),
+  gmailSend: Promise.promisify(gmail.users.messages.send),
   calendar: calendar
 }

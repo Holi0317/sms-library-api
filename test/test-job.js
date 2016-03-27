@@ -14,7 +14,7 @@ let utils = require('../backend/utils');
 describe('Cron job', function() {
   let job, functions;
   let user;
-  let google, calendar, gmail, OAuth2, config, LibraryApi, _utils;
+  let promisify, calendar, OAuth2, config, LibraryApi, _utils;
 
   beforeEach(function mockExternalLib() {
     OAuth2 = {};
@@ -35,21 +35,10 @@ describe('Cron job', function() {
       }
     };
 
-    gmail = {
-      users: {
-        messages: {
-          send: function(a, b) {
-            b();
-          }
-        }
-      }
-    };
-
-    google = {
-      gmail: function() {
-        return gmail
-      }
-    };
+    promisify = {
+      calendar: calendar,
+      gmailSend: sinon.spy()
+    }
 
     config = {
       clientId: 'config.ClientId',
@@ -90,13 +79,10 @@ describe('Cron job', function() {
     _utils.oauth2clientFactory.returns(OAuth2);
 
     job = proxyquire('../backend/job', {
-      googleapis: google,
       '../config': config,
       './api': function() {},
       './utils' : _utils,
-      './promisify': {
-        calendar: calendar
-      }
+      './promisify': promisify
     });
     functions = new job._UserFunctions(user);
     functions.library = LibraryApi;
@@ -420,8 +406,7 @@ describe('Cron job', function() {
 
     _utils.makeEmail = (a, b, c) => [a, b, c, 'message'];  // Just to make things clear
 
-    let spy = sinon.spy(gmail.users.messages.send);
-    gmail.users.messages.send = spy;
+    let spy = promisify.gmailSend;
 
     return functions.consumeEmail()
     .then(() => {
@@ -445,7 +430,7 @@ describe('Cron job', function() {
 
     return functions.consumeEmail()
     .then(() => {
-      gmail.users.messages.send.should.notCalled;
+      promisify.gmailSend.should.notCalled;
     });
 
   });
