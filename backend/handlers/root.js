@@ -4,7 +4,6 @@
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *
- * @requires googleapis
  * @requires bluebird
  */
 
@@ -131,7 +130,7 @@ module.exports.googleCallback = (req, res) => {
       upsert: true
     })
   })
-  .then((ret) => {
+  .then(ret => {
     if (ret === null) {
       // New user. Show greeting in flash.
     }

@@ -23,6 +23,6 @@ html
     
     block content
     
-    script(src=staticPath + 'scripts/bundle.js')
+    script(src=staticPath + 'scripts/bundle.js', async, defer)
     block script
     +serverData()

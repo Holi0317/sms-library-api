@@ -6,9 +6,7 @@
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *
- * @requires googleapis
  * @requires bluebird
- * @requires assert
  */
 
 'use strict';
@@ -163,11 +161,11 @@ module.exports.postUser = function(req, res) {
       });
       throw new utils.BreakSignal();
     }
-    return res.status(202).json({
+    res.status(202).json({
       message: 'Data has been overridden.',
       ok: true
     });
-    // return Promise.resolve();
+    return Promise.resolve();
   })
   .catch(err => {
     if (!err instanceof utils.BreakSignal) {
@@ -176,6 +174,6 @@ module.exports.postUser = function(req, res) {
         ok: false
       });
     }
-    // return Promise.resolve();
+    return Promise.resolve();
   });
 }
