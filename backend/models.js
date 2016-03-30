@@ -41,6 +41,7 @@ let schema = {
       type: String,
       default: 'slh autorenew'
     },
+    emailAddress: String,
     isAdmin: {
       type: Boolean,
       default: false

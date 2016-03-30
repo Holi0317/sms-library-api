@@ -119,12 +119,23 @@ module.exports.googleCallback = (req, res) => {
     req.session.name = plusResponse.displayName;
     req.session.googleId = plusResponse.id;
 
+    let email = '';
+    if (plusResponse.emails) {
+      plusResponse.emails.every(i => {
+        if (i.type === 'account') {
+          email = i.value;
+          return false;
+        } else return true;
+      });
+    }
+
     return models.user.findOneAndUpdate({
       googleId: req.session.googleId
     }, {
       $setOnInsert: {
         tokens: req.session.tokens,
-        googleId: req.session.googleId
+        googleId: req.session.googleId,
+        emailAddress: email
       }
     }, {
       upsert: true
