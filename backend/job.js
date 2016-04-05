@@ -113,7 +113,6 @@ function dateToGoogle(date) {
  * @prop {Number} celdnarID - Google calendar ID that matches the name of user defined.
  * @prop {bool} failed - Trye if any operation failed.
  * @prop {function} log - Log message to user.
- * @prop {[]String} emails - User's email retrived from Google.
  * @prop {[]String} emailMsgID - Book ID that need to be warned to user.
  *
  * @see {@link sms-library-helper/backend/job~UserFunctionFactory}
@@ -134,7 +133,6 @@ class UserFunctions {
     this.library = new LibraryApi();
     this.calendarID = null;
     this.failed = false;
-    this.emails = [];
     this.emailMsgID = [];
 
     this.log = this.user.log.bind(this.user);
@@ -160,37 +158,6 @@ class UserFunctions {
       newTokens.refresh_token = this.user.tokens.refresh_token;
       this.user.tokens = newTokens;
       return this.user.save();
-    });
-  }
-
-  /**
-   * Get user's emails from Google and write to local variable.
-   * All emails will be written into the local variable, this.emails.
-   * If renew is not enabled, an empty promise will be returned.
-   *
-   * @returns {Promise} - Promise for the above action.
-   * @throws {utils.BreakSignal} - Error when requesting google plus.
-   * @private
-   */
-  _getEmails() {
-    if (!this.user.renewEnabled) {
-      return Promise.resolve();
-    }
-
-    return promisify.plusPeopleGet({userId: 'me', auth: this.oauth2client})
-    .then(plusRes => {
-      if ('emails' in plusRes) {
-        // Some user may not have email in their scope.
-        this.emails = plusRes.emails.map(a => a.value);
-      } else {
-        this.log('Cannot get your email due to permission not granted. Email service will be disenabled. Re-login to grant permission.', 'WARN');
-      }
-      return Promise.resolve();
-    })
-    .catch(err => {
-      console.warn('Error when requesting for Google plus. Error: ', err);
-      this.log('Cannot request Google Plus for emails. Email function will be disenabled.', 'WARN');
-      throw new utils.BreakSignal();
     });
   }
 
@@ -259,27 +226,20 @@ class UserFunctions {
    * @returns {Promise} - Promise for the above action.
    */
   consumeEmail() {
-    return this._getEmails()
-    .then(() => {
-      let promises = [];
+    if (!this.user.renewEnabled || this.failed || !this.user.emailEnabled) {
+      return Promise.resolve();
+    }
 
-      let books = this.library.borrowedBooks.filter(b => this.emailMsgID.indexOf(b.id) !== -1);
-      let message = MAIL_TEMPLATE({books: books});
+    let books = this.library.borrowedBooks.filter(b => this.emailMsgID.indexOf(b.id) !== -1);
+    let message = MAIL_TEMPLATE({books: books});
+    let email = utils.makeEmail(MAIL_SENDER, this.user.emailAddress, MAIL_SUBJECT, message);
 
-      for (let address of this.emails) {
-        let email = utils.makeEmail(MAIL_SENDER, address, MAIL_SUBJECT, message);
-        let p = promisify.gmailSend({
-          auth: config.jwt,
-          userId: 'me',
-          resource: {
-            raw: email
-          }
-        });
-
-        promises.push(p);
+    return promisify.gmailSend({
+      auth: config.jwt,
+      userId: 'me',
+      resource: {
+        raw: email
       }
-
-      return Promise.all(promises);
     });
   }
 
@@ -404,7 +364,7 @@ class UserFunctions {
     // Refresh user's google calendar
     // If user.renewEnabled is false, this will return an empty promise.
     // Return Promise
-    if (!this.user.renewEnabled || this.failed) {
+    if (!this.user.renewEnabled || this.failed || !this.user.calendarEnabled) {
       return Promise.resolve();
     }
 

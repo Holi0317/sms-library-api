@@ -200,12 +200,15 @@ module.exports.user.post = (req, res) => {
         libraryPassword: body.libraryPassword,
         renewEnabled: body.renewEnabled,
         renewDate: body.renewDate,
-        calendarName: body.calendarName
+        calendarName: body.calendarName,
+        calendarEnabled: body.calendarEnabled,
+        emailEnabled: body.emailEnabled,
+        emailAddress: body.emailAddress
       },
       $push: {
         logs: message
       }
-    })
+    });
   })
   .then(doc => {
     if (doc) {

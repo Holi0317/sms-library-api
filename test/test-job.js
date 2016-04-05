@@ -37,8 +37,9 @@ describe('Cron job', function() {
 
     promisify = {
       calendar: calendar,
-      gmailSend: sinon.spy()
-    }
+      gmailSend: sinon.stub()
+    };
+    promisify.gmailSend.returns(Promise.resolve());
 
     config = {
       clientId: 'config.ClientId',
@@ -276,6 +277,7 @@ describe('Cron job', function() {
 
   it('should refresh calendar.', function() {
     user.renewEnabled = true;
+    user.calendarEnabled = true;
     functions.calendarID = '1000';
     functions._getCalendar = function () {
       return Promise.resolve();
@@ -391,7 +393,6 @@ describe('Cron job', function() {
   });
 
   it('should correctly consume email message', function() {
-    functions.emails = ['foo@bar.net'];
     functions.emailMsgID = ['0001'];
     LibraryApi.borrowedBooks = [{
       id: '0001',
@@ -401,10 +402,11 @@ describe('Cron job', function() {
       borrowDate: new Date(),
       renewal: 5
     }];
+    user.renewEnabled = true;
+    user.emailEnabled = true;
+    user.emailAddress = 'foo@bar.net';
 
-    functions._getEmails = sinon.stub().returns(Promise.resolve());
-
-    _utils.makeEmail = (a, b, c) => [a, b, c, 'message'];  // Just to make things clear
+    _utils.makeEmail = (a, b, c) => [a, b, c, 'message'];  // Just to make things simplier
 
     let spy = promisify.gmailSend;
 
@@ -423,10 +425,10 @@ describe('Cron job', function() {
   });
 
   it('should do no-op when email is none', function() {
-    functions.emails = [];
     functions.emailMsgID = ['0001'];
-
-    functions._getEmails = sinon.stub().returns(Promise.resolve());
+    user.renewEnabled = true;
+    user.emailEnabled = true;
+    user.emailAddress = 'foo@bar.net';
 
     return functions.consumeEmail()
     .then(() => {
