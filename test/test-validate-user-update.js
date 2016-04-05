@@ -43,9 +43,12 @@ describe('Validate user update form', function() {
     let data = {
       renewEnabled: true,
       renewDate: 3,
+      calendarEnabled: false,
       calendarName: 'calendar Name',
       libraryLogin: 'Login name',
-      libraryPassword: 'Password'
+      libraryPassword: 'Password',
+      emailEnabled: false,
+      emailAddress: 'foo@bar.net'
     };
 
     return check(data)
@@ -60,9 +63,12 @@ describe('Validate user update form', function() {
     let data = {
       renewEnabled: true,
       renewDate: 3,
+      calendarEnabled: false,
       calendarName: 'calendar Name',
       libraryLogin: 'Login name',
-      libraryPassword: 'Password'
+      libraryPassword: 'Password',
+      emailEnabled: false,
+      emailAddress: 'foo@bar.net'
     };
     let error = new Error('Reject promise.');
 
@@ -87,9 +93,12 @@ describe('Validate user update form', function() {
     let data = {
       renewEnabled: true,
       renewDate: 3,
+      calendarEnabled: false,
       calendarName: 'calendar Name',
       libraryLogin: 'Login name',
-      libraryPassword: 'Password'
+      libraryPassword: 'Password',
+      emailEnabled: false,
+      emailAddress: 'foo@bar.net'
     };
     let googleId = 'Fake google ID';
 
@@ -106,9 +115,12 @@ describe('Validate user update form', function() {
     let data = {
       renewEnabled: true,
       renewDate: 3,
+      calendarEnabled: false,
       calendarName: 'calendar Name',
       libraryLogin: 'Login name',
-      libraryPassword: 'Password'
+      libraryPassword: 'Password',
+      emailEnabled: false,
+      emailAddress: 'foo@bar.net'
     };
 
     models.user.find.returns(Promise.resolve(['Fake user record.']));
@@ -128,9 +140,12 @@ describe('Validate user update form', function() {
     let data = {
       renewEnabled: false,
       renewDate: 3,
+      calendarEnabled: false,
       calendarName: 'calendar Name',
       libraryLogin: 'Login name',
-      libraryPassword: 'Password'
+      libraryPassword: 'Password',
+      emailEnabled: false,
+      emailAddress: 'foo@bar.net'
     };
 
     return check(data);
@@ -140,7 +155,9 @@ describe('Validate user update form', function() {
     let data = {
       renewEnabled: false,
       renewDate: 3,
-      calendarName: 'calendar Name'
+      calendarName: 'calendar Name',
+      calendarEnabled: false,
+      emailEnabled: false
     };
 
     return check(data);
@@ -150,9 +167,10 @@ describe('Validate user update form', function() {
     let data = {
       renewEnabled: true,
       renewDate: 3,
-      calendarName: 'calendarName',
       libraryLogin: 'Login name',
-      libraryPassword: 'Password'
+      libraryPassword: 'Password',
+      calendarEnabled: false,
+      emailEnabled: false
     }
 
     return check(data);
@@ -209,6 +227,120 @@ describe('Validate user update form', function() {
       }
       err.message.should.be.a('string');
     });
+  });
+
+  it('should pass if email is provided and enabled', function() {
+    let data = {
+      renewEnabled: true,
+      renewDate: 3,
+      calendarEnabled: false,
+      calendarName: 'calendar Name',
+      libraryLogin: 'Login name',
+      libraryPassword: 'Password',
+      emailEnabled: true,
+      emailAddress: 'foo@bar.net'
+    };
+
+    return check(data)
+  });
+
+  it('should fail if email is enabled but address is not provided', function() {
+    let data = {
+      renewEnabled: true,
+      renewDate: 3,
+      calendarEnabled: false,
+      calendarName: 'calendar Name',
+      libraryLogin: 'Login name',
+      libraryPassword: 'Password',
+      emailEnabled: true,
+      emailAddress: ''
+    };
+
+    return check(data)
+    .then(() => {
+      throw new shouldThrowError();
+    })
+    .catch(err => {
+      if (err instanceof shouldThrowError) {
+        throw new Error('Expected to fail. But succeed.');
+      }
+      err.message.should.be.a('string');
+    });
+
+  });
+
+  it('should pass if calendar is enabled and name is provided', function() {
+    let data = {
+      renewEnabled: true,
+      renewDate: 3,
+      calendarEnabled: true,
+      calendarName: 'calendar Name',
+      libraryLogin: 'Login name',
+      libraryPassword: 'Password',
+      emailEnabled: false,
+      emailAddress: 'foo@bar.net'
+    };
+
+    return check(data);
+  });
+
+  it('should fail if calendar is enabled but name is not provided', function() {
+    let data = {
+      renewEnabled: true,
+      renewDate: 3,
+      calendarEnabled: true,
+      calendarName: '',
+      libraryLogin: 'Login name',
+      libraryPassword: 'Password',
+      emailEnabled: false,
+      emailAddress: 'foo@bar.net'
+    };
+
+    return check(data)
+    .then(() => {
+      throw new shouldThrowError();
+    })
+    .catch(err => {
+      if (err instanceof shouldThrowError) {
+        throw new Error('Expected to fail. But succeed.');
+      }
+      err.message.should.be.a('string');
+    });
+  });
+
+  it('should pass if renew is not enabled but email address is not provided', function() {
+    let data = {
+      renewEnabled: false,
+      renewDate: 3,
+      calendarEnabled: false,
+      emailEnabled: false
+    };
+
+    return check(data);
+  });
+
+  it('should pass if email is enabled, renew disabled and address is provided.', function() {
+    let data = {
+      renewEnabled: false,
+      renewDate: 3,
+      calendarEnabled: false,
+      emailEnabled: true,
+      emailAddress: 'foo@bar.net'
+    };
+
+    return check(data);
+  });
+
+  it('should pass if email is enabled, renew disabled but address is not provided.', function() {
+    let data = {
+      renewEnabled: false,
+      renewDate: 3,
+      calendarEnabled: false,
+      emailEnabled: true,
+      emailAddress: ''
+    };
+
+    return check(data);
   });
 
 });

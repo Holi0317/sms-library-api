@@ -22,16 +22,25 @@ let utils = require('../utils');
 
 validate.Promise = Promise;
 
-function libraryCheck(value, options, key, attributes) {
-  if (attributes.renewEnabled === false) {
-    return
-  }
+/**
+ * Validator function.
+ * If key 'renewEnabled' is true, the following check will be conducted:
+ * If the reqKey is true, value must not be false-ty (i.e. not undefined/null/''/0/NaN).
+ * Otherwise, the check passes.
+ *
+ * @param {String} reqKey - The key to be required to be true.
+ * @returns {function} - Checker function to be placed under 'fn' key of constraints.
+ */
+function requireKey(reqKey) {
+  return function(value, options, key, attributes) {
+    if (attributes.renewEnabled === false) return;
 
-  if (!value) {
-    // Empty. Nooope
-    return 'is required as renew is enabled.'
-  }
-  return
+    if (!reqKey) return;
+    if (attributes[reqKey] === false) return;
+
+    if (!value) return `is required as ${reqKey} is true.`; 
+    return;
+  };
 }
 
 const constraints = {
@@ -48,17 +57,29 @@ const constraints = {
       lessThan: 14
     }
   },
-  calendarName: {
-    type: 'string',
+  calendarEnabled: {
+    type: 'boolean',
     presence: true
+  },
+  calendarName: {
+    type: 'string|undefined',
+    fn: [requireKey('calendarEnabled')]
   },
   libraryLogin: {
     type: 'string|undefined',
-    fn: [libraryCheck]
+    fn: [requireKey()]
   },
   libraryPassword: {
     type: 'string|undefined',
-    fn: [libraryCheck]
+    fn: [requireKey()]
+  },
+  emailEnabled: {
+    type: 'boolean',
+    presence: true
+  },
+  emailAddress: {
+    type: 'string|undefined',
+    fn: [requireKey('emailEnabled')]
   }
 };
 

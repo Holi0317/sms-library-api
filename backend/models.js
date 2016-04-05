@@ -37,9 +37,17 @@ let schema = {
       type: Boolean,
       default: false
     },
+    calendarEnabled: {
+      type: Boolean,
+      default: false
+    },
     calendarName: {
       type: String,
       default: 'slh autorenew'
+    },
+    emailEnabled: {
+      type: Boolean,
+      default: false
     },
     emailAddress: String,
     isAdmin: {
