@@ -38,7 +38,7 @@ function requireKey(reqKey) {
     if (!reqKey) return;
     if (attributes[reqKey] === false) return;
 
-    if (!value) return `is required as ${reqKey} is true.`; 
+    if (!value) return `is required as ${reqKey} is true.`;
     return;
   };
 }
@@ -79,7 +79,8 @@ const constraints = {
   },
   emailAddress: {
     type: 'string|undefined',
-    fn: [requireKey('emailEnabled')]
+    fn: [requireKey('emailEnabled')],
+    email: true
   }
 };
 

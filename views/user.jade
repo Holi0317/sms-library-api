@@ -11,13 +11,22 @@ block content
           legend Informations update
 
           +form_togglebutton('Enable auto renew', 'renewEnabled', user.renewEnabled)
-          
+
           +form_input('Library login', 'libraryLogin', user.libraryLogin, '', 'text')
           +form_input('Library password', 'libraryPassword', '', '', 'password')
           +form_input('Renew at', 'renewDate', user.renewDate, 'Renew at "n" days before due date, where n is the number you have typed above. Must between 2 and 13', 'number')
+
+          hr
+          p Google calendar
+          +form_togglebutton('Enable Google Calendar reminder', 'calendarEnabled', user.calendarEnabled)
           +form_input('Google calendar name', 'calendarName', user.calendarName, 'Read warning above!', 'text')
-          
+
+          hr
+          p Email notification
+          +form_togglebutton('Enable Email for notifying the last renew', 'emailEnabled', user.emailEnabled)
+          +form_input('Email address', 'emailAddress', user.emailAddress)
+
           +form_submit('Submit')
-            
+
   +showLog(user.logs)
   +deleteAccount()

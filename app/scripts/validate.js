@@ -5,6 +5,8 @@ let user = function (data, markError) {
 
   data.renewDate = Number(data.renewDate);
   data.renewEnabled = Boolean(data.renewEnabled);
+  data.calendarEnabled = Boolean(data.calendarEnabled);
+  data.emailEnabled = Boolean(data.emailEnabled);
 
   // Validate
   if (data.renewEnabled && (data.libraryLogin === '' || data.libraryPassword === '')) {
@@ -20,6 +22,11 @@ let user = function (data, markError) {
 
   if (data.calendarName === '') {
     markError('calendarName');
+    ok = false;
+  }
+
+  if (data.emailEnabled && data.emailAddress === '') {
+    markError('emailAddress');
     ok = false;
   }
 

@@ -27,7 +27,6 @@ block content
       .panel-body
         .alert.alert-warning.fade.in(role='alert')
           p Editing this will be logged in system. Think carefully.
-        //- TODO Make it a form
         form.form-horizontal(data-async, action=url('mana.postUser', {user: data.googleId}), method='POST', validator='mana')
           fieldset
 
@@ -37,8 +36,20 @@ block content
             +form_input('Library password', 'libraryPassword', '', '', 'password')
             +form_input('Renew at', 'renewDate', data.renewDate, 'Renew at "n" days before due date, where n is the number you have typed above. Must between 2 and 13', 'number')
             +form_input('Google calendar name', 'calendarName', data.calendarName, 'Read warning above!', 'text')
-            
+
+            hr
+            p Google calendar
+            +form_togglebutton('Enable Google Calendar reminder', 'calendarEnabled', data.calendarEnabled)
+            +form_input('Google calendar name', 'calendarName', data.calendarName, 'Read warning above!', 'text')
+
+            hr
+            p Email notification
+            +form_togglebutton('Enable Email for notifying the last renew', 'emailEnabled', data.emailEnabled)
+            +form_input('Email address', 'emailAddress', data.emailAddress)
+
+            hr
+            p Administration
             +form_togglebutton('Is admin?', 'isAdmin', data.isAdmin)
             +form_submit('Submit')
-        
+
   +showLog(data.logs)
