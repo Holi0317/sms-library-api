@@ -12,7 +12,7 @@
 let Promise = require('bluebird');
 let template = require('lodash.template');
 
-let LibraryApi = require('./api');
+let library = require('./library');
 let models = require('./models');
 let utils = require('./utils');
 let config = require('../config');
@@ -109,7 +109,7 @@ function dateToGoogle(date) {
  *
  * @prop {backend/models.user} user - User object queried from database.
  * @prop {google.auth.OAuth2} oauth2client - Google OAuth2 bounded to user token.
- * @prop {backend/api.User} library - Library API bound to user.
+ * @prop {backend/library.User} library - Library API bound to user.
  * @prop {Number} celdnarID - Google calendar ID that matches the name of user defined.
  * @prop {bool} failed - Trye if any operation failed.
  * @prop {function} log - Log message to user.
@@ -130,7 +130,7 @@ class UserFunctions {
     this.user = user;
     this.oauth2client = utils.oauth2clientFactory();
     this.oauth2client.setCredentials(this.user.tokens);
-    this.library = new LibraryApi();
+    this.library = new library();
     this.calendarID = null;
     this.failed = false;
     this.emailMsgID = [];
@@ -331,7 +331,7 @@ class UserFunctions {
   /**
    * Create calendar event resource by using book object passed in.
    *
-   * @param {backend/api.Book} book - Book object that need to be converted into event resource.
+   * @param {backend/library.Book} book - Book object that need to be converted into event resource.
    * @returns {Object} - Event resource (Google calendar) of this book.
    * @static
    * @private

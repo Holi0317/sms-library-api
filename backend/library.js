@@ -1,6 +1,6 @@
 /**
  * Request handler and parser for school library.
- * @module sms-library-helper/backend/api
+ * @module sms-library-helper/backend/library
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *
@@ -21,11 +21,11 @@ let Promise = require('bluebird');
  *
  * Some link requires language inside the link. These links contains {lang} inside them.
  * Replace {lang} to 'c' if chinese, '' if english before using them.
- * {@link sms-library-helper/backend/api~User#_formatUrl} is a helper function for this purpose.
+ * {@link sms-library-helper/backend/library~User#_formatUrl} is a helper function for this purpose.
  *
  * @const
  * @type {Object.<string, string>}
- * @see {@link sms-library-helper/backend/api~User#_formatUrl}
+ * @see {@link sms-library-helper/backend/library~User#_formatUrl}
  */
 const URLS = {
   auth: 'http://www.library.ccnet-hk.com/central/sms/schlib/admin/get_a_password.asp',
@@ -89,7 +89,7 @@ function createReq(options) {
 /**
  * Parser and request constructor for views in library system.
  * @prop {User} self - User object that this parser is bounded to.
- * @see {@link sms-library-helper/backend/api~User}
+ * @see {@link sms-library-helper/backend/library~User}
  */
 class Parser {
   /**
@@ -214,7 +214,7 @@ class User {
    * @param {string} url - Url to be pre-processed.
    * @returns {string} - Processed url. {lang} has been properly replaced with user language.
    *
-   * @see {@link sms-library-helper/backend/api.URLS}
+   * @see {@link sms-library-helper/backend/library.URLS}
    * @private
    */
   _formatUrl (url) {
@@ -239,7 +239,7 @@ class User {
    * @returns {Promise} - Promise that will login and parse all the required informations.
    * Result of Promise should be nothing.
    *
-   * @see {@link sms-library-helper/backend/api~Parser}
+   * @see {@link sms-library-helper/backend/library~Parser}
    */
   login (id, passwd) {
     this.id = id;
@@ -356,5 +356,3 @@ module.exports._URLS = URLS;
 module.exports._Book = Book;
 module.exports._Parser = Parser;
 
-// Inject jq command, for debugging selector
-// var jq = document.createElement('script');jq.src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js";document.getElementsByTagName('head')[0].appendChild(jq);

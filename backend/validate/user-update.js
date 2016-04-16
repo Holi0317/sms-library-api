@@ -16,7 +16,7 @@ let Promise = require('bluebird');
 require('./validator-fn');
 require('./validator-type');
 
-let libApi = require('../api');
+let library = require('../library');
 let models = require('../models');
 let utils = require('../utils');
 
@@ -100,7 +100,7 @@ let afterValidate = function(data, googleId) {
 
   function checkLogin() {
     if (data.renewEnabled) {
-      let userLibrary = new libApi();
+      let userLibrary = new library();
       return userLibrary.checkLogin(data.libraryLogin, data.libraryPassword);
     } else {
       return Promise.resolve()

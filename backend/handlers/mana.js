@@ -2,7 +2,7 @@
  * Mana(gement) page handler.
  * Called as mana. Because I like magic ;p.
  *
- * @module sms-library-helper/handlers/api
+ * @module sms-library-helper/handlers/mana
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *
