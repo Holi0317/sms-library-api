@@ -18,7 +18,7 @@ describe('Library API', function() {
     let decode = function(a) {return a};
     request = sinon.stub();
     request.returns(Promise.resolve());
-    api = proxyquire('../backend/api', {
+    api = proxyquire('../backend/library', {
       'iconv-lite': {
         decode: decode
       },

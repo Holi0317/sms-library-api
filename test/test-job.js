@@ -81,7 +81,7 @@ describe('Cron job', function() {
 
     job = proxyquire('../backend/job', {
       '../config': config,
-      './api': function() {},
+      './library': function() {},
       './utils' : _utils,
       './promisify': promisify
     });

@@ -34,7 +34,7 @@ describe('Validate user update form', function() {
     models.user.find.returns(Promise.resolve([]));
 
     check = proxyquire('../backend/validate/user-update', {
-      '../api': _libraryMock,
+      '../library': _libraryMock,
       '../models': models
     });
   });
