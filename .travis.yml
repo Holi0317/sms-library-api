@@ -1,10 +1,7 @@
 language: node_js
 node_js:
   - "stable"
-  - "4.2"
 cache:
   directories:
     - node_modules
-before_script:
-  - cp config.travis.js config.js
 script: node_modules/.bin/gulp test

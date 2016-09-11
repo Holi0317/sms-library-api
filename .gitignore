@@ -4,5 +4,6 @@ bower_components
 .tmp
 static
 
-config.js
+config
 npm-debug.log
+.idea

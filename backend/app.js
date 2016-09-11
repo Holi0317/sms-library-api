@@ -29,13 +29,13 @@ app.set('view engine', 'jade');
 
 switch (app.get('env')) {
   case 'development':
-    app.use(express.static('.tmp'));
-    app.use(express.static('app'));
+    app.use(express.static('../frontend/.tmp'));
+    app.use(express.static('../frontend/app'));
     app.set('json spaces', 4);
     app.locals.pretty = true;
     break;
   case 'production':
-    app.use(express.static('static'));
+    app.use(express.static('../frontend/static'));
 }
 
 // Session

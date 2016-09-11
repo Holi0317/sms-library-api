@@ -1,138 +1,55 @@
 'use strict';
 
 let gulp = require('gulp');
-let $ = require('gulp-load-plugins')();
-let del = require('del');
-let webpackStream = require('webpack-stream');
-let browserSync = require('browser-sync').create();
+let runSequence = require('run-sequence');
+let mocha = require('gulp-mocha');
+let nodemon = require('nodemon');
+let requireDir = require('require-directory');
+let browserSync = require('browser-sync').create('slh');
+let reload = browserSync.reload;
 
-const DIST = 'static';
-const reload = browserSync.reload;
-
-function styleTask(src, outputStyle) {
-  let opt = {
-    includePaths: ['.', 'bower_components', 'bower_components/bootstrap-sass/assets/stylesheets'],
-    outputStyle: outputStyle
-  };
-
-  return gulp.src(src)
-    .pipe($.sass(opt)).on('error', $.sass.logError)
-    .pipe($.postcss([
-      require('postcss-cssnext')()
-    ]));
-}
-
-gulp.task('styles', () => {
-  return styleTask('app/styles/*.scss', 'expanded')
-    .pipe(gulp.dest('.tmp/styles'));
-});
-
-gulp.task('styles:dist', () => {
-  return styleTask('app/styles/*.scss', 'compressed')
-    .pipe(gulp.dest(DIST + '/styles'));
-});
-
-gulp.task('js', () => {
-  return gulp.src('app/scripts/entry.js')
-    .pipe(webpackStream({
-      module: {
-        loaders: [
-          { test: /\.js$/, loader: 'babel?cacheDirectory', exclude: /(?:node_modules|bower_components)/ }
-        ]
-      },
-      output: {
-        filename: 'bundle.js'
-      },
-      resolve: {
-        extensions: ['', '.js'],
-        modulesDirectories: ['web_modules', 'node_modules', 'bower_components']
-      }
-    }))
-    .pipe(gulp.dest('.tmp/scripts'));
-});
-
-gulp.task('images', () => {
-  return gulp.src('app/images/**/*')
-    .pipe($.if($.if.isFile, $.cache($.imagemin({
-      progressive: true,
-      interlaced: true,
-      // don't remove IDs from SVGs, they are often used
-      // as hooks for embedding and styling
-      svgoPlugins: [{cleanupIDs: false}]
-    }))
-    .on('error', function (err) {
-      console.log(err);
-      this.end();
-    })))
-    .pipe(gulp.dest(DIST + '/images'));
-});
-
-gulp.task('fonts', () => {
-  return gulp.src(['bower_components/**/*.{woff2,woff,ttf}', 'app/fonts/**/*'])
-    .pipe($.flatten())
-    .pipe(gulp.dest('.tmp/fonts'));
-});
-
-gulp.task('extras', () => {
-  return gulp.src([
-    'app/*.*',
-    '!app/*.html',
-    '!app/.eslintrc'
-  ], {
-    dot: true
-  }).pipe(gulp.dest(DIST));
-});
-
-gulp.task('clean', del.bind(null, ['.tmp', DIST]));
-
-gulp.task('serve', ['styles', 'js', 'fonts', 'nodemon'], () => {
-
-  browserSync.init({
-    proxy: 'localhost:3002',
-    port: 3000
-  });
-
-  gulp.watch('app/styles/*.scss', ['styles', reload]);
-  gulp.watch('app/scripts/**/*.js', ['js', reload]);
-});
+requireDir(module, './frontend/tasks');
 
 gulp.task('nodemon', cb => {
-
-  let started = false;
-
-  return $.nodemon({
-    script: 'startserver.js',
-    watch: ['backend/', 'views/'],
+  nodemon({
+    script: 'backend/startserver.js',
+    watch: ['backend/'],
     env: {
       PORT: '3002',
       NODE_ENV: 'development'
     },
     ext: 'js jade'
-  }).on('start', () => {
-    if (!started) {
-      cb();
-      started = true;
-    }
+  }).once('start', () => {
+    cb();
   }).on('restart', () => {
     setTimeout(reload, 1000);
   });
 });
 
+gulp.task('serve', ['compile', 'copy:fonts', 'nodemon'], () => {
+  browserSync.init({
+    proxy: 'localhost:3002',
+    port: 3000
+  });
+
+  gulp.watch('frontend/app/styles/*.scss', ['compile:styles', reload]);
+  gulp.watch('frontend/app/scripts/**/*.js', ['compile:js', reload]);
+});
+
 gulp.task('test', () => {
   return gulp.src('test/test-*.js')
-    .pipe($.mocha())
+    .pipe(mocha())
     .once('end', () => {
       process.exit();
     });
-})
-
-gulp.task('build', ['js', 'styles:dist', 'images', 'fonts', 'extras'], () => {
-  return gulp.src('.tmp/**/*')
-    .pipe($.if('*.js', $.uglify()))
-    // CSS minification is done by sass
-    .pipe(gulp.dest(DIST));
 });
 
-gulp.task('default', ['clean'], () => {
-  gulp.start('build');
+gulp.task('default', cb => {
+  runSequence(
+    'clean',
+    'compile',
+    'minify',
+    'copy',
+    cb
+  );
 });
