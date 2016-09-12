@@ -1,25 +1,27 @@
 'use strict';
 
-let {join} = require('path');
-let gulp = require('gulp');
+let {gulp, join} = require('../../gulp-utils');
 let gutil = require('gutil');
 let webpack = require('webpack');
 
 gulp.task('compile:js', cb => {
   webpack({
-    entry: join(__dirname, '../../app/scripts/entry.js'),
+    entry: join('app/scripts/entry.js'),
     module: {
       loaders: [
-        { test: /\.js$/, loader: 'babel?cacheDirectory', exclude: /(?:node_modules|bower_components)/ }
+        { test: /\.js$/, loader: 'babel?cacheDirectory', exclude: /(?:node_modules)/ }
       ]
     },
     output: {
       filename: 'bundle.js',
-      path: join(__dirname, '..', '..', '.tmp', 'scripts')
+      path: join('.tmp/scripts')
     },
     resolve: {
       extensions: ['', '.js'],
-      modulesDirectories: ['node_modules', 'bower_components']
+      modulesDirectories: [join('node_modules')]
+    },
+    resolveLoader: {
+      root: join('node_modules')
     }
   }, (err, stats) => {
     if(err) throw new gutil.PluginError('webpack', err);

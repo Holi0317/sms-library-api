@@ -1,8 +1,8 @@
 'use strict';
 
-let gulp = require('gulp');
+let {gulp, join} = require('../../gulp-utils');
 
 gulp.task('copy:css', () => {
-  return gulp.src('frontend/.tmp/styles/**/*.css')
-    .pipe(gulp.dest('frontend/static/styles/'));
+  return gulp.src(join('.tmp/styles/**/*.css'))
+    .pipe(gulp.dest(join('static/styles/')));
 });

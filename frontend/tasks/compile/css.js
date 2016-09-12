@@ -1,17 +1,17 @@
 'use strict';
 
-let gulp = require('gulp');
+let {gulp, join} = require('../../gulp-utils');
 let sass = require('gulp-sass');
 let postcss = require('gulp-postcss');
 
 gulp.task('compile:css', () => {
-  return gulp.src('frontend/app/styles/*.scss')
+  return gulp.src(join('app/styles/*.scss'))
     .pipe(sass({
-      includePaths: ['.', 'node_modules', 'node_modules/bootstrap-sass/assets/stylesheets'],
+      includePaths: [join('.'), join('node_modules'), join('node_modules/bootstrap-sass/assets/stylesheets')],
       outputStyle: 'expanded'
     })).on('error', sass.logError)
     .pipe(postcss([
       require('postcss-cssnext')()
     ]))
-    .pipe(gulp.dest('frontend/.tmp/styles'))
+    .pipe(gulp.dest(join('.tmp/styles')));
 });

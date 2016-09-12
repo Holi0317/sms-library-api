@@ -6,7 +6,7 @@
     "start": "node ./startserver.js"
   },
   "license": "MIT",
-  "author": "Holi0317 <holliswuhollis@gmail.com",
+  "author": "Holi0317 <holliswuhollis@gmail.com>",
   "repository": "Holi0317/sms-library-helper",
   "dependencies": {
     "bluebird": "^3.4.6",
@@ -30,44 +30,17 @@
     "validate.js": "^0.10.0"
   },
   "devDependencies": {
-    "babel-loader": "^6.2.5",
-    "babel-preset-es2015": "^6.14.0",
-    "bootstrap-material-design": "^0.5.10",
-    "bootstrap-sass": "^3.3.7",
     "browser-sync": "^2.15.0",
     "chai": "^3.5.0",
-    "cheet.js": "^0.3.3",
-    "cssnano": "^3.7.4",
-    "del": "^2.2.2",
-    "font-awesome": "^4.6.3",
     "gulp": "^3.9.1",
-    "gulp-cache": "^0.4.5",
-    "gulp-flatten": "^0.3.1",
-    "gulp-if": "^2.0.1",
     "gulp-mocha": "^3.0.1",
-    "gulp-postcss": "^6.2.0",
-    "gulp-sass": "^2.3.2",
-    "gulp-uglify": "^2.0.0",
-    "gutil": "^1.6.4",
-    "jquery": "^3.1.0",
     "mocha": "^3.0.2",
-    "moment": "^2.14.1",
     "nodemon": "^1.10.2",
-    "postcss-cssnext": "^2.8.0",
     "proxyquire": "^1.7.10",
-    "require-directory": "^2.1.1",
-    "run-sequence": "^1.2.2",
     "sinon": "^1.17.5",
-    "sinon-chai": "^2.8.0",
-    "sweetalert": "^1.1.3",
-    "webpack": "^1.13.2"
+    "sinon-chai": "^2.8.0"
   },
   "engines": {
-    "node": ">=4.0.0"
-  },
-  "babel": {
-    "presets": [
-      "es2015"
-    ]
+    "node": ">=6.0.0"
   }
 }

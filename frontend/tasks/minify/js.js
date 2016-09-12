@@ -1,10 +1,10 @@
 'use strict';
 
-let gulp = require('gulp');
+let {gulp, join} = require('../../gulp-utils');
 let uglify = require('gulp-uglify');
 
 gulp.task('minify:js', () => {
-  return gulp.src('frontend/.tmp/scripts/bundle.js')
+  return gulp.src(join('.tmp/scripts/bundle.js'))
     .pipe(uglify())
-    .pipe(gulp.dest('frontend/.tmp/scripts/'));
+    .pipe(gulp.dest(join('.tmp/scripts/')));
 });

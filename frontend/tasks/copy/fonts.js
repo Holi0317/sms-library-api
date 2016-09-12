@@ -1,11 +1,11 @@
 'use strict';
 
-let gulp = require('gulp');
+let {gulp, join} = require('../../gulp-utils');
 let flatten = require('gulp-flatten');
 
 gulp.task('copy:fonts', () => {
-  return gulp.src(['bower_components/**/*.{woff2,woff,ttf}', 'node_modules/**/*.{woff2,woff,ttf}'])
+  return gulp.src(join('node_modules/**/*.{woff2,woff,ttf}'))
     .pipe(flatten())
-    .pipe(gulp.dest('frontend/.tmp/fonts'))
-    .pipe(gulp.dest('frontend/static/fonts'));
+    .pipe(gulp.dest(join('.tmp/fonts')))
+    .pipe(gulp.dest(join('static/fonts')));
 });

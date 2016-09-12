@@ -1,14 +1,12 @@
 'use strict';
 
 let gulp = require('gulp');
-let runSequence = require('run-sequence');
 let mocha = require('gulp-mocha');
 let nodemon = require('nodemon');
-let requireDir = require('require-directory');
 let browserSync = require('browser-sync').create('slh');
 let reload = browserSync.reload;
 
-requireDir(module, './frontend/tasks');
+require('./frontend/gulpfile.js');
 
 gulp.task('nodemon', cb => {
   nodemon({
@@ -42,14 +40,4 @@ gulp.task('test', () => {
     .once('end', () => {
       process.exit();
     });
-});
-
-gulp.task('default', cb => {
-  runSequence(
-    'clean',
-    'compile',
-    'minify',
-    'copy',
-    cb
-  );
 });

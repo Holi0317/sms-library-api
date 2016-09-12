@@ -1,7 +1,6 @@
 'use strict';
 
-let gulp = require('gulp');
+let {gulp, join} = require('../gulp-utils');
 let del = require('del');
-let {join} = require('path');
 
-gulp.task('clean', del.bind(null, [join(__dirname, '../.tmp'), join(__dirname, '../static')]));
+gulp.task('clean', del.bind(null, [join('.tmp'), join('static')]));

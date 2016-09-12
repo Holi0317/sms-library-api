@@ -1,12 +1,12 @@
 'use strict';
 
-let gulp = require('gulp');
+let {gulp, join} = require('../../gulp-utils');
 
 gulp.task('copy:extras', () => {
   return gulp.src([
-    'frontend/app/*.*',
-    '!frontend/app/.eslintrc'
+    join('app/*.*'),
+    `!${join('app/.eslintrc')}`
   ], {
     dot: true
-  }).pipe(gulp.dest('frontend/static'));
+  }).pipe(gulp.dest(join('static')));
 });
