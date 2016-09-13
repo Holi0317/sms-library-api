@@ -7,3 +7,4 @@ static
 config
 npm-debug.log
 .idea
+frontend/nginx.conf
