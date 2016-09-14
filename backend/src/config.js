@@ -1,8 +1,10 @@
 'use strict';
 
-let {join} = require('path');
 let mongoose = require('mongoose');
 let google = require('googleapis');
+let url = require('url');
+
+const requiredOpts = ['SLH_JWT', 'SLH_MONGO_URL', 'SLH_ADMIN_ID', 'SLH_SECRET', 'SLH_CLIENT_ID', 'SLH_CLIENT_SECRET', 'SLH_BASE'];
 
 if (process.env.TRAVIS) {
   module.exports = {
@@ -17,6 +19,12 @@ if (process.env.TRAVIS) {
   };
   module.exports.conn.on('error', ()=>{});
 } else {
+  // Sanity check
+  for (let mustHave of requiredOpts) {
+    if (!(mustHave in process.env)) {
+      throw new Error(`One of the required environment variable is not defined: ${mustHave}`);
+    }
+  }
   const jwt = JSON.parse(process.env.SLH_JWT);
   module.exports = {
     // Mongoose createConnection instance
@@ -36,7 +44,7 @@ if (process.env.TRAVIS) {
     clientSecret: process.env.SLH_CLIENT_SECRET,
     // oauth2callback url. Should be <host>/oauth2callback
     // Remember to config this on developer console
-    redirectUrl: join(process.env.SLH_BASE, 'oauth2callback'),
+    redirectUrl: url.resolve(process.env.SLH_BASE, 'oauth2callback'),
 
     jwt: new google.auth.JWT(jwt.client_email, null, jwt.private_key, ['https://www.googleapis.com/auth/gmail.send'], null)
 

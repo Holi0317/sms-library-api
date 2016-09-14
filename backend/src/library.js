@@ -32,8 +32,8 @@ const URLS = {
   info: 'http://sms.library.ccnet-hk.com/{lang}schlib/patron/patronr.asp',
   showRenew: 'http://sms.library.ccnet-hk.com/{lang}schlib/patron/showRenew.asp',
   saveRenew: 'http://sms.library.ccnet-hk.com/{lang}schlib/patron/saveRenew.asp',
-  mainChinese: '/central/sms/cschlib/admin/main.asp',
-  mainEnglish: '/central/sms/schlib/admin/main.asp'
+  mainChinese: '/cschlib/admin/main.asp',
+  mainEnglish: '/schlib/admin/main.asp'
 };
 
 /**
@@ -118,7 +118,6 @@ class Parser {
    */
   auth (res) {
     let self = this.self;
-    console.log(res.request.uri.pathname);
     switch (res.request.uri.pathname) {
       case URLS.mainChinese:
         self.language = 'chinese';
@@ -227,7 +226,6 @@ class User {
       throw new Error('language has not been defined');
     }
   }
-
 
   /**
    * Login this user with given id and password.

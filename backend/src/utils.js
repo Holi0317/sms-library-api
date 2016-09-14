@@ -13,7 +13,7 @@
 let Promise = require('bluebird');
 let google = require('googleapis');
 
-let config = require('../config');
+let config = require('./config');
 require('./promisify');
 
 /**

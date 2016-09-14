@@ -7,6 +7,7 @@
 
 'use strict';
 
+let {join} = require('path');
 let express = require('express');
 let logger = require('morgan');
 let bodyParser = require('body-parser');
@@ -16,7 +17,7 @@ let MongoStore = require('connect-mongo')(session);
 let Cron = require('cron').CronJob;
 
 let router = require('./router');
-let config = require('../config');
+let config = require('./config');
 
 let app = express();
 
@@ -24,7 +25,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(helmet());
 // Render engine
-app.set('views', './views');
+app.set('views', join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 switch (app.get('env')) {

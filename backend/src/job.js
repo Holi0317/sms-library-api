@@ -15,7 +15,7 @@ let template = require('lodash.template');
 let library = require('./library');
 let models = require('./models');
 let utils = require('./utils');
-let config = require('../config');
+let config = require('./config');
 let promisify = require('./promisify');
 
 /**

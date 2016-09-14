@@ -8,6 +8,10 @@ let reload = browserSync.reload;
 
 require('./frontend/gulpfile.js');
 
+let deferReload = () => {
+  setTimeout(reload, 2000);
+};
+
 gulp.task('nodemon', cb => {
   nodemon({
     script: 'backend/startserver.js',
@@ -19,19 +23,18 @@ gulp.task('nodemon', cb => {
     ext: 'js jade'
   }).once('start', () => {
     cb();
-  }).on('restart', () => {
-    setTimeout(reload, 1000);
-  });
+  }).on('restart', deferReload);
 });
 
 gulp.task('serve', ['compile', 'copy:fonts', 'nodemon'], () => {
   browserSync.init({
     proxy: 'localhost:3002',
-    port: 3000
+    port: 3000,
+    serveStatic: ['frontend/.tmp', 'frontend/app']
   });
 
-  gulp.watch('frontend/app/styles/*.scss', ['compile:styles', reload]);
-  gulp.watch('frontend/app/scripts/**/*.js', ['compile:js', reload]);
+  gulp.watch('frontend/app/styles/*.scss', ['compile:styles', deferReload]);
+  gulp.watch('frontend/app/scripts/**/*.js', ['compile:js', deferReload]);
 });
 
 gulp.task('test', () => {

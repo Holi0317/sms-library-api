@@ -1,0 +1,41 @@
+{
+  "name": "sms-library-helper-backend",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Backend for sms-library-helper",
+  "main": "startserver.js",
+  "scripts": {
+    "start": "node startserver.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/holi0317/sms-library-helper.git"
+  },
+  "author": "Holi0317 <holliswuhollis@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/holi0317/sms-library-helper/issues"
+  },
+  "homepage": "https://github.com/holi0317/sms-library-helper#readme",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "body-parser": "^1.15.2",
+    "cheerio": "^0.22.0",
+    "connect-mongo": "^1.3.2",
+    "cron": "^1.1.0",
+    "debug": "^2.2.0",
+    "express": "^4.14.0",
+    "express-session": "^1.14.1",
+    "googleapis": "^13.0.0",
+    "helmet": "^2.1.3",
+    "iconv-lite": "^0.4.13",
+    "jade": "^1.11.0",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.template": "^4.4.0",
+    "mongoose": "^4.6.0",
+    "morgan": "^1.7.0",
+    "named-routes": "^2.0.6",
+    "request-promise": "^4.1.1",
+    "validate.js": "^0.10.0"
+  }
+}

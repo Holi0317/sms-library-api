@@ -1,6 +1,6 @@
 'use strict';
 
-var app = require('./app');
+var app = require('./src/app');
 var debug = require('debug')('sms-library-helper:server');
 var http = require('http');
 

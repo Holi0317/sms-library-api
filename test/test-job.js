@@ -80,7 +80,7 @@ describe('Cron job', function() {
     _utils.oauth2clientFactory.returns(OAuth2);
 
     job = proxyquire('../backend/job', {
-      '../config': config,
+      './config': config,
       './library': function() {},
       './utils' : _utils,
       './promisify': promisify

@@ -13,7 +13,7 @@
 
 let Promise = require('bluebird');
 
-let config = require('../../config');
+let config = require('../config');
 let models = require('../models');
 let utils = require('../utils');
 let validateUser = require('../validate/user-update');
