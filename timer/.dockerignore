@@ -1,0 +1,3 @@
+node_modules/
+.gitignore
+pre-build.sh
