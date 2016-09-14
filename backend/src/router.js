@@ -16,7 +16,6 @@ module.exports = function (app, handlers) {
     app.get('/dev/db/users', 'dev.db.users', handlers.dev.db.users);
     app.get('/dev/db/users/drop', 'dev.db.users.drop', handlers.dev.db.users.drop);
     app.get('/dev/gapi/revoke', 'dev.gapi.revoke', handlers.dev.gapi.revoke);
-    app.get('/dev/cron', 'dev.cron', handlers.dev.cron);
     app.get('/dev/render/:template', 'dev.render', handlers.dev.render);
   }
 

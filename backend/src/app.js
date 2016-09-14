@@ -14,7 +14,6 @@ let bodyParser = require('body-parser');
 let helmet = require('helmet');
 let session = require('express-session');
 let MongoStore = require('connect-mongo')(session);
-let Cron = require('cron').CronJob;
 
 let router = require('./router');
 let config = require('./config');
@@ -106,16 +105,5 @@ app.use(function(err, req, res) {
     error: {}
   });
 });
-
-// Create cron job.
-if (app.get('env') === 'production') {
-  new Cron({
-    cronTime: '00 00 00,08 * * *',
-    onTick: require('./job'),
-    start: true,
-    timeZone: 'UTC'
-  });
-}
-
 
 module.exports = app;

@@ -8,7 +8,6 @@
 'use strict';
 
 let models = require('../models');
-let cron = require('../job');
 let utils = require('../utils');
 
 /**
@@ -120,18 +119,6 @@ module.exports.gapi.revoke = (req, res) => {
     return res.json({
       message: 'Tokens revoked.'
     });
-  });
-}
-
-/**
- * Invoke cron job by directly calling its function.
- *
- * @see {@link sms-library-helper/backend/job}
- */
-module.exports.cron = (req, res) => {
-  cron();
-  return res.json({
-    message: 'Cron job started'
   });
 }
 

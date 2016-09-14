@@ -4,13 +4,11 @@
  * @author Holi0317 <holliswuhollis@gmail.com>
  * @license MIT
  *
- * @requires bluebird
  * @requires googleapis
  */
 
 'use strict';
 
-let Promise = require('bluebird');
 let google = require('googleapis');
 
 let config = require('./config');
@@ -34,40 +32,7 @@ makePromise
  * @class
  * @extends Error
  */
-module.exports.BreakSignal = class BreakSignal extends Error{}
-
-/**
- * Supress all error when exception is thrown.
- * @example
-makePromise()
-.then(throwError)
-.catch(catchThenThrowAnotherError)
-.then(otherStuffs)
-.catch(catchIgnore);
-// otherStuffs will not be executed, while there will be nothing printed on console.
- * @returns {Promise} - emptyPromise
- */
-module.exports.catchIgnore = function catchIgnore() {
-  return Promise.resolve();
-};
-
-/**
- * Returns difference between two arrays (Delta comparing).
- * However, only items that a have but not in b will be returned. See example for a better
- * explain.
- *
- * @example
- * utils.diff([1, 2, 3], [3, 4, 5]); // Returns [1, 2], but not [1, 2, 4, 5]
- *
- * @param {Array} a - One of the arrays to be compaired.
- * @param {Array} b - The other array to be compaired.
- * @see http://stackoverflow.com/questions/1187518/javascript-array-difference
- */
-module.exports.diff = function (a, b) {
-  return a.filter(function(i) {
-    return b.indexOf(i) < 0;
-  });
-}
+module.exports.BreakSignal = class BreakSignal extends Error{};
 
 /**
  * Factory function for creating google.auth.OAuth2 client.
@@ -79,7 +44,7 @@ module.exports.diff = function (a, b) {
  */
 module.exports.oauth2clientFactory = function () {
   return new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
-}
+};
 
 /**
  * Error catcher for validate.js.
@@ -91,31 +56,4 @@ module.exports.oauth2clientFactory = function () {
  */
 module.exports.validateErrorHandle = function(err) {
   throw new Error(err.join(';\n'));
-};
-
-/**
- * Create a Email content following the RFC2822 format. (The one used by Gmail)
- * This function can only create plain text email.
- * (i.e. No email with attachment or using HTML)
- *
- * @param {String} from_ - Sender of the email. Optional (Ignore this using null).
- * @param {String} to - Receiver of the email.
- * @param {String} subject - Subject of the email.
- * @param {String} body - Text content of the email.
- * @returns {String} - Base64 encoded email message.
- */
-module.exports.makeEmail = function (from_, to, subject, body) {
-  let lines = [
-    'Content-Type: text/plain; charset="UTF-8"',
-    'MIME-Version: 1.0',
-    'Content-Transfer-Encoding: 8bit',
-    (from_) ? `from: ${from_}` : '',
-    `to: ${to}`,
-    `subject: ${subject}`,
-    '',
-    body
-  ];
-
-  let mail = lines.join('\n');
-  return new Buffer(mail).toString('base64');
 };
