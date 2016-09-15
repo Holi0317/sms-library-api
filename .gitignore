@@ -1,10 +1,8 @@
 node_modules
-dist
-bower_components
 .tmp
 static
 
-config
+config.yaml
 npm-debug.log
 .idea
 frontend/nginx.conf

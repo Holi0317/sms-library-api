@@ -10,17 +10,73 @@ Well, this tool will help user to auto-renew book and add due date to Google cal
 [Here](https://slh.holi0317.net/)
 
 # Configuration
-## Using environment variables
-| ENV | Description | Example |
-| --- | ----------- | ------- |
-| SLH_JWT | JWT account for sending Gmail alert. Formatted in JSON. Register a service account and get JWT from that. | {"type": "service_account",...} |
-| SLH_MONGO_URL | URL of MongoDB location | mongodb://mongo/slh-development |
-| SLH_MONGO_OPTIONS | Options for mongoose connection. Check [this](http://mongoosejs.com/docs/guide.html#options) for details. Formatted in JSON | {"user": "slh-develop", "pass": "####"} |
-| SLH_ADMIN_ID | Google ID of the admin. Can be obtained during development phase, using the management route. | 2202557213492 |
-| SLH_SECRET | Session secret for express.js. It must be randomized and not exposed to others. Recommended to use password generator to generate this. | s%19E2s>lt2k~u7.Vc{^XK{?Jn~0^8b2l@6!EH*C45EHBnp3mRd5E~1eT9`ie$ |
-| SLH_CLIENT_ID | Google Auth. Client ID. Generated from Google developer console. | nhss92jng0sj7p80fpe8k.apps.googleusercontent.com |
-| SLH_CLIENT_SECRET | Google Auth. Client Secret. Generated from Google developer console. | 2RZU70qA2Oq3CqrD853k1f8o8dbToJsC |
-| SLH_BASE |  Base URL of deployed location. | http://example.com/slh | 
+Both backend and frontend requires configuration. This app uses [yaml](https://en.wikipedia.org/wiki/YAML) for configuration.
+
+The yaml file can be stored anywhere in your filesystem. Then, set the environment variable, `SLH_CONFIG_PATH`, that points to the yaml file before starting the application
+ 
+The `SLH_CONFIG_PATH` environment variable must be presented in absolute path, to avoid confusion.
+
+## Required information for Google OAuth2
+In order to get this app up and running, we need to have some information from Google.
+
+First, you need to register a new project from [Google Developer Console](https://console.developers.google.com).
+
+Second, navigate to `API Manager -> Library section`. Enable the following APIs:
+ - Google Calendar API
+ - Google+ API
+ - Gmail API (In case you want to send email through that account. Otherwise register another project from another Google Account and only enable Gmail API)
+
+Third, navigate to `API Manager -> Credentials section`. Create a new credential. Select `OAuth client ID -> Web application`.
+Fill in `Authorized redirect URIs` with the desired deploy endpoint and append `oauth2callback`.
+For example, if you want to deploy to `example.com/slh`, then Authorized redirect should have `https://example.com/slh/oauth2callback`. 
+
+Fourth, get `Client ID` and `Client secret` from the credential. Save that up for creating configuration file.
+ 
+Finally, create another new credential. Select `Service Account Key` this time. If you want to send email from other Google Account, login to that and create service account from there.
+
+Create a new service account for filling up `Service account` field. Role should be empty. `Key type` should select `JSON`.
+
+A file should be downloaded and save that up for configuration.
+
+## Example
+The following is an example of config.yaml, with comments that should explain each variable usage
+```yaml
+# Configuration section for mongoDB, database.
+mongo:
+  url: mongodb://mongo/sms-library-helper  # This is the URL endpoint of mongoDB
+  config:  # This is an object (or Associative arrays) for storing mongoose (mongoDB ORM for node) config. Read http://mongoosejs.com/docs/guide.html#options for details
+    user: sms-library-helper
+    pass: password
+    auth:
+      authSource: admin
+
+# Google ID of the first administrator. You can get this during development.
+# If this is left empty, no one can access the admin page. Yet other function does not affect.
+adminID: 116369226224988015839
+# Session secret for express.js. It must be randomized and not exposed to others. Recommended to use password generator to generate this.
+secret: =r2vRXSJvHu;jNT4nx2`!$$9vd0ET
+# Base URL of deployed location. Remember to include scheme(https://) and the tailing slash
+baseURL: http://localhost:3000/
+
+# Google OAuth2 configuration
+google:
+  # clientID. Generated from Google Developer Console
+  clientID: ######.apps.googleusercontent.com
+  # clientSecret: Generated from Google Developer Console.
+  clientSecret: fake_client_secret
+  # A jwt (service account) token used for sending Gmail
+  jwt:
+    type: service_account
+    project_id: my-project
+    private_key_id: fake_key_id
+    private_key: a_super_long_string  # Quote this with "" to avoid error
+    client_email: name@my-project.iam.gserviceaccount.com
+    client_id: ######
+    auth_uri: https://accounts.google.com/o/oauth2/auth
+    token_uri: https://accounts.google.com/o/oauth2/token
+    auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+    client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/name%40my-project.iam.gserviceaccount.com
+```
 
 # Deploy
 Before deploy, check for the above environment variable section and get all variables ready.
