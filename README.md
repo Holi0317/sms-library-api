@@ -3,13 +3,14 @@
 
 Library helper for St. Mark's School.
 
-## Brief introduction
+# Brief introduction
 Well, this tool will help user to auto-renew book and add due date to Google calendar. That's it.
 
-## Deployed site
+# Deployed site
 [Here](https://slh.holi0317.net/)
 
-## Environment variables
+# Configuration
+## Using environment variables
 | ENV | Description | Example |
 | --- | ----------- | ------- |
 | SLH_JWT | JWT account for sending Gmail alert. Formatted in JSON. Register a service account and get JWT from that. | {"type": "service_account",...} |
@@ -21,7 +22,7 @@ Well, this tool will help user to auto-renew book and add due date to Google cal
 | SLH_CLIENT_SECRET | Google Auth. Client Secret. Generated from Google developer console. | 2RZU70qA2Oq3CqrD853k1f8o8dbToJsC |
 | SLH_BASE |  Base URL of deployed location. | http://example.com/slh | 
 
-## Deploy
+# Deploy
 Before deploy, check for the above environment variable section and get all variables ready.
 
 This app uses docker and kubernetes. And, by default, built for Google Container Engine. Install [docker](https://www.docker.com/products/docker#/linux), [Google cloud SDK](https://cloud.google.com/sdk/) and kubectl by running `gcloud components install kubectl`.
@@ -34,11 +35,15 @@ This app is split into 4 parts. They are
 
 (Not yet finished. I haven't finish kubernetes part)
 
-## TODO
- - Refactor backend and timer to TypeScript
- - Replace current (broken) test system with ava.js
- - Split timer/refresh-calendar into smaller functions. Seriously I have no idea what I am reading.
- - Automatic shell script for build, deploy, environment variables, etc. Except for writing code.
+# TODO
+ - Backend and timer: Refactor to TypeScript
+ - Backend and timer: await and async
+ - Test: Replace with ava.js
+ - Timer: split refresh-calendar task. Seriously I have no idea what I am reading.
+ - Misc: Automatic shell script (or node?) for build, deploy, environment variables, etc.
+ - Backend and frontend: Use fetch for http request
+ - Backend: library API rewrite
+ - Backend: update jade to pug js
 
-## License
+# License
 This project is released under MIT License.
