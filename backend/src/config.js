@@ -20,7 +20,6 @@ if (process.env.TRAVIS) {
   module.exports.conn.on('error', ()=>{});
 } else if (process.env.SLH_CONFIG_PATH) {
   let doc = yaml.safeLoad(fs.readFileSync(process.env.SLH_CONFIG_PATH, 'utf8'));
-  console.log(doc);
   let jwt = doc.google.jwt;
   module.exports = {
     conn: mongoose.createConnection(doc.mongo.url, doc.mongo.config),
