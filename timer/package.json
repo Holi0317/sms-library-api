@@ -23,6 +23,7 @@
     "cheerio": "^0.22.0",
     "googleapis": "^13.0.0",
     "iconv-lite": "^0.4.13",
+    "js-yaml": "^3.6.1",
     "lodash.template": "^4.4.0",
     "mongoose": "^4.6.0",
     "request-promise": "^4.1.1"
