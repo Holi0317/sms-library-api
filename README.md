@@ -100,6 +100,7 @@ This app is split into 4 parts. They are
  - Backend and frontend: Use fetch for http request
  - Backend: library API rewrite
  - Backend: update jade to pug js
+ - Build system: Gulp 4
 
 # License
 This project is released under MIT License.
