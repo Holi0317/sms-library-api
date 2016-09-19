@@ -6,6 +6,7 @@ EXPOSE ${port}
 # Setup environment variables
 ENV PORT ${port}
 ENV NODE_ENV production
+ENV SLH_CONFIG_PATH /etc/slh-config.yaml
 
 # Copy necessary files
 COPY startserver.js package.json /srv/
