@@ -81,7 +81,7 @@ google:
 # Deploy
 Before deploy, check for the above environment variable section and get all variables ready.
 
-This app uses docker and kubernetes. And, by default, built for Google Container Engine. Install [docker](https://www.docker.com/products/docker#/linux), [Google cloud SDK](https://cloud.google.com/sdk/) and kubectl by running `gcloud components install kubectl`.
+This app uses docker and swarm. Install [docker](https://www.docker.com/products/docker#/linux) before deploy.
 
 This app is split into 4 parts. They are
  - Backend - Node.js server for storing business logic
@@ -89,7 +89,42 @@ This app is split into 4 parts. They are
  - Timer - Cron job for renewing books and other functions
  - MongoDB - Database
 
-(Not yet finished. I haven't finish kubernetes part)
+## Directories
+As this app is so simple (and I am not that good at swarm), it assumes only one swarm node is used for deployment.
+
+Therefore, data is saved directly into host drive. The root directory is hard-coded to `/srv/slh`. Data includes:
+```
+certs/ssl.crt -- HTTPS cert for http server
+certs/ssl.key -- HTTPS private key for http server
+config.yaml -- Configurations file
+mongodb/  -- Database files. Must create this directory.
+```
+
+## Setup swarm nodes
+Some swarm concepts is needed to get started. You may want to [read them first](https://docs.docker.com/engine/swarm/key-concepts/) before start.
+ 
+Create at least one swarm node for deployment. Check [here](https://docs.docker.com/engine/swarm/swarm-tutorial/create-swarm/) for instruction.
+
+## Configuration
+Check Configuration section above to generate an config.yaml file. Then save it to `/srv/slh/config.yaml`.
+
+## Build images
+Execute `scripts/build.sh`. That will build all images from source.
+
+Some variables are hard-coded. Those includes:
+ - Port for backend service
+ - Name of each service
+ - Server name for accessing frontend
+
+Those variables are arguments in `Dockerfile`. If you need to change them, do NOT use the build script but build images by hand.
+
+As frontend image requires to compile some C++ code, it takes about 5 minutes to do all compiling.
+
+## Deploy
+Execute `scripts/deploy.sh`. Make sure you have all files set up. Wait for some time and visit port 80 should have the app spinned up.
+
+## Scale
+Only slh-backend can be scaled. Other may have undesired result if they are scaled up.
 
 # TODO
  - Backend and timer: Refactor to TypeScript
