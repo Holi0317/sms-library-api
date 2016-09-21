@@ -1,5 +1,4 @@
 # sms-library-helper
-[![Travis](https://img.shields.io/travis/Holi0317/sms-library-helper.svg?style=flat-square)](https://travis-ci.org/Holi0317/sms-library-helper)
 
 Library helper for St. Mark's School.
 
