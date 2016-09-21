@@ -38,5 +38,13 @@
     "named-routes": "^2.0.6",
     "request-promise": "^4.1.1",
     "validate.js": "^0.10.0"
+  },
+  "devDependencies": {
+    "gulp-typescript": "^2.14.0",
+    "require-directory": "^2.1.1",
+    "typescript": "^2.0.2"
+  },
+  "peerDependencies": {
+    "gulp": "^3.9.1"
   }
 }

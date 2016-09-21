@@ -7,6 +7,7 @@ let browserSync = require('browser-sync').create('slh');
 let reload = browserSync.reload;
 
 require('./frontend/gulpfile.js');
+require('./backend/gulpfile.js');
 
 let deferReload = () => {
   setTimeout(reload, 2000);
