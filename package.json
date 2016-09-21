@@ -11,14 +11,9 @@
   "repository": "Holi0317/sms-library-helper",
   "devDependencies": {
     "browser-sync": "^2.15.0",
-    "chai": "^3.5.0",
     "gulp": "^3.9.1",
-    "gulp-mocha": "^3.0.1",
-    "mocha": "^3.0.2",
     "nodemon": "^1.10.2",
-    "proxyquire": "^1.7.10",
-    "sinon": "^1.17.5",
-    "sinon-chai": "^2.8.0"
+    "proxyquire": "^1.7.10"
   },
   "engines": {
     "node": ">=6.0.0"
