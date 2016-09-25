@@ -12,6 +12,6 @@ COPY . /srv/
 WORKDIR /srv/
 RUN npm install \
   && npm cache clean \
-  && mv crontab /var/spool/cron/crontabs/slh
+  && mv crontab /var/spool/cron/crontabs/root
 
-ENTRYPOINT ["crond", "-l", "2", "-f"]
+ENTRYPOINT ["crond", "-d", "8", "-f"]
