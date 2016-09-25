@@ -9,7 +9,7 @@ docker service create \
   --network slh-network \
   --mount type=bind,target=/data/db,source=/srv/slh/mongodb/ \
   --replicas 1 \
-  mvertes/alpine-mongo
+  "mvertes/alpine-mongo:3.2.4-1"
 
 docker service create \
   --name slh-backend \
