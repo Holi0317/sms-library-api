@@ -3,10 +3,35 @@ import * as url from 'url';
 import * as mongoose from 'mongoose';
 import * as google from 'googleapis';
 import * as yaml from 'js-yaml';
-import {Socket} from "net";
+
+export interface YAMLConfDoc {
+  adminID: string
+  secret: string
+  baseURL: string
+  mongo: {
+    url: string
+    config: any
+  }
+  google: {
+    clientID: string
+    clientSecret: string
+    jwt: {
+      type: 'service_account'
+      project_id: string
+      private_key_id: string
+      private_key: string
+      client_email: string
+      client_id: string
+      auth_uri: string
+      token_uri: string
+      auth_provider_x509_cert_url: string
+      client_x509_cert_url: string
+    }
+  }
+}
 
 interface ConfigInterface {
-  conn: Socket
+  conn: mongoose.Connection
   adminID: string
   secret: string
   clientID: string
@@ -18,6 +43,7 @@ interface ConfigInterface {
 export let config: ConfigInterface;
 
 if (process.env.TRAVIS) {
+
   config = {
     conn: mongoose.createConnection('mongodb://localhost/noop'),
     adminID: 'Google ID for admin',
@@ -27,9 +53,11 @@ if (process.env.TRAVIS) {
     redirectUrl: 'http://localhost:3000/oauth2callback',
     jwt: 'JWT'
   };
-  module.exports.conn.on('error', ()=>{});
+  config.conn.on('error', ()=>{});
+
 } else if (process.env.SLH_CONFIG_PATH) {
-  let doc = yaml.safeLoad(fs.readFileSync(process.env.SLH_CONFIG_PATH, 'utf8'));
+
+  let doc = yaml.safeLoad(fs.readFileSync(process.env.SLH_CONFIG_PATH, 'utf8')) as YAMLConfDoc;
   let jwt = doc.google.jwt;
   config = {
     conn: mongoose.createConnection(doc.mongo.url, doc.mongo.config),
