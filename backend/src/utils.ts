@@ -20,11 +20,11 @@ makePromise
  * @class
  * @extends Error
  */
-export class BreakSignam extends Error {}
+export class BreakSignal extends Error {}
 
 /**
  * Factory function for creating google.auth.OAuth2 client.
- * Just because copying code is too stubid.
+ * Just because copying code is too stupid.
  *
  * @static
  * @returns {google.auth.OAuth2} - New OAuth2 object that have client ID,
