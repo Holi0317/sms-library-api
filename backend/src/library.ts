@@ -1,20 +1,8 @@
-/**
- * Request handler and parser for school library.
- * @module sms-library-helper/backend/library
- * @author Holi0317 <holliswuhollis@gmail.com>
- * @license MIT
- *
- * @requires request-promise
- * @requires cheerio
- * @requires iconv-lite
- * @requires bluebird
- */
-'use strict';
-
-let request = require('request-promise');
-let cheerio = require('cheerio');
-let iconv = require('iconv-lite');
-let Promise = require('bluebird');
+import * as request from 'request-promise';
+import {CookieJar} from 'request';
+import * as cheerio from 'cheerio';
+import * as iconv from 'iconv-lite';
+import * as Promise from 'bluebird';
 
 /**
  * Endpoints to library system.
@@ -24,10 +12,8 @@ let Promise = require('bluebird');
  * {@link sms-library-helper/backend/library~User#_formatUrl} is a helper function for this purpose.
  *
  * @const
- * @type {Object.<string, string>}
- * @see {@link sms-library-helper/backend/library~User#_formatUrl}
  */
-const URLS = {
+export const URLS = {
   auth: 'http://sms.library.ccnet-hk.com/schlib/admin/get_a_password.asp',
   info: 'http://sms.library.ccnet-hk.com/{lang}schlib/patron/patronr.asp',
   showRenew: 'http://sms.library.ccnet-hk.com/{lang}schlib/patron/showRenew.asp',
@@ -38,11 +24,11 @@ const URLS = {
 
 /**
  * Decode given buffer to BIG5.
- * @param {buffer} buffer - Buffer to be decoded as BIG5.
- * @returns {string} - Decoded string.
+ * @param buffer - Buffer to be decoded as BIG5.
+ * @returns Decoded string.
  */
-function decode(buffer) {
-  return iconv.decode(buffer, 'big5')
+function decode(buffer: Buffer) {
+  return iconv.decode(buffer, 'big5');
 }
 
 /**
@@ -56,19 +42,24 @@ function decode(buffer) {
  * @prop {Number} renewal - How many time has this book been renewed.
  * @constructor
  */
-class Book {
+export class Book {
+  public id?: string;
+  public mcode?: string;
+  public name: string;
+  public borrowDate: Date;
+  public dueDate: Date;
+  public renewal: Number;
   /**
    * Construct a book from table row fetched from URLS.showRenew, cheerio parsed.
    *
    * @param {object} $ - table row fetched from library, cheerio parsed.
    * @constructor
    */
-  constructor($) {
+  constructor($: Cheerio) {
     let childrens = $.children();
 
     this.id = $.find('input').attr('value') || null;
     this.mcode = this.id;
-    this.accessionNo = null;  // TODO Ability to parse accession number.
     this.name = cheerio(childrens[1]).text();
     this.borrowDate = new Date(cheerio(childrens[2]).text());
     this.dueDate = new Date(cheerio(childrens[3]).text());
@@ -82,7 +73,7 @@ class Book {
  * @param {Object} options - Object that will be passed into request-promise.
  * @returns {Promise} - Request-promise.
  */
-function createReq(options) {
+function createReq(options: any) {
   return request(options);
 }
 
@@ -91,7 +82,8 @@ function createReq(options) {
  * @prop {User} self - User object that this parser is bounded to.
  * @see {@link sms-library-helper/backend/library~User}
  */
-class Parser {
+export class Parser {
+  private self: User;
   /**
    * Construct parser.
    * When a view is parsed, corresponding value will be populated to the User object bounded to.
@@ -131,8 +123,8 @@ class Parser {
 
     // Request for user record
     return {
-      uri: self._formatUrl(URLS.info),
-      jar: self._jar,
+      uri: self.formatUrl(URLS.info),
+      jar: self.jar,
       encoding: null
     };
   }
@@ -149,15 +141,15 @@ class Parser {
     let $ = cheerio.load(decode(body));
     let self = this.self;
 
-    self.readerId = $('form[name="PATRONF"]>table font').last().text().replace(/\s/g, '');
+    self.readerID = $('form[name="PATRONF"]>table font').last().text().replace(/\s/g, '');
 
     // Request for borrowed books
     return {
-      uri: self._formatUrl(URLS.showRenew),
-      jar: self._jar,
+      uri: self.formatUrl(URLS.showRenew),
+      jar: self.jar,
       encoding: null,
       qs: {
-        PCode: self.readerId
+        PCode: self.readerID
       }
     };
   }
@@ -184,27 +176,34 @@ class Parser {
 }
 
 /**
- * User represnets a user inside the library system.
+ * User represents a user inside the library system.
  * @prop {request.jar} _jar - Cookie jar for this user. Private.
  * @prop {Parser} parser - Parser for this user, bounded to this. Private.
  * @prop {string} language - language this user used in library system. Must be either 'chinese' or 'english'.
  * @prop {string} id - Login ID of the user.
- * @prop {string} readerId - ID (Patron Code) of the user. Can be converted to Number,
+ * @prop {string} readerID - ID (Patron Code) of the user. Can be converted to Number,
  * but remains as string. Because, whatever.
  * @prop {Book[]} borrowedBooks - Borrowed books.
  */
-class User {
+export class User {
+  public jar: CookieJar;
+  private parser: Parser;
+  public language?: 'chinese'|'english';
+  public id?: string;
+  public readerID?: string;
+  public borrowedBooks: Book[];
+
   /**
    * Construct the User
    * @constructor
    */
   constructor () {
-    this._jar = request.jar();
+    this.jar = request.jar();
     this.parser = new Parser(this);
 
     this.language = null;
     this.id = null;
-    this.readerId = null;
+    this.readerID = null;
     this.borrowedBooks = [];
   }
 
@@ -217,7 +216,7 @@ class User {
    * @see {@link sms-library-helper/backend/library.URLS}
    * @private
    */
-  _formatUrl (url) {
+  formatUrl(url: string) {
     if (this.language === 'chinese') {
       return url.replace(/\{lang\}/, 'c');
     } else if (this.language === 'english') {
@@ -240,11 +239,11 @@ class User {
    *
    * @see {@link sms-library-helper/backend/library~Parser}
    */
-  login (id, passwd) {
+  login (id: string, passwd: string) {
     this.id = id;
     let options = {
       uri: URLS.auth,
-      jar: this._jar,
+      jar: this.jar,
       qs: {
         UserID: id,
         Passwd: passwd
@@ -253,11 +252,11 @@ class User {
     };
 
     return request(options)
-    .then(this.parser.auth.bind(this.parser))
-    .then(createReq)
-    .then(this.parser.info.bind(this.parser))
-    .then(createReq)
-    .then(this.parser.showRenew.bind(this.parser));
+      .then(this.parser.auth.bind(this.parser))
+      .then(createReq)
+      .then(this.parser.info.bind(this.parser))
+      .then(createReq)
+      .then(this.parser.showRenew.bind(this.parser));
   }
 
   /**
@@ -270,23 +269,23 @@ class User {
    * @returns {Promise} - Promise that will be resolved if id and password is valid.
    * Rejected if it is incorrect.
    */
-   checkLogin(id, passwd) {
-     this.id = id;
+  checkLogin(id: string, passwd: string) {
+    this.id = id;
 
-     let options = {
-       uri: URLS.auth,
-       jar: this._jar,
-       qs: {
-         UserID: id,
-         Passwd: passwd
-       },
-       resolveWithFullResponse: true
-     };
+    let options = {
+      uri: URLS.auth,
+      jar: this.jar,
+      qs: {
+        UserID: id,
+        Passwd: passwd
+      },
+      resolveWithFullResponse: true
+    };
 
-     return request(options)
-     .then(this.parser.auth.bind(this.parser))
-     .then(() => {return Promise.resolve()});   // Supress result of previous action.
-   }
+    return request(options)
+      .then(this.parser.auth.bind(this.parser))
+      .then(() => Promise.resolve());   // Suppress result of previous action.
+  }
 
   /**
    * Reload borrowed books.
@@ -295,22 +294,22 @@ class User {
    * Access reloaded borred book from property of this.
    * @throws {error} - Not logined.
    */
-  reload () {
+  reload() {
     if (!this.id) {
       throw new Error('Not logined.');
     }
 
     let options = {
-      uri: this._formatUrl(URLS.showRenew),
-      jar: this._jar,
+      uri: this.formatUrl(URLS.showRenew),
+      jar: this.jar,
       encoding: null,
       qs: {
-        PCode: this.readerId
+        PCode: this.readerID
       }
     };
 
     return request(options)
-    .then(this.parser.showRenew.bind(this.parser));
+      .then(this.parser.showRenew.bind(this.parser));
   }
 
   /**
@@ -321,7 +320,7 @@ class User {
    * @returns {Promise} - Promise to renew that book. Response from server will be the
    * promise's result.
    */
-  renewBook (book) {
+  renewBook(book: Book) {
     if (!this.id) {
       throw new Error('Not logined.');
     }
@@ -331,15 +330,15 @@ class User {
     }
 
     let options = {
-      uri: this._formatUrl(URLS.saveRenew),
-      jar: this._jar,
+      uri: this.formatUrl(URLS.saveRenew),
+      jar: this.jar,
       encoding: null,
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       form: {
-        PatCode: this.readerId,
+        PatCode: this.readerID,
         sel1: book.id,
         subbut: 'Renew'
       }
@@ -349,9 +348,3 @@ class User {
   }
 
 }
-
-module.exports = User;
-module.exports._URLS = URLS;
-module.exports._Book = Book;
-module.exports._Parser = Parser;
-
