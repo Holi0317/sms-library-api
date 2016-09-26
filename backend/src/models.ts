@@ -1,26 +1,8 @@
-/**
- * Defines schema and models for MongoDB.
- * Note that by requiring this module, bluebird will be used as mongoose's promise library.
- * @module sms-library-helper/backend/models
- * @author Holi0317 <holliswuhollis@gmail.com>
- * @license MIT
- *
- * @requires mongoose
- * @requires bluebird
- */
-
-'use strict';
-
-let mongoose = require('mongoose');
-let conn = require('./config').conn;
+import * as mongoose from 'mongoose';
+import {conn} from './config';
 
 mongoose.Promise = require('bluebird');
 
-/**
- * Defines schema to be used in mongoDB.
- * @var {Object.<string, mongoose.Schema>} schema
- * @alias module:sms-library-helper/backend/models._schema
- */
 let schema = {
   user: new mongoose.Schema({
     tokens: mongoose.Schema.Types.Mixed,

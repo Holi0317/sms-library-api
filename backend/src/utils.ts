@@ -1,18 +1,6 @@
-/**
- * Some utilities functions.
- * @module sms-library-helper/backend/utils
- * @author Holi0317 <holliswuhollis@gmail.com>
- * @license MIT
- *
- * @requires googleapis
- */
-
-'use strict';
-
-let google = require('googleapis');
-
-let config = require('./config');
-require('./promisify');
+import * as google from 'googleapis';
+import {config} from './config';
+import './promisify';
 
 /**
  * The exception to be thrown when a promise is broken (have exception) and it is already handled.
@@ -32,7 +20,7 @@ makePromise
  * @class
  * @extends Error
  */
-module.exports.BreakSignal = class BreakSignal extends Error{};
+export class BreakSignam extends Error {}
 
 /**
  * Factory function for creating google.auth.OAuth2 client.
@@ -42,9 +30,9 @@ module.exports.BreakSignal = class BreakSignal extends Error{};
  * @returns {google.auth.OAuth2} - New OAuth2 object that have client ID,
  * secret and redirect url set.
  */
-module.exports.oauth2clientFactory = function () {
-  return new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
-};
+export function oauth2clientFactory() {
+  return new google.auth.OAuth2(config.clientID, config.clientSecret, config.redirectUrl);
+}
 
 /**
  * Error catcher for validate.js.
@@ -54,6 +42,6 @@ module.exports.oauth2clientFactory = function () {
  * @param {Array} err - Error array thrown by validate.js in flat mode.
  * @throws {Error} - Error object with error accepted.
  */
-module.exports.validateErrorHandle = function(err) {
+export function validateErrorHandle(err) {
   throw new Error(err.join(';\n'));
-};
+}

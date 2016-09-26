@@ -7,15 +7,17 @@
 
 'use strict';
 
-let {join} = require('path');
-let express = require('express');
-let logger = require('morgan');
-let bodyParser = require('body-parser');
-let helmet = require('helmet');
-let session = require('express-session');
-let MongoStore = require('connect-mongo')(session);
+import join from 'path';
+import * as express from 'express';
+import * as logger from 'morgan';
+import * as bodyParser from 'body-parser';
+import * as helmet from 'helmet';
+import * as session from 'express-session';
+import * as connectMongo from 'connect-mongo';
+let MongoStore = connectMongo(session);
 
-let router = require('./router');
+import {SetRouter} from './router';
+
 let config = require('./config');
 
 let app = express();
@@ -65,11 +67,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-router(app, {
-  dev: require('./handlers/dev'),
-  root: require('./handlers/root'),
-  mana: require('./handlers/mana')
-});
+SetRouter(app);
 app.get('*', function(req, res) {
   res.status(404).render('error', {code: 404, message: 'Page not found'});
 });
