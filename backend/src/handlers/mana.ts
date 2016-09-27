@@ -1,36 +1,23 @@
-/**
- * Mana(gement) page handler.
- * Called as mana. Because I like magic ;p.
- *
- * @module sms-library-helper/handlers/mana
- * @author Holi0317 <holliswuhollis@gmail.com>
- * @license MIT
- *
- * @requires bluebird
- */
+import * as Promise from 'bluebird';
 
-'use strict';
-
-let Promise = require('bluebird');
-
-let config = require('../config');
-let models = require('../models');
-let utils = require('../utils');
-let validateUser = require('../validate/user-update');
+import {config} from '../config';
+import {default as models, Log, LogLevels} from '../models';
+import {BreakSignal, oauth2clientFactory} from '../utils';
+import validateUser from '../validate/user-update';
 let promisify = require('../promisify');
 
 /**
  * Check if user is qualified for accessing the mana page.
  * Return a 404 page is user is not qualified.
  */
-module.exports.middleware = function (req, res, next) {
+export function middleware(req, res, next) {
   // Reject if not logined.
   if (!req.logined) {
     return res.status(404).render('error', {code: 404, message: 'Page not found'});
   }
 
   // Populate user from database.
-  models.user.findOne({
+  models.findOne({
     googleId: req.session.googleId
   })
   .then(result => {
@@ -39,7 +26,7 @@ module.exports.middleware = function (req, res, next) {
     }
     if (!result.isAdmin) {
       res.status(404).render('error', {code: 404, message: 'Page not found'});
-      throw new utils.BreakSignal();
+      throw new BreakSignal();
     }
     return result.save();
   })
@@ -48,19 +35,19 @@ module.exports.middleware = function (req, res, next) {
     return Promise.resolve();
   })
   .catch(err => {
-    if (err instanceof utils.BreakSignal) {
+    if (err instanceof BreakSignal) {
       return;
     } else {
       throw err;
     }
   })
-};
+}
 
 /**
  * Query from database and render management page.
  */
-module.exports.index = function (req, res) {
-  models.user.find()
+export function index(req, res) {
+  models.find()
   .sort({
     googleId: -1
   })
@@ -79,22 +66,22 @@ module.exports.index = function (req, res) {
 /**
  * Query database, get user name from Google and render user management page.
  */
-module.exports.getUser = function (req, res) {
+export function getUser(req, res) {
   let databaseRes;
-  models.user.findOne({
+  models.findOne({
     googleId: req.params.user
   })
   .then(result => {
     if (!result) {
       res.render('mana-no-user');
-      throw new utils.BreakSignal();
+      throw new BreakSignal();
     }
-    result.logs.sort((a, b) => {
+    result.logs.sort((a: Log, b: Log) => {
       return b.time - a.time;
     });
     databaseRes = result;
 
-    let oauth2client = utils.oauth2clientFactory();
+    let oauth2client = oauth2clientFactory();
     oauth2client.setCredentials(result.tokens);
 
     return promisify.plusPeopleGet({userId: 'me', auth: oauth2client});
@@ -103,7 +90,7 @@ module.exports.getUser = function (req, res) {
     res.render('mana-user', {data: databaseRes, name: googleRes.displayName});
   })
   .catch(err => {
-    if (err instanceof utils.BreakSignal) {
+    if (err instanceof BreakSignal) {
       return
     } else {
       res.status(500).render('error');
@@ -114,7 +101,7 @@ module.exports.getUser = function (req, res) {
 /**
  * Edit user data, by the command of magic/mana.
  */
-module.exports.postUser = function(req, res) {
+export function postUser(req, res) {
   if (!req.is('json')) {
     // Only accept JSON request
     return res.status(406).json({
@@ -131,12 +118,12 @@ module.exports.postUser = function(req, res) {
       message: err.message,
       ok: false
     });
-    throw new utils.BreakSignal();
+    throw new BreakSignal();
   })
   .then(() => {
-    let message = new models._Log('An admin has changed your configuration.', 'WARN');
+    let message = new Log('An admin has changed your configuration.', LogLevels.WARN);
 
-    return models.user.findOneAndUpdate({
+    return models.findOneAndUpdate({
       googleId: req.params.user
     }, {
       $set: {
@@ -159,7 +146,7 @@ module.exports.postUser = function(req, res) {
         message: 'No such user.',
         ok: false
       });
-      throw new utils.BreakSignal();
+      throw new BreakSignal();
     }
     res.status(202).json({
       message: 'Data has been overridden.',
@@ -168,7 +155,7 @@ module.exports.postUser = function(req, res) {
     return Promise.resolve();
   })
   .catch(err => {
-    if (!err instanceof utils.BreakSignal) {
+    if (!err instanceof BreakSignal) {
       res.status(500).json({
         message: 'Internal server error.',
         ok: false

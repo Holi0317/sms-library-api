@@ -1,24 +1,4 @@
-/**
- * Create and register function validator for validate.js.
- *
- * @module sms-library-helper/validate/validator-fn
- * @author Holi0317 <holliswuhollis@gmail.com>
- * @license MIT
- *
- * @requires validate.js
- *
- * @example
-require('validator-fn');  // Only needs to require it.
-let constraints = {
-  foo: {
-    fn: [function(value, options, key, attributes, globalOptions) {return null}]
-  }
-}
- */
-
-'use strict';
-
-let validate = require('validate.js');
+import * as validate from 'validate.js';
 
 /**
  * Using function(s) as validator. This method is identiical to validator.js custom validator API.
@@ -30,7 +10,7 @@ let validate = require('validate.js');
  * @returns {null} - All function returns null or undefined.
  * @returns {[]string} - One or more functions returns object that is not undefined nor null.
  */
-validate.validators.fn = function(value, options, key, attributes, globalOptions) {
+export function fn(value, options, key, attributes, globalOptions) {
   let result = [];
   let failed = false;
 
@@ -47,6 +27,6 @@ validate.validators.fn = function(value, options, key, attributes, globalOptions
   } else {
     return null;
   }
-};
+}
 
-module.exports = validate.validators.fn;
+validate.validators.fn = fn;

@@ -1,24 +1,11 @@
-/**
- * Validator for updating user profile.
- *
- * @module sms-library-helper/validate/user-update
- * @author Holi0317 <holliswuhollis@gmail.com>
- * @license MIT
- *
- * @requires bluebird
- * @requires validate.js
- */
+import * as validate from 'validate.js';
+import * as Promise from 'bluebird';
+import './validator-fn';
+import './validator-type';
 
-'use strict';
-
-let validate = require('validate.js');
-let Promise = require('bluebird');
-require('./validator-fn');
-require('./validator-type');
-
-let library = require('../library');
-let models = require('../models');
-let utils = require('../utils');
+import Library from '../library';
+import models from '../models';
+import {validateErrorHandle} from '../utils';
 
 validate.Promise = Promise;
 
@@ -31,7 +18,7 @@ validate.Promise = Promise;
  * @param {String} reqKey - The key to be required to be true.
  * @returns {function} - Checker function to be placed under 'fn' key of constraints.
  */
-function requireKey(reqKey) {
+function requireKey(reqKey?: string) {
   return function(value, options, key, attributes) {
     if (attributes.renewEnabled === false) return;
 
@@ -43,7 +30,7 @@ function requireKey(reqKey) {
   };
 }
 
-const constraints = {
+export const constraints = {
   renewEnabled: {
     type: 'boolean',
     presence: true
@@ -96,11 +83,11 @@ const constraints = {
  * @throws {error} - Library login/password is incorrect.
  * @throws {error} - Duplicate user ID found in database.
  */
-let afterValidate = function(data, googleId) {
+export function afterValidate(data, googleId) {
 
   function checkLogin() {
     if (data.renewEnabled) {
-      let userLibrary = new library();
+      let userLibrary = new Library();
       return userLibrary.checkLogin(data.libraryLogin, data.libraryPassword);
     } else {
       return Promise.resolve()
@@ -112,7 +99,7 @@ let afterValidate = function(data, googleId) {
       return Promise.resolve();
     }
 
-    return models.user.find({
+    return models.find({
       libraryLogin: data.libraryLogin,
       googleId: {
         $ne: googleId
@@ -133,9 +120,9 @@ let afterValidate = function(data, googleId) {
 
   return function() {
     return Promise.resolve()
-    .then(checkLogin)
-    .then(makeCheckDupe)
-    .then(checkDupe);
+      .then(checkLogin)
+      .then(makeCheckDupe)
+      .then(checkDupe);
   }
 }
 
@@ -143,17 +130,14 @@ let afterValidate = function(data, googleId) {
  * Validate user post data.
  * Will check if data is valid, can login into library and if there is duplicate ID.
  *
- * @param {object} data - Data to be validated.
- * @param {string} googleId - Google ID of the user. For querying DB for dupe ID.
+ * @param data - Data to be validated.
+ * @param googleID - Google ID of the user. For querying DB for dupe ID.
  * @returns {Promise}
  * @throws {error} - Validation failed because of various reasons. Human-readable
  * reason is in error.message.
  */
-module.exports = function(data, googleId) {
+export default function userUpdate(data: any, googleID: string) {
   return validate.async(data, constraints, {format: 'flat'})
-  .catch(utils.validateErrorHandle)
-  .then(afterValidate(data, googleId));
+    .catch(validateErrorHandle)
+    .then(afterValidate(data, googleID));
 }
-
-module.exports._constraints = constraints;
-module.exports._afterValidate = afterValidate;

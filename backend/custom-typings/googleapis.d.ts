@@ -15,12 +15,26 @@ declare module 'googleapis' {
       constructor(clientId: string, clientSecret: string, redirectUri: string, opt_opts?: any)
       setCredentials(tokens: credentials);
       revokeCredentials(callback: (err?: Error) => void): void;
+      generateAuthUrl(option: {
+        access_type: 'online'|'offline',
+        scope: string[]
+      }): string;
+      getTokenAsync(code: string): Promise<credentials>;
+      revokeCredentialsAsync(): Promise<null>;
     }
   }
 
   interface APIPlus {
     people: {
-      get()
+      get(options: {
+        userId: string,
+        auth: auth.OAuth2
+      }): Promise<{
+        emails: {
+          value: string,
+          type: string
+        }[]
+      }>
     }
   }
 

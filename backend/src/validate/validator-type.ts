@@ -1,24 +1,4 @@
-/**
- * Create and register type validator for validate.js.
- *
- * @module sms-library-helper/validate/validator-fn
- * @author Holi0317 <holliswuhollis@gmail.com>
- * @license MIT
- *
- * @requires validate.js
- *
- * @example
-require('validator-fn');  // Only needs to require it.
-let constraints = {
-  foo: {
-    type: String
-  }
-}
- */
-
-'use strict';
-
-let validate = require('validate.js');
+import * as validate from 'validate.js';
 
 /**
  * Check if the type is valid. Wrap the type into a string as option.
@@ -29,7 +9,7 @@ let validate = require('validate.js');
  * @returns {null} - Type is correct.
  * @returns {string} - Type is incorrect.
  */
-validate.validators.type = function(value, options) {
+export default function type(value: any, options: string) {
 
   let types = options.split('|');
   let valType = typeof value;
@@ -43,4 +23,4 @@ validate.validators.type = function(value, options) {
   return `is expected to be a ${types.join(' or ')}, while ${valType} is received.`;
 };
 
-module.exports = validate.validators.type;
+validate.validators.type = type;

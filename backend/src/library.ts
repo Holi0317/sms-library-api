@@ -185,7 +185,7 @@ export class Parser {
  * but remains as string. Because, whatever.
  * @prop {Book[]} borrowedBooks - Borrowed books.
  */
-export class User {
+export default class User {
   public jar: CookieJar;
   private parser: Parser;
   public language?: 'chinese'|'english';

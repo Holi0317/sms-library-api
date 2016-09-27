@@ -1,14 +1,7 @@
-/**
- * Settings/handlers for express.js.
- * @module sms-library-helper/backend/app
- * @author Holi0317 <holliswuhollis@gmail.com>
- * @license MIT
- */
-
-'use strict';
-
 import join from 'path';
 import * as express from 'express';
+import {Application, Request, Response} from './IExpress';
+import {ExpressError} from './utils';
 import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
 import * as helmet from 'helmet';
@@ -20,7 +13,7 @@ import {SetRouter} from './router';
 
 let config = require('./config');
 
-let app = express();
+export let app: Application = express() as Application;
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -31,8 +24,6 @@ app.set('view engine', 'jade');
 
 switch (app.get('env')) {
   case 'development':
-    app.use(express.static('../frontend/.tmp'));
-    app.use(express.static('../frontend/app'));
     app.set('json spaces', 4);
     app.locals.pretty = true;
     break;
@@ -48,7 +39,8 @@ let sess = {
   name : 'sessionId',
   cookie: {
     maxAge: 8.64e+7 // 1 day
-  }
+  },
+  store: undefined
 };
 if (app.get('env') === 'production') {
   app.set('trust proxy', 1);
@@ -57,7 +49,7 @@ if (app.get('env') === 'production') {
 }
 app.use(session(sess));
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next) => {
   res.locals.session = req.session;
   req.logined = Boolean(req.session.tokens);
   res.locals.logined = req.logined;
@@ -74,7 +66,7 @@ app.get('*', function(req, res) {
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  let err = new Error('Not Found');
+  let err = new ExpressError('Not Found');
   err.status = 404;
   next(err);
 });
@@ -84,7 +76,7 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(function(err, req, res) {
+  app.use(function(req: Request, res: Response, err: ExpressError) {
     console.error(err);
     res.status(err.status || 500);
     res.render('error', {
@@ -96,12 +88,10 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res) {
+app.use(function(req: Request, res: Response, err: ExpressError) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
     error: {}
   });
 });
-
-module.exports = app;

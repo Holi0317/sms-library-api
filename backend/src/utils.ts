@@ -45,3 +45,8 @@ export function oauth2clientFactory() {
 export function validateErrorHandle(err) {
   throw new Error(err.join(';\n'));
 }
+
+export class ExpressError extends Error {
+  public status: number;
+  public message: string;
+}

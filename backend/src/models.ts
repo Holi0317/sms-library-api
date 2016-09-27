@@ -4,12 +4,12 @@ import {config} from './config';
 mongoose.Promise = require('bluebird');
 
 export enum LogLevels {
-  DEBUG,
-  INFO,
-  WARN,
-  ERROR,
-  FATAL,
-  SUCCESS
+  DEBUG='DEBUG',
+  INFO='INFO',
+  WARN='WARN',
+  ERROR='ERROR',
+  FATAL='FATAL',
+  SUCCESS='SUCCESS'
 }
 
 export let userSchema = new mongoose.Schema({
@@ -92,3 +92,4 @@ export class Log {
 }
 
 export const user = config.conn.model('User', userSchema);
+export default user;
