@@ -8,20 +8,12 @@ function join(...args) {
   return path.join(__dirname, '../../', ...args);
 }
 
-let tsProject = ts.createProject({
+let tsProject = ts.createProject(join('tsconfig.json'), {
   typescript: require('typescript'),
-  outDir: join('lib'),
-  noImplicitAny: true,
-  target: 'ES6',
-  module: 'commonjs',
-  removeComments: false,
-  experimentalAsyncFunctions: true,
-  experimentalDecorators: true,
-  moduleResolution: 'node'
 });
 
 gulp.task('compile:backend', () => {
-  return gulp.src(join('src/**/*.ts'))
+  return gulp.src([join('src/**/*.ts'), join('custom-typings/main.d.ts')])
     .pipe(ts(tsProject))
     .pipe(gulp.dest(join('lib')));
 });

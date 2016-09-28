@@ -1,9 +1,10 @@
-import {Application as _App, Request as _Req, Response as _Res, IRouterMatcher, IRouterHandler} from 'express-serve-static-core';
+import {Application as _App, Request as _Req, Response as _Res, IRouterMatcher, IRouterHandler, ErrorRequestHandler} from 'express-serve-static-core';
 import {ExpressError} from './utils';
 
 export interface Request extends _Req {
   session: any
   logined: boolean
+  app: Application
 }
 
 export interface Response extends _Res {
@@ -24,7 +25,10 @@ export interface Application extends _App {
 
   use: IRouterHandler<this> & IRouterMatcher<this>;
   use(path: string, callback: callback): void;
-  use(callback: callback | UseCallback): void;
+  use(callback: callback | UseCallback | ErrorRequestHandler): void;
 
   mountpath: string;
+  namedRoutes: {
+    build(name: string): string
+  }
 }

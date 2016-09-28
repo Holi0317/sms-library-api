@@ -1,9 +1,9 @@
 import * as cloneDeep from 'lodash.clonedeep';
 import * as validate from 'validate.js';
 
-import {constraints, afterValidate} from './user-update';
+import {constraints as _constraints, afterValidate} from './user-update';
 import {validateErrorHandle} from '../utils';
-export let constraints = cloneDeep(constraints);
+export let constraints = cloneDeep(_constraints);
 
 constraints.isAdmin = {
   type: 'boolean',

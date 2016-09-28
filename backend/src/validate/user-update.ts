@@ -1,5 +1,4 @@
 import * as validate from 'validate.js';
-import * as Promise from 'bluebird';
 import './validator-fn';
 import './validator-type';
 
@@ -79,51 +78,28 @@ export const constraints = {
  * @private
  * @param {Object} data - Data to be validated, which has passed validate.js.
  * @param {string} googleId - Google ID of the user. Used to check dupe login ID.
- * @returns {function->Promise} - Promise to be chained after validate.js.
+ * @returns {Promise} - Promise to be chained after validate.js.
  * @throws {error} - Library login/password is incorrect.
  * @throws {error} - Duplicate user ID found in database.
  */
-export function afterValidate(data, googleId) {
+export async function afterValidate(data, googleId) {
 
-  function checkLogin() {
-    if (data.renewEnabled) {
-      let userLibrary = new Library();
-      return userLibrary.checkLogin(data.libraryLogin, data.libraryPassword);
-    } else {
-      return Promise.resolve()
-    }
-  }
+  if (data.renewEnabled) {
+    let userLibrary = new Library();
+    await userLibrary.checkLogin(data.libraryLogin, data.libraryPassword);
 
-  function makeCheckDupe() {
-    if (!data.libraryLogin) {
-      return Promise.resolve();
-    }
-
-    return models.find({
+    let res = await models.find({
       libraryLogin: data.libraryLogin,
       googleId: {
         $ne: googleId
       }
     });
-  }
 
-  function checkDupe(res) {
-    if (!data.libraryLogin) {
-      return Promise.resolve();
-    }
-
-    if (res.length) {
-      // Dupe login ID found.
+    if (res) {
       throw new Error('Duplicate user ID found in Database. Did you register in the past?');
     }
   }
 
-  return function() {
-    return Promise.resolve()
-      .then(checkLogin)
-      .then(makeCheckDupe)
-      .then(checkDupe);
-  }
 }
 
 /**
@@ -136,8 +112,11 @@ export function afterValidate(data, googleId) {
  * @throws {error} - Validation failed because of various reasons. Human-readable
  * reason is in error.message.
  */
-export default function userUpdate(data: any, googleID: string) {
-  return validate.async(data, constraints, {format: 'flat'})
-    .catch(validateErrorHandle)
-    .then(afterValidate(data, googleID));
+export default async function userUpdate(data: any, googleID: string) {
+  try {
+    await validate.async(data, constraints, {format: 'flat'});
+  } catch (err) {
+    throw new Error(err.join(';\n'));
+  }
+  await afterValidate(data, googleID);
 }

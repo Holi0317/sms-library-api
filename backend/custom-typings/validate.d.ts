@@ -1,5 +1,5 @@
 declare module 'validate.js' {
-  export let Promise: Promise;
+  export let Promise: PromiseConstructor;
   interface Options {
 
   }

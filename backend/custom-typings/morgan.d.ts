@@ -1,5 +1,6 @@
+/// <reference path="../node_modules/@types/express/index.d.ts" />
+import express = require('express');
+
 declare module morgan {
-  import express = require('express');
-  function logger(name: string): express.RequestHandler;
-  export default logger
+  export default function(name: string): express.RequestHandler;
 }

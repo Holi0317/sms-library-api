@@ -1,4 +1,4 @@
-import join from 'path';
+import {join} from 'path';
 import * as express from 'express';
 import {Application, Request, Response} from './IExpress';
 import {ExpressError} from './utils';
@@ -13,7 +13,7 @@ import {SetRouter} from './router';
 
 let config = require('./config');
 
-export let app: Application = express() as Application;
+export let app = express() as Application;
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -38,7 +38,8 @@ let sess = {
   saveUninitialized: false,
   name : 'sessionId',
   cookie: {
-    maxAge: 8.64e+7 // 1 day
+    maxAge: 8.64e+7, // 1 day
+    secure: undefined
   },
   store: undefined
 };
@@ -76,7 +77,7 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(function(req: Request, res: Response, err: ExpressError) {
+  app.use(function(err: ExpressError, req: Request, res: Response) {
     console.error(err);
     res.status(err.status || 500);
     res.render('error', {
@@ -88,7 +89,7 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(req: Request, res: Response, err: ExpressError) {
+app.use(function(err: ExpressError, req: Request, res: Response) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,

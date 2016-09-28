@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 
 import {config} from '../config';
-import {default as models, Log, LogLevels} from '../models';
+import {default as models, Log, LogLevels, UserDocument} from '../models';
 import {BreakSignal, oauth2clientFactory} from '../utils';
 import validateUser from '../validate/user-update';
 let promisify = require('../promisify');
@@ -20,7 +20,7 @@ export function middleware(req, res, next) {
   models.findOne({
     googleId: req.session.googleId
   })
-  .then(result => {
+  .then((result: UserDocument) => {
     if (result.googleId === config.adminID) {
       result.isAdmin = true
     }
@@ -51,7 +51,7 @@ export function index(req, res) {
   .sort({
     googleId: -1
   })
-  .then(result => {
+  .then((result: UserDocument) => {
     res.render('mana', {
       data: {
         db: result,
@@ -71,13 +71,13 @@ export function getUser(req, res) {
   models.findOne({
     googleId: req.params.user
   })
-  .then(result => {
+  .then((result: UserDocument) => {
     if (!result) {
       res.render('mana-no-user');
       throw new BreakSignal();
     }
     result.logs.sort((a: Log, b: Log) => {
-      return b.time - a.time;
+      return b.time.getTime() - a.time.getTime();
     });
     databaseRes = result;
 
@@ -110,7 +110,7 @@ export function postUser(req, res) {
     });
   }
 
-  let body = req.body;
+  let body: UserDocument = req.body;
 
   validateUser(body, req.params.user)
   .catch(err => {
@@ -121,7 +121,7 @@ export function postUser(req, res) {
     throw new BreakSignal();
   })
   .then(() => {
-    let message = new Log('An admin has changed your configuration.', LogLevels.WARN);
+    let message = new Log('An admin has changed your configuration.', 'WARN');
 
     return models.findOneAndUpdate({
       googleId: req.params.user
@@ -140,7 +140,7 @@ export function postUser(req, res) {
     });
 
   })
-  .then(DBres => {
+  .then((DBres: UserDocument) => {
     if (!DBres) {
       res.status(404).json({
         message: 'No such user.',
@@ -154,7 +154,7 @@ export function postUser(req, res) {
     });
     return Promise.resolve();
   })
-  .catch(err => {
+  .catch((err: any) => {
     if (!err instanceof BreakSignal) {
       res.status(500).json({
         message: 'Internal server error.',

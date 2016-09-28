@@ -13,7 +13,7 @@ declare module 'googleapis' {
     }
     export class OAuth2 {
       constructor(clientId: string, clientSecret: string, redirectUri: string, opt_opts?: any)
-      setCredentials(tokens: credentials);
+      setCredentials(tokens: credentials): void;
       revokeCredentials(callback: (err?: Error) => void): void;
       generateAuthUrl(option: {
         access_type: 'online'|'offline',
@@ -33,7 +33,9 @@ declare module 'googleapis' {
         emails: {
           value: string,
           type: string
-        }[]
+        }[],
+        displayName: string,
+        id: string
       }>
     }
   }
@@ -41,7 +43,7 @@ declare module 'googleapis' {
   interface APIGmail {
     users: {
       messages: {
-        send()
+        send(): void
       }
     }
   }
@@ -59,8 +61,8 @@ declare module 'googleapis' {
     }
   }
 
-  export function plus(version='v1'): APIPlus
-  export function gmail(version='v1'): APIGmail
-  export function calendar(version='v3'): APICalendar
+  export function plus(version: string): APIPlus
+  export function gmail(version: string): APIGmail
+  export function calendar(version: string): APICalendar
 
 }

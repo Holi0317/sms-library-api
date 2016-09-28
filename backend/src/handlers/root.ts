@@ -1,6 +1,7 @@
 import * as Promise from 'bluebird';
 
-import {default as models, Log} from '../models';
+import {Request, Response} from '../IExpress';
+import {default as models, Log, UserDocument} from '../models';
 import {oauth2clientFactory, BreakSignal} from '../utils';
 import validateUser from '../validate/user-update';
 import {plusPeopleGet} from '../promisify';
@@ -32,9 +33,9 @@ function getUserProfile(googleId) {
 export function index(req, res) {
   if (req.logined) {
     getUserProfile(req.session.googleId)
-      .then(result => {
+      .then((result: UserDocument) => {
         result.logs.sort((a, b) => {
-          return b.time - a.time;
+          return b.time.getTime() - a.time.getTime();
         });
         return res.render('user', {user: result});
       })
@@ -51,7 +52,7 @@ export function index(req, res) {
  * Login page handler.
  * Generates a url for Google OAuth2 process and redirect user to that url.
  */
-export function login(req, res) {
+export function login(req: Request, res: Response) {
   if (req.logined) {
     return res.redirect(req.app.namedRoutes.build('root.index'));
   }
@@ -219,7 +220,7 @@ export namespace user {
    * Delete method handler for user route.
    * Delete user from database, revoke their Google OAuth2 permission and clear session.
    */
-  export function del(req, res) {
+  export function del(req: Request, res: Response) {
     // Remove user
     let oauth2client = oauth2clientFactory();
     oauth2client.setCredentials(req.session.tokens);
@@ -228,7 +229,7 @@ export namespace user {
     oauth2client.revokeCredentialsAsync()
       .then(() => {
         // Create drop db query
-        return models.user.findOne({
+        return models.findOne({
           googleId: googleId
         })
           .remove();
@@ -265,7 +266,7 @@ export namespace user {
  * Logout handler.
  * Just clear session.
  */
-export function logout(req, res) {
+export function logout(req: Request, res: Response) {
   req.session.regenerate(err => {
     if (err) return res.status(500).render('error');
     req.session.flash = 'Logout succeed. Hope to see you in the future.';

@@ -1,16 +1,10 @@
 import * as mongoose from 'mongoose';
 import {config} from './config';
+import * as Promise from 'bluebird';
 
-mongoose.Promise = require('bluebird');
+mongoose.Promise = Promise;
 
-export enum LogLevels {
-  DEBUG='DEBUG',
-  INFO='INFO',
-  WARN='WARN',
-  ERROR='ERROR',
-  FATAL='FATAL',
-  SUCCESS='SUCCESS'
-}
+export type LogLevels = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'FATAL' | 'SUCCESS';
 
 export let userSchema = new mongoose.Schema({
   tokens: mongoose.Schema.Types.Mixed,
@@ -54,6 +48,21 @@ export let userSchema = new mongoose.Schema({
   }]
 });
 
+export interface UserDocument extends mongoose.Document {
+  tokens: any
+  googleId: string
+  libraryLogin: string
+  libraryPassword: string
+  renewDate: number
+  renewEnabled: boolean
+  calendarEnabled: boolean
+  calendarName: string
+  emailEnabled: boolean
+  emailAddress: string
+  isAdmin: boolean
+  logs: Log[]
+}
+
 /**
  * Instance method.
  * Append a log entry into user document.
@@ -82,11 +91,9 @@ userSchema.methods.log = function(message: string, level: LogLevels) {
  * @prop {Date} time - Time of this message being created.
  */
 export class Log {
-  public level: LogLevels;
   public time: Date;
-  public message: string;
 
-  constructor(public message: string, public level? = LogLevels.INFO) {
+  constructor(public message: string, public level: LogLevels = 'INFO') {
     this.time = new Date();
   }
 }
