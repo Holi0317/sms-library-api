@@ -1,4 +1,5 @@
 import * as google from 'googleapis';
+import * as iconv from 'iconv-lite';
 import {config} from './config';
 import './promisify';
 
@@ -35,15 +36,13 @@ export function oauth2clientFactory() {
 }
 
 /**
- * Error catcher for validate.js.
- * Validate.js throws an array as error in flat mode. This handler will join the array
- * with ';\n' and throw an error object.
- *
- * @param {Array} err - Error array thrown by validate.js in flat mode.
- * @throws {Error} - Error object with error accepted.
+ * Decode given fetch content to BIG5.
+ * @param res - Response from fetch.
+ * @returns Decoded string.
  */
-export function validateErrorHandle(err) {
-  throw new Error(err.join(';\n'));
+export async function deocdeBig5(res) {
+  let buffer = await res.buffer();
+  return iconv.decode(buffer, 'big5');
 }
 
 export class ExpressError extends Error {

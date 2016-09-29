@@ -4,7 +4,6 @@ import './validator-type';
 
 import Library from '../library';
 import models from '../models';
-import {validateErrorHandle} from '../utils';
 
 validate.Promise = Promise;
 

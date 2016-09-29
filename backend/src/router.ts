@@ -2,7 +2,7 @@ import {Application} from './IExpress';
 import * as dev from './handlers/dev';
 import * as mana from './handlers/mana';
 import * as root from './handlers/root';
-import * as Router from 'named-routes';
+import Router = require('named-routes');
 let router = new Router();
 
 export function SetRouter(app: Application) {

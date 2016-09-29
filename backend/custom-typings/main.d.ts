@@ -8,6 +8,7 @@
 /// <reference path="../node_modules/@types/helmet/index.d.ts" />
 /// <reference path="../node_modules/@types/express-session/index.d.ts" />
 /// <reference path="../node_modules/@types/connect-mongo/index.d.ts" />
+/// <reference path="../node_modules/@types/node-fetch/index.d.ts" />
 /// <reference path="./googleapis.d.ts" />
 /// <reference path="./iconv.d.ts" />
 /// <reference path="./validate.d.ts" />

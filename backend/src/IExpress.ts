@@ -1,4 +1,4 @@
-import {Application as _App, Request as _Req, Response as _Res, IRouterMatcher, IRouterHandler, ErrorRequestHandler} from 'express-serve-static-core';
+import {Application as _App, Request as _Req, Response as _Res, ErrorRequestHandler, RequestHandler} from 'express-serve-static-core';
 import {ExpressError} from './utils';
 
 export interface Request extends _Req {
@@ -20,10 +20,11 @@ export interface Application extends _App {
   get(path: string, callback: callback): void;
   get(name: string): any;
 
-  post: IRouterMatcher<this>;
+  post(path: PathParams, ...handlers: RequestHandler[]): this;
   post(path: PathParams, name: string, callback: callback): void;
 
-  use: IRouterHandler<this> & IRouterMatcher<this>;
+  use(...handlers: RequestHandler[]): this;
+  use(path: PathParams, ...handlers: RequestHandler[]): this;
   use(path: string, callback: callback): void;
   use(callback: callback | UseCallback | ErrorRequestHandler): void;
 
