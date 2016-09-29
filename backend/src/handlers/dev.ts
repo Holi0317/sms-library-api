@@ -1,4 +1,4 @@
-let models = require('../models');
+import {UserModel} from '../models';
 import {oauth2clientFactory} from '../utils';
 
 /**
@@ -56,7 +56,7 @@ export namespace db {
    * @throws {Error} - Error when querying.
    */
   export function users(req, res) {
-    models.user.find()
+    UserModel.find()
       .then((data) => {
         return res.json(data);
       })
@@ -74,7 +74,7 @@ export namespace db {
    * @throws {Error} - Error when dropping.
    */
   export function usersDrop(req, res) {
-    models.user.remove()
+    UserModel.remove({})
       .then(() => {
         return res.json({
           message: 'Dropped all data in user collection.'

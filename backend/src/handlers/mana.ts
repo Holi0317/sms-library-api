@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 
 import {config} from '../config';
-import {default as models, Log, LogLevels, UserDocument} from '../models';
+import {UserModel, Log, LogLevels, UserDocument} from '../models';
 import {BreakSignal, oauth2clientFactory} from '../utils';
 import validateUser from '../validate/user-update';
 let promisify = require('../promisify');
@@ -17,7 +17,7 @@ export function middleware(req, res, next) {
   }
 
   // Populate user from database.
-  models.findOne({
+  UserModel.findOne({
     googleId: req.session.googleId
   })
   .then((result: UserDocument) => {
@@ -47,11 +47,11 @@ export function middleware(req, res, next) {
  * Query from database and render management page.
  */
 export function index(req, res) {
-  models.find()
+  UserModel.find()
   .sort({
     googleId: -1
   })
-  .then((result: UserDocument) => {
+  .then((result) => {
     res.render('mana', {
       data: {
         db: result,
@@ -68,7 +68,7 @@ export function index(req, res) {
  */
 export function getUser(req, res) {
   let databaseRes;
-  models.findOne({
+  UserModel.findOne({
     googleId: req.params.user
   })
   .then((result: UserDocument) => {
@@ -123,7 +123,7 @@ export function postUser(req, res) {
   .then(() => {
     let message = new Log('An admin has changed your configuration.', 'WARN');
 
-    return models.findOneAndUpdate({
+    return UserModel.findOneAndUpdate({
       googleId: req.params.user
     }, {
       $set: {

@@ -3,7 +3,7 @@ import './validator-fn';
 import './validator-type';
 
 import Library from '../library';
-import models from '../models';
+import {UserModel} from '../models';
 
 validate.Promise = Promise;
 
@@ -87,7 +87,7 @@ export async function afterValidate(data, googleId) {
     let userLibrary = new Library();
     await userLibrary.checkLogin(data.libraryLogin, data.libraryPassword);
 
-    let res = await models.find({
+    let res = await UserModel.find({
       libraryLogin: data.libraryLogin,
       googleId: {
         $ne: googleId

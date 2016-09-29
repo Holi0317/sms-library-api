@@ -98,5 +98,4 @@ export class Log {
   }
 }
 
-export const user = config.conn.model('User', userSchema);
-export default user;
+export const UserModel = config.conn.model('User', userSchema);

@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 
 import {Request, Response} from '../IExpress';
-import {default as models, Log, UserDocument} from '../models';
+import {UserModel, Log, UserDocument} from '../models';
 import {oauth2clientFactory, BreakSignal} from '../utils';
 import validateUser from '../validate/user-update';
 import {plusPeopleGet} from '../promisify';
@@ -14,7 +14,7 @@ import {plusPeopleGet} from '../promisify';
  * @see {@link sms-library-helper/backend/models.schema}
  */
 function getUserProfile(googleId) {
-  return models.findOne({
+  return UserModel.findOne({
     googleId: googleId
   })
   .select({
@@ -106,7 +106,7 @@ export function googleCallback(req, res) {
       });
     }
 
-    return models.findOneAndUpdate({
+    return UserModel.findOneAndUpdate({
       googleId: req.session.googleId
     }, {
       $setOnInsert: {
@@ -176,7 +176,7 @@ export namespace user {
       .then(() => {
         let message = new Log('Changed user profile.');
 
-        return models.findOneAndUpdate({
+        return UserModel.findOneAndUpdate({
           googleId: req.session.googleId
         }, {
           $set: {
@@ -229,7 +229,7 @@ export namespace user {
     oauth2client.revokeCredentialsAsync()
       .then(() => {
         // Create drop db query
-        return models.findOne({
+        return UserModel.findOne({
           googleId: googleId
         })
           .remove();
@@ -239,7 +239,7 @@ export namespace user {
           // Express session cannot be promisify-ed by Bluebird. Donno why(Just me being lazy)
           // Quick and dirty promise wrapper for req.session.regenerate
           req.session.regenerate(err => {
-            if (err) reject(err)
+            if (err) reject(err);
             else resolve();
           });
         });
