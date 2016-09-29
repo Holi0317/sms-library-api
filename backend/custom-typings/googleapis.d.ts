@@ -20,7 +20,7 @@ declare module 'googleapis' {
         scope: string[]
       }): string;
       getTokenAsync(code: string): Promise<credentials>;
-      revokeCredentialsAsync(): Promise<null>;
+      revokeCredentialsAsync(): Promise<void>;
     }
   }
 

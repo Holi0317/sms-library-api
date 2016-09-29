@@ -1,3 +1,4 @@
+import {Request, Response} from '../IExpress';
 import {UserModel} from '../models';
 import {oauth2clientFactory} from '../utils';
 
@@ -21,7 +22,7 @@ export namespace session {
    *
    * @throws {Error} - Cannot destroy session.
    */
-  export function destroy(req, res) {
+  export function destroy(req: Request, res: Response) {
     req.session.destroy(err => {
       if (err) {
         res.status(500).json({
@@ -40,7 +41,7 @@ export namespace session {
   /**
    * Create a flash message in session.
    */
-  export function flash(req, res) {
+  export function flash(req: Request, res: Response) {
     req.session.flash = 'Allo Allo! This is a flash message';
     return res.json({
       message: 'Done',
@@ -55,17 +56,15 @@ export namespace db {
    *
    * @throws {Error} - Error when querying.
    */
-  export function users(req, res) {
-    UserModel.find()
-      .then((data) => {
-        return res.json(data);
-      })
-      .catch((err) => {
-        res.status(500).json({
-          message: 'Error when quering users.'
-        });
-        throw err;
+  export async function users(req: Request, res: Response) {
+    try {
+      let data = await UserModel.find();
+      return res.json(data);
+    } catch (err) {
+      return res.status(500).json({
+        message: 'Error when quering users.'
       });
+    }
   }
 
   /**
@@ -73,19 +72,17 @@ export namespace db {
    *
    * @throws {Error} - Error when dropping.
    */
-  export function usersDrop(req, res) {
-    UserModel.remove({})
-      .then(() => {
-        return res.json({
-          message: 'Dropped all data in user collection.'
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({
-          message: 'Error when dropping users.'
-        });
-        throw err;
+  export async function usersDrop(req: Request, res: Response) {
+    try {
+      await UserModel.remove({});
+      return res.json({
+        message: 'Dropped all data in user collection.'
       });
+    } catch (err) {
+      return res.status(500).json({
+        message: 'Error when dropping users.'
+      });
+    }
   }
 }
 

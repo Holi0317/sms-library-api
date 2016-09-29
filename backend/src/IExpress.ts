@@ -10,8 +10,8 @@ export interface Request extends _Req {
 export interface Response extends _Res {
 
 }
-
-type callback = (req: Request, res: Response, next?: (err?: ExpressError) => void) => void;
+export type Next = (err?: ExpressError) => void
+type callback = (req: Request, res: Response, next?: Next) => void;
 type UseCallback = (req: Request, res: Response, err?: ExpressError) => void;
 type PathParams = string | RegExp | (string | RegExp)[];
 
