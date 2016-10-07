@@ -94,7 +94,7 @@ export async function afterValidate(data, googleId) {
       }
     });
 
-    if (res) {
+    if (res.length) {
       throw new Error('Duplicate user ID found in Database. Did you register in the past?');
     }
   }
