@@ -6,9 +6,9 @@ let requireDir = require('require-directory');
 
 requireDir(module, './tasks');
 
-gulp.task('default', cb => {
+gulp.task('build:frontend', cb => {
   runSequence(
-    'clean',
+    'clean:frontend',
     'compile',
     'minify',
     'copy',
