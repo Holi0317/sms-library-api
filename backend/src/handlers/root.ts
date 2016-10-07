@@ -150,6 +150,7 @@ export namespace user {
     try {
       await validateUser(body, req.session.googleId);
     } catch (err) {
+      console.error(err);
       return res.status(400).json({
         ok: false,
         message: err.message

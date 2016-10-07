@@ -1,7 +1,6 @@
 'use strict';
 
 let gulp = require('gulp');
-let mocha = require('gulp-mocha');
 let nodemon = require('nodemon');
 let browserSync = require('browser-sync').create('slh');
 let reload = browserSync.reload;
@@ -13,10 +12,10 @@ let deferReload = () => {
   setTimeout(reload, 2000);
 };
 
-gulp.task('nodemon', cb => {
+gulp.task('nodemon', ['compile:backend', 'copy:backend-view'], cb => {
   nodemon({
     script: 'backend/startserver.js',
-    watch: ['backend/'],
+    watch: ['backend/lib/'],
     env: {
       PORT: '3002',
       NODE_ENV: 'development'
@@ -36,12 +35,6 @@ gulp.task('serve', ['compile', 'copy:fonts', 'nodemon'], () => {
 
   gulp.watch('frontend/app/styles/*.scss', ['compile:styles', deferReload]);
   gulp.watch('frontend/app/scripts/**/*.js', ['compile:js', deferReload]);
-});
-
-gulp.task('test', () => {
-  return gulp.src('test/test-*.js')
-    .pipe(mocha())
-    .once('end', () => {
-      process.exit();
-    });
+  gulp.watch('backend/src/**/*.ts', ['compile:backend']);
+  gulp.watch('backend/src/**/*.jade', ['copy:backend-view']);
 });

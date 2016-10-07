@@ -10,8 +10,7 @@ import * as connectMongo from 'connect-mongo';
 let MongoStore = connectMongo(session);
 
 import {SetRouter} from './router';
-
-let config = require('./config');
+import {config} from './config';
 
 export let app = express() as Application;
 
@@ -32,16 +31,14 @@ switch (app.get('env')) {
 }
 
 // Session
-let sess = {
+let sess: session.SessionOptions = {
   secret: config.secret,
   resave: false,
   saveUninitialized: false,
   name : 'sessionId',
   cookie: {
     maxAge: 8.64e+7, // 1 day
-    secure: undefined
   },
-  store: undefined
 };
 if (app.get('env') === 'production') {
   app.set('trust proxy', 1);

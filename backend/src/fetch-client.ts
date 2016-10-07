@@ -37,7 +37,7 @@ export class FetchClient {
   }
 
   async fetch(url: string, opts: fetchOpt = {}) {
-    if (opts.headers) {
+    if (!opts.headers) {
       opts.headers = {};
     }
     opts.headers.cookie = await this.getCookie(url);
