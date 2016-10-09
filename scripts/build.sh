@@ -12,7 +12,6 @@ docker build -t "holi0317/sms-library-helper-backend:$version" .
 cd ../timer
 echo "building timer"
 npm install
-./pre-build.sh
 docker build -t "holi0317/sms-library-helper-timer:$version" .
 
 cd ../frontend

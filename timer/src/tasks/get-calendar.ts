@@ -1,9 +1,5 @@
-'use strict';
-
-let Promise = require('bluebird');
-let {calendar} = require('../promisify');
-let {BreakSignal} = require('../utils');
-let {TIMEZONE} = require('../constants');
+import {calendar} from '../promisify';
+import {TIMEZONE} from '../constants';
 
 function createCalendar(user) {
   if (!user.data.renewEnabled || user.failed || !user.data.calendarEnabled) {

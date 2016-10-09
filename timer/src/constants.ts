@@ -1,38 +1,40 @@
-'use strict';
-
-let template = require('lodash.template');
+import * as template from 'lodash.template';
 
 /**
  * One day in milisecond.
  * @const {number} ONE_DAY
  * @default 8.64e+7
  */
-const ONE_DAY = 8.64e+7;
+export const ONE_DAY = 8.64e+7;
+
 /**
  * Timezone that library system is at.
  * @const {string} TIMEZONE
  * @default 'Asia/Hong_Kong'
  */
-const TIMEZONE = 'Asia/Hong_Kong';
+export const TIMEZONE = 'Asia/Hong_Kong';
+
 /**
  * Maximum log to be kept.
  * @const {number} MAX_LOG_RECORD
  * @default 100
  */
-const MAX_LOG_RECORD = 100;
+export const MAX_LOG_RECORD = 100;
+
 /**
  * The maximum renew time for library system.
  * @const {number} MAX_RENEW_TIME
  * @default 5
  */
-const MAX_RENEW_TIME = 5;
+export const MAX_RENEW_TIME = 5;
+
 /**
  * Template for a mail that reminds user that this is the last time for renewal.
  * This is in fact a lodash template function.
  * @const {function} MAIL_TEMPLATE
  * @default (Check the source. It is long.)
  */
-const MAIL_TEMPLATE = template(`
+export const MAIL_TEMPLATE = template(`
 Good day,
 
 This mail is sent from Library helper. You know, that auto renew thingee.
@@ -64,20 +66,11 @@ He is not clever enough to read these messages.
  * @const {string} MAIL_SUBJECT
  * @default 'Library Helper reminder'
  */
-const MAIL_SUBJECT = 'Library Helper reminder';
+export const MAIL_SUBJECT = 'Library Helper reminder';
+
 /**
  * Sender name of the email.
  * @const {string} MAIL_SENDER
  * @default 'Library Helper'
  */
-const MAIL_SENDER = 'Library Helper';
-
-module.exports = {
-  ONE_DAY,
-  TIMEZONE,
-  MAX_LOG_RECORD,
-  MAX_RENEW_TIME,
-  MAIL_TEMPLATE,
-  MAIL_SUBJECT,
-  MAIL_SENDER
-};
+export const MAIL_SENDER = 'Library Helper';

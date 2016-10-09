@@ -5,8 +5,7 @@
   "description": "Timer module for sms-library-helper",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "postinstall": "echo 'Run pre-build.sh before running or build this package. Unless you are now inside a Docker environment.'"
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
@@ -27,5 +26,21 @@
     "lodash.template": "^4.4.0",
     "mongoose": "^4.6.0",
     "request-promise": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/bluebird": "^3.0.35",
+    "@types/cheerio": "^0.17.31",
+    "@types/js-yaml": "^3.5.28",
+    "@types/lodash": "^4.14.37",
+    "@types/mongoose": "^4.5.38",
+    "@types/node-fetch": "0.0.4",
+    "del": "^2.2.2",
+    "gulp-typescript": "^3.0.2",
+    "require-directory": "^2.1.1",
+    "run-sequence": "^1.2.2",
+    "typescript": "^2.0.3"
+  },
+  "peerDependencies": {
+    "gulp": "^3.9.1"
   }
 }

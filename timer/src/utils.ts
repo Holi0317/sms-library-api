@@ -1,36 +1,4 @@
-/**
- * Some utilities functions.
- * @module sms-library-helper/backend/utils
- * @author Holi0317 <holliswuhollis@gmail.com>
- * @license MIT
- *
- * @requires bluebird
- */
-
-'use strict';
-
-let Promise = require('bluebird');
-
-/**
- * The exception to be thrown when a promise is broken (have exception) and it is already handled.
- * Useful when it comes to response handling as response cannot be sent twice.
- * @example
- makePromise
- .then(throwRandomError)
- .catch(err => {
-  handleErr(err);
-  throw new BreakSignal();
-})
- .then(otherStuffs)
- .catch(err => {
-  if (err instanceof BreakSignal) return
-  handleErr2(err);
-});
- * @class
- * @extends Error
- */
-class BreakSignal extends Error{}
-module.exports.BreakSignal = BreakSignal;
+import * as iconv from 'iconv-lite';
 
 /**
  * Returns difference between two arrays (Delta comparing).
@@ -44,11 +12,11 @@ module.exports.BreakSignal = BreakSignal;
  * @param {Array} b - The other array to be compared.
  * @see http://stackoverflow.com/questions/1187518/javascript-array-difference
  */
-module.exports.diff = function (a, b) {
-  return a.filter(function(i) {
-    return b.indexOf(i) < 0;
-  });
-};
+export function diff(a, b) {
+  return a.filter(i =>
+    b.indexOf(i) < 0
+  );
+}
 
 /**
  * Create a Email content following the RFC2822 format. (The one used by Gmail)
@@ -61,7 +29,7 @@ module.exports.diff = function (a, b) {
  * @param {String} body - Text content of the email.
  * @returns {String} - Base64 encoded email message.
  */
-module.exports.makeEmail = function (from_, to, subject, body) {
+export function makeEmail(from_, to, subject, body) {
   let lines = [
     'Content-Type: text/plain; charset="UTF-8"',
     'MIME-Version: 1.0',
@@ -75,4 +43,9 @@ module.exports.makeEmail = function (from_, to, subject, body) {
 
   let mail = lines.join('\n');
   return new Buffer(mail).toString('base64');
-};
+}
+
+export async function deocdeBig5(res) {
+  let buffer = await res.buffer();
+  return iconv.decode(buffer, 'big5');
+}
