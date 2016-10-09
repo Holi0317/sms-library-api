@@ -21,13 +21,9 @@ app.use(helmet());
 app.set('views', join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-switch (app.get('env')) {
-  case 'development':
-    app.set('json spaces', 4);
-    app.locals.pretty = true;
-    break;
-  case 'production':
-    app.use(express.static('../frontend/static'));
+if (app.get('env') === 'development') {
+  app.set('json spaces', 4);
+  app.locals.pretty = true;
 }
 
 // Session
@@ -70,26 +66,10 @@ app.use(function(req, res, next) {
 });
 
 // error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err: ExpressError, req: Request, res: Response) {
-    console.error(err);
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
-    });
-  });
-}
-
-// production error handler
-// no stacktraces leaked to user
 app.use(function(err: ExpressError, req: Request, res: Response) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
-    error: {}
+    error: app.get('env') === 'development' ? err: {}
   });
 });
