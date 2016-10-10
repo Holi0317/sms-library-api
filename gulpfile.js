@@ -2,11 +2,11 @@
 
 let gulp = require('gulp');
 let nodemon = require('nodemon');
+let requireDir = require('require-directory');
 let browserSync = require('browser-sync').create('slh');
 let reload = browserSync.reload;
 
-require('./frontend/gulpfile.js');
-require('./backend/gulpfile.js');
+requireDir(module, './tasks');
 
 let deferReload = () => {
   setTimeout(reload, 2000);
@@ -26,7 +26,7 @@ gulp.task('nodemon', ['compile:backend', 'copy:backend-view'], cb => {
   }).on('restart', deferReload);
 });
 
-gulp.task('serve', ['compile', 'copy:fonts', 'nodemon'], () => {
+gulp.task('serve', ['compile:frontend', 'copy:frontend:fonts', 'nodemon'], () => {
   browserSync.init({
     proxy: 'localhost:3002',
     port: 3000,
@@ -38,3 +38,5 @@ gulp.task('serve', ['compile', 'copy:fonts', 'nodemon'], () => {
   gulp.watch('backend/src/**/*.ts', ['compile:backend']);
   gulp.watch('backend/src/**/*.jade', ['copy:backend-view']);
 });
+
+gulp.task('default', ['build']);

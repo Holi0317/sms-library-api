@@ -1,7 +1,3 @@
-'use strict';
-
-let Promise = require('bluebird');
-
 function wrapper(fn) {
   return function(users) {
     return Promise.all(users.map(user =>
