@@ -1,11 +1,3 @@
-/**
- * Refresh given user's token
- */
-
-'use strict';
-
-let {BreakSignal} = require('../utils');
-
 module.exports = function(user) {
   return user.oauth2client.refreshAccessTokenAsync()
     .catch(err => {

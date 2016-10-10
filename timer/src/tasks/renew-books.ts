@@ -1,7 +1,4 @@
-'use strict';
-
-let Promise = require('bluebird');
-let {ONE_DAY, MAX_RENEW_TIME} = require('../constants');
+import {ONE_DAY, MAX_RENEW_TIME} from '../constants';
 
 module.exports = function(user) {
   if (!user.data.renewEnabled || user.failed) {

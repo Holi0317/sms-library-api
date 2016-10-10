@@ -1,7 +1,3 @@
-'use strict';
-
-let Promise = require('bluebird');
-
 module.exports = function(user) {
   if (!user.data.renewEnabled || user.failed) {
     return Promise.resolve();

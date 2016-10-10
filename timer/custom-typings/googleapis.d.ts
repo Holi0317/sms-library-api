@@ -21,6 +21,7 @@ declare module 'googleapis' {
       }): string;
       getTokenAsync(code: string): Promise<credentials>;
       revokeCredentialsAsync(): Promise<void>;
+      refreshAccessTokenAsync(): Promise<void>;
     }
   }
 
@@ -48,16 +49,70 @@ declare module 'googleapis' {
     }
   }
 
+  type calendarList = {
+    summary: string
+    id: string
+  }
+
+  type calendarEvent = {
+    summary: string
+    id?: string
+    end: {
+      date: string
+      timeZone: string
+    }
+    start: {
+      date: string
+      timeZone: string
+    }
+  }
+
   interface APICalendar {
     calendarList: {
-
+      listAsync(options: {
+        auth: auth.OAuth2
+        maxResults: number
+        showHidden: boolean
+        minAccessRole: string
+      }): Promise<{
+        nextPageToken: string
+        items: calendarList[]
+      }>
     }
 
     calendars: {
-
+      insertAsync(options: {
+        auth: auth.OAuth2,
+        resource: {
+          summary: string
+          timeZone: string
+        }
+      }): Promise<{
+        id: string
+      }>
     }
     events: {
+      listAsync(options: {
+        auth: auth.OAuth2
+        calendarId: string
+        timeZone: string
+        maxResults: number
+      }): Promise<{
+        nextPageToken: string
+        items: calendarEvent[]
+      }>,
 
+      insertAsync(options: {
+        auth: auth.OAuth2
+        calendarId: string
+        resource: calendarEvent
+      }): Promise<void>,
+
+      deleteAsync(options: {
+        auth: auth.OAuth2
+        calendarId: string
+        eventId: string
+      }): Promise<void>
     }
   }
 

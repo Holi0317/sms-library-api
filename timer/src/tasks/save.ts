@@ -1,6 +1,4 @@
-'use strict';
-
-let {MAX_LOG_RECORD} = require('../constants');
+import {MAX_LOG_RECORD} from '../constants';
 
 module.exports = function(user) {
   if (user.failed) {

@@ -1,9 +1,6 @@
-'use strict';
-
-let Promise = require('bluebird');
-let {MAIL_TEMPLATE, MAIL_SENDER, MAIL_SUBJECT} = require('../constants');
-let {gmailSend} = require('../promisify');
-let config = require('../config');
+import {MAIL_TEMPLATE, MAIL_SENDER, MAIL_SUBJECT} from '../constants';
+import {gmailSend} from '../promisify';
+import {config} from '../config';
 
 /**
  * Create a Email content following the RFC2822 format. (The one used by Gmail)

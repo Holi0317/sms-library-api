@@ -18,33 +18,6 @@ export function diff(a, b) {
   );
 }
 
-/**
- * Create a Email content following the RFC2822 format. (The one used by Gmail)
- * This function can only create plain text email.
- * (i.e. No email with attachment or using HTML)
- *
- * @param {String} from_ - Sender of the email. Optional (Ignore this using null).
- * @param {String} to - Receiver of the email.
- * @param {String} subject - Subject of the email.
- * @param {String} body - Text content of the email.
- * @returns {String} - Base64 encoded email message.
- */
-export function makeEmail(from_, to, subject, body) {
-  let lines = [
-    'Content-Type: text/plain; charset="UTF-8"',
-    'MIME-Version: 1.0',
-    'Content-Transfer-Encoding: 8bit',
-    (from_) ? `from: ${from_}` : '',
-    `to: ${to}`,
-    `subject: ${subject}`,
-    '',
-    body
-  ];
-
-  let mail = lines.join('\n');
-  return new Buffer(mail).toString('base64');
-}
-
 export async function deocdeBig5(res) {
   let buffer = await res.buffer();
   return iconv.decode(buffer, 'big5');

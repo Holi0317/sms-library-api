@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import {config} from './config';
 import * as Promise from 'bluebird';
+import {Log} from "../../backend/src/models";
 
 mongoose.Promise = Promise;
 
@@ -49,7 +50,10 @@ export let userSchema = new mongoose.Schema({
 });
 
 export interface UserDocument extends mongoose.Document {
-  tokens: any
+  tokens: {
+    access_token: string
+    refresh_token?: string
+  }
   googleId: string
   libraryLogin: string
   libraryPassword: string
@@ -61,6 +65,7 @@ export interface UserDocument extends mongoose.Document {
   emailAddress: string
   isAdmin: boolean
   logs: Log[]
+  log: (message: string, level?: LogLevels) => void
 }
 
 /**

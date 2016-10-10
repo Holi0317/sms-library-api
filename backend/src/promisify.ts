@@ -10,9 +10,16 @@ let plus = google.plus('v1');
 let gmail = google.gmail('v1');
 
 type plusPeopleGetType = (options: { userId: string, auth: google.auth.OAuth2 }) => Promise<{emails: { value: string, type: string }[], displayName: string, id: string}>
+type gmailSendType = (options: {
+  auth: google.auth.JWT
+  userId: string
+  resource: {
+    raw: string
+  }
+}) => Promise<void>;
 
 export const plusPeopleGet: plusPeopleGetType = Promise.promisify(plus.people.get);
-export const gmailSend = Promise.promisify(gmail.users.messages.send);
+export const gmailSend: gmailSendType = Promise.promisify(gmail.users.messages.send);
 export const calendar = google.calendar('v3');
 Promise.promisifyAll(calendar.calendarList);
 Promise.promisifyAll(calendar.calendars);

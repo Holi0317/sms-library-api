@@ -1,9 +1,6 @@
-'use strict';
-
-let Promise = require('bluebird');
-let {calendar} = require('../promisify');
-let {BreakSignal, diff} = require('../utils');
-let {TIMEZONE} = require('../constants');
+import {calendar} from '../promisify';
+import {diff} from '../utils';
+import {TIMEZONE} from '../constants';
 
 /**
  * Convert Date object to Google calendar's format, 'yyyy-mm-dd'.
@@ -12,7 +9,7 @@ let {TIMEZONE} = require('../constants');
  *
  * @returns {string} - Date with yyyy-mm-dd as format.
  */
-function dateToGoogle(date) {
+function dateToGoogle(date: Date) {
   return `${date.getFullYear()}-${('0' + (date.getMonth()+1)).slice(-2)}-${('0' + date.getDate()).slice(-2)}`
 }
 
