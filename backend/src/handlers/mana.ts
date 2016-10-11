@@ -1,9 +1,9 @@
 import {Request, Response, Next} from '../IExpress';
-import {config} from '../config';
-import {UserModel, Log, UserDocument} from '../models';
-import {BreakSignal, oauth2clientFactory} from '../utils';
+import {config} from '../common/config';
+import {UserModel, Log, UserDocument} from '../common/models';
+import {oauth2clientFactory} from '../common/utils';
 import validateUser from '../validate/user-update';
-import {plusPeopleGet} from '../promisify';
+import {plusPeopleGet} from '../common/promisify';
 
 /**
  * Check if user is qualified for accessing the mana page.

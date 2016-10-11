@@ -1,4 +1,4 @@
-import {calendar} from '../promisify';
+import {calendar} from '../common/promisify';
 import {TIMEZONE} from '../constants';
 import {CronUserData} from '../cron-user-data';
 

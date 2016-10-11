@@ -1,5 +1,5 @@
 import {Application as _App, Request as _Req, Response as _Res, ErrorRequestHandler, RequestHandler} from 'express-serve-static-core';
-import {ExpressError} from './utils';
+import {ExpressError} from './common/utils';
 
 export interface Request extends _Req {
   session: any

@@ -1,8 +1,8 @@
 import {Request, Response, Next} from '../IExpress';
-import {UserModel, Log, UserDocument} from '../models';
-import {oauth2clientFactory, BreakSignal} from '../utils';
+import {UserModel, Log, UserDocument} from '../common/models';
+import {oauth2clientFactory} from '../common/utils';
 import validateUser from '../validate/user-update';
-import {plusPeopleGet} from '../promisify';
+import {plusPeopleGet} from '../common/promisify';
 
 /**
  * Handles index logic.

@@ -2,8 +2,8 @@ import * as validate from 'validate.js';
 import './validator-fn';
 import './validator-type';
 
-import Library from '../library';
-import {UserModel} from '../models';
+import Library from '../common/library';
+import {UserModel} from '../common/models';
 
 validate.Promise = Promise;
 

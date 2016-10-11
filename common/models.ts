@@ -1,7 +1,6 @@
 import * as mongoose from 'mongoose';
 import {config} from './config';
 import * as Promise from 'bluebird';
-import {Log} from "../../backend/src/models";
 
 mongoose.Promise = Promise;
 

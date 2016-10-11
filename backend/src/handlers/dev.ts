@@ -1,6 +1,6 @@
 import {Request, Response} from '../IExpress';
-import {UserModel} from '../models';
-import {oauth2clientFactory} from '../utils';
+import {UserModel} from '../common/models';
+import {oauth2clientFactory} from '../common/utils';
 
 /**
  * Render debug routing page, which shows operations can be done under develop mode.

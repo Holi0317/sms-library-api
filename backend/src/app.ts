@@ -1,7 +1,7 @@
 import {join} from 'path';
 import * as express from 'express';
 import {Application, Request, Response} from './IExpress';
-import {ExpressError} from './utils';
+import {ExpressError} from './common/utils';
 import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
 import * as helmet from 'helmet';
@@ -10,7 +10,7 @@ import * as connectMongo from 'connect-mongo';
 let MongoStore = connectMongo(session);
 
 import {SetRouter} from './router';
-import {config} from './config';
+import {config} from './common/config';
 
 export let app = express() as Application;
 

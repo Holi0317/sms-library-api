@@ -1,6 +1,6 @@
 import {MAIL_TEMPLATE, MAIL_SENDER, MAIL_SUBJECT} from '../constants';
-import {gmailSend} from '../promisify';
-import {config} from '../config';
+import {gmailSend} from '../common/promisify';
+import {config} from '../common/config';
 
 /**
  * Create a Email content following the RFC2822 format. (The one used by Gmail)
