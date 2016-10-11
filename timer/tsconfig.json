@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "timer/lib",
+    "target": "ES6",
+    "module": "commonjs",
+    "removeComments": false,
+    "experimentalDecorators": true,
+    "moduleResolution": "node"
+  },
+  "include": [
+    "timer/src/**/*"
+  ]
+}

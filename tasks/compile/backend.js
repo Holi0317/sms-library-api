@@ -3,9 +3,8 @@
 let gulp = require('gulp');
 let ts = require('gulp-typescript');
 
-let tsProject = ts.createProject('tsconfig.json', {
-  typescript: require('typescript'),
-  rootDir: 'backend'
+let tsProject = ts.createProject('backend/tsconfig.json', {
+  typescript: require('typescript')
 });
 
 gulp.task('compile:backend', () => {
