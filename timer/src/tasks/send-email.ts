@@ -29,20 +29,20 @@ function makeEmail(from_, to, subject, body) {
   return new Buffer(mail).toString('base64');
 }
 
-module.exports = function(user) {
+export async function sendEmail(user) {
   if (!user.data.renewEnabled || user.failed || !user.data.emailEnabled) {
-    return Promise.resolve();
+    return;
   }
 
-  let books = user.library.borrowedBooks.filter(b => user.emailMsgID.indexOf(b.id) !== -1);
+  let books = user.library.borrowedBooks.filter(b => user.emailMsgID.indexOf(b.mcode) !== -1);
   let message = MAIL_TEMPLATE({books: books});
   let email = makeEmail(MAIL_SENDER, user.data.emailAddress, MAIL_SUBJECT, message);
 
-  return gmailSend({
+  await gmailSend({
     auth: config.jwt,
     userId: 'me',
     resource: {
       raw: email
     }
   });
-};
+}

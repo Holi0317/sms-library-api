@@ -6,13 +6,13 @@ module.exports = function(user) {
   }
 
   let now = new Date();
-  let promises = [];  // Promises for renewing book to be returned.
+  let promises: Promise<any>[] = [];  // Promises for renewing book to be returned.
   let borrowedBooks = user.library.borrowedBooks.map(b => b.name);   // Book name for all borrowed books. For logging purpose.
-  let renewBooks = [];    // Book name for all books requires to be renewed. For logging purpose.
+  let renewBooks: string[] = [];    // Book name for all books requires to be renewed. For logging purpose.
 
   for (let book of user.library.borrowedBooks) {  // Each borrowed books.
 
-    let diff = book.dueDate - now;
+    let diff = book.dueDate.getTime() - now.getTime();
     if (diff <= user.data.renewDate * ONE_DAY && diff > 0 && book.id) {
       // If Logic: Less than defined date, more than 0 day and have book ID.
       promises.push(user.library.renewBook(book));    // Create promise.
