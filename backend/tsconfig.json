@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "outDir": "backend/lib",
+    "outDir": "lib",
     "target": "ES6",
     "module": "commonjs",
+    "noResolve": true,
     "removeComments": false,
     "experimentalDecorators": true,
     "noImplicitAny": false,
@@ -10,6 +11,6 @@
     "moduleResolution": "node"
   },
   "include": [
-    "backend/src/**/*"
+    "src/**/*"
   ]
 }
