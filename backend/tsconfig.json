@@ -5,6 +5,8 @@
     "module": "commonjs",
     "removeComments": false,
     "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
     "moduleResolution": "node"
   },
   "include": [
