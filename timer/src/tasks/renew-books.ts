@@ -1,8 +1,8 @@
 import {ONE_DAY, MAX_RENEW_TIME} from '../constants';
 
-module.exports = function(user) {
+export async function renewBooks(user) {
   if (!user.data.renewEnabled || user.failed) {
-    return Promise.resolve();
+    return;
   }
 
   let now = new Date();
@@ -35,5 +35,5 @@ module.exports = function(user) {
     user.log(`The following books will be renewed: ${renewBooks.join(', ')}`);
   }
 
-  return Promise.all(promises);
-};
+  await Promise.all(promises);
+}
