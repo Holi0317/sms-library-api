@@ -1,19 +1,32 @@
-function wrapper(fn) {
-  return function(users) {
-    return Promise.all(users.map(user =>
-      fn(user).catch(() => Promise.resolve())
-    ))
-      .then(() => Promise.resolve(users));
+import {CronUserData} from '../cron-user-data';
+
+import {getCalendar} from './get-calendar';
+import {login} from './login';
+import {refreshCalendar} from './refresh-calendar';
+import {refreshToken} from './refresh-token';
+import {renewBooks} from './renew-books';
+import {save} from './save';
+import {sendEmail} from './send-email';
+import {upgradeUser} from './upgrade-user';
+
+function wrapper(fn: (user: CronUserData) => Promise<any>) {
+  return async function(users: CronUserData[]) {
+    await Promise.all(users.map(async user => {
+      try {
+        await fn(user)
+      } catch (err) {
+
+      }
+    }));
+    return users;
   }
 }
 
-module.exports = {
-  upgradeUser: require('./upgrade-user'),
-  refreshToken: wrapper(require('./refresh-token')),
-  login: wrapper(require('./login')),
-  renewBooks: wrapper(require('./renew-books')),
-  getCalendar: wrapper(require('./get-calendar')),
-  refreshCalendar: wrapper(require('./refresh-calendar')),
-  sendEmail: wrapper(require('./send-email')),
-  save: wrapper(require('./save'))
-};
+export const upgradeUser = upgradeUser;
+export const refreshToken = wrapper(refreshToken);
+export const login = wrapper(login);
+export const renewBooks = wrapper(renewBooks);
+export const getCalendar = wrapper(getCalendar);
+export const refreshCalendar = wrapper(refreshCalendar);
+export const sendEmail = wrapper(sendEmail);
+export const save = wrapper(save);
