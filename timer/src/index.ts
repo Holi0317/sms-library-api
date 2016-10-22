@@ -1,23 +1,11 @@
-/**
- * The job, cron job, to be runned.
- * @module sms-library-helper/timer
- * @author Holi0317 <holliswuhollis@gmail.com>
- * @license MIT
- *
- * @requires bluebird
- * @requires googleapis
- * @requires mongoose
- * @requires lodash.template
- */
+import './common/promisify';
+import {UserModel} from './common/models';
+import * as tasks from './tasks';
 
-'use strict';
-require('./promisify');
-let models = require('./models');
-let tasks = require('./tasks');
-
-function execute() {
+export function execute() {
   console.log('Started cron job.');
-  models.user.find()
+
+  return UserModel.find()
     .then(tasks.upgradeUser)
     .then(tasks.refreshToken)
     .then(tasks.login)
@@ -40,8 +28,6 @@ function execute() {
     });
 
 }
-
-module.exports = execute;
 
 if (require.main === module) {
   execute();

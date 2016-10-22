@@ -13,5 +13,6 @@
 /// <reference path="./validate.d.ts" />
 /// <reference path="./morgan.d.ts" />
 /// <reference path="./named-routes.d.ts" />
+/// <reference path="./lodash.template.d.ts" />
 /// <reference path="./lodash.clonedeep.d.ts" />
 /// <reference path="./tough-cookie.d.ts" />

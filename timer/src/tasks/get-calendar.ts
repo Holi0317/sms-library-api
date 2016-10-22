@@ -8,7 +8,7 @@ async function createCalendar(user: CronUserData) {
   }
 
   try {
-    let calendar = await calendar.calendars.insertAsync({
+    let cal = await calendar.calendars.insertAsync({
       auth: user.oauth2client,
       resource: {
         summary: user.data.calendarName,
@@ -16,8 +16,8 @@ async function createCalendar(user: CronUserData) {
       }
     });
 
-    user.log(`Calendar created. ID: ${calendar.id}.`, 'DEBUG');
-    user.calendarID = calendar.id;
+    user.log(`Calendar created. ID: ${cal.id}.`, 'DEBUG');
+    user.calendarID = cal.id;
     return;
 
   } catch (err) {
