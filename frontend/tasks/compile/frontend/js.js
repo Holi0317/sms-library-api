@@ -4,9 +4,9 @@ let gulp = require('gulp');
 let gutil = require('gutil');
 let webpack = require('webpack');
 
-gulp.task('compile:fronted:js', cb => {
+gulp.task('compile:frontend:js', cb => {
   webpack({
-    entry: 'app/scripts/entry.js',
+    entry: './app/scripts/entry.js',
     module: {
       loaders: [
         { test: /\.js$/, loader: 'babel?cacheDirectory', exclude: /(?:node_modules)/ }
@@ -22,7 +22,8 @@ gulp.task('compile:fronted:js', cb => {
   }, (err, stats) => {
     if(err) throw new gutil.PluginError('webpack', err);
     gutil.log('[webpack]', stats.toString({
-      // output options
+      colors: true,
+      errorDetails: true
     }));
     cb();
   });

@@ -1,2 +1,2 @@
-00 00 * * * node /srv/src/index.js
-00 08 * * * node /srv/src/index.js
+00 00 * * * node /srv/lib/index.js
+00 08 * * * node /srv/lib/index.js

@@ -15,7 +15,7 @@ docker service create \
   --name slh-backend \
   --network slh-network \
   --mount type=bind,target=/etc/slh-config.yaml,source=/srv/slh/config.yaml \
-  --replicas 3 \
+  --replicas 1 \
   --endpoint-mode dnsrr \
   "holi0317/sms-library-helper-backend:$version"
 

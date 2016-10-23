@@ -17,5 +17,5 @@ $(require('./utils'));
 $(require('./user'));
 $(require('./troll'));
 $(require('./form'));
-let serverData = require('./server-data')
+let serverData = require('./server-data');
 $(serverData.read.bind(serverData));
