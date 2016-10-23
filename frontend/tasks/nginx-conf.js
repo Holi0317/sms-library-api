@@ -1,5 +1,3 @@
-'use strict';
-
 let gulp = require('gulp');
 let argv = require('minimist')(process.argv.slice(2));
 let fs = require('fs');

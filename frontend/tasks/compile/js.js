@@ -1,10 +1,8 @@
-'use strict';
-
 let gulp = require('gulp');
 let gutil = require('gutil');
 let webpack = require('webpack');
 
-gulp.task('compile:frontend:js', cb => {
+gulp.task('compile:js', cb => {
   webpack({
     entry: './app/scripts/entry.js',
     module: {

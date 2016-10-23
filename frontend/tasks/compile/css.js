@@ -1,10 +1,8 @@
-'use strict';
-
 let gulp = require('gulp');
 let sass = require('gulp-sass');
 let postcss = require('gulp-postcss');
 
-gulp.task('compile:frontend:css', () => {
+gulp.task('compile:css', () => {
   return gulp.src('app/styles/*.scss')
     .pipe(sass({
       includePaths: [

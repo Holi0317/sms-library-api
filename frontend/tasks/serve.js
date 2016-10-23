@@ -1,5 +1,3 @@
-'use strict';
-
 let gulp = require('gulp');
 let browserSync = require('browser-sync').create('slh');
 let reload = browserSync.reload;
@@ -8,7 +6,7 @@ function deferReload(){
   setTimeout(reload, 2000);
 }
 
-gulp.task('serve:frontend', ['compile:frontend', 'copy:frontend:fonts'], () => {
+gulp.task('serve', ['compile', 'copy:fonts'], () => {
   browserSync.init({
     proxy: 'localhost:3002',
     port: 3000,

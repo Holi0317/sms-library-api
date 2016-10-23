@@ -10,7 +10,6 @@
   },
   "rules": {
     "quotes": [2, "single"],
-    "no-console": [0],
-    "strict": [2, "global"]
+    "no-console": [0]
   }
 }

@@ -16,8 +16,8 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 cd ..
 cd backend
-gulp serve:backend &
+gulp serve&
 sleep 15
 
 cd ../frontend
-gulp serve:frontend
+gulp serve

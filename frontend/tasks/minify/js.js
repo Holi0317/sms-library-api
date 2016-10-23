@@ -1,5 +1,3 @@
-'use strict';
-
 let gulp = require('gulp');
 let uglify = require('gulp-uglify');
 

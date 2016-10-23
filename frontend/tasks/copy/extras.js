@@ -1,8 +1,6 @@
-'use strict';
-
 let gulp = require('gulp');
 
-gulp.task('copy:frontend:extras', () => {
+gulp.task('copy:extras', () => {
   return gulp.src([
     'app/*.*',
     '!app/.eslintrc'

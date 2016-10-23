@@ -1,12 +1,10 @@
-'use strict';
-
 let gulp = require('gulp');
 let runSequence = require('run-sequence');
 
-gulp.task('build:timer', cb => {
+gulp.task('build', cb => {
   runSequence(
-    'clean:timer',
-    'compile:timer',
+    'clean',
+    ['compile', 'copy:view'],
     cb
   )
 });
