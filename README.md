@@ -126,15 +126,15 @@ Execute `scripts/deploy.sh`. Make sure you have all files set up. Wait for some 
 Only slh-backend can be scaled. Other may have undesired result if they are scaled up.
 
 # TODO
- - Backend and timer: Refactor to TypeScript
- - Backend and timer: await and async
+ - Dev: Create development docker container
+ - Doc: Write docs for development
  - Test: Replace with ava.js
  - Timer: split refresh-calendar task. Seriously I have no idea what I am reading.
- - Misc: Automatic shell script (or node?) for build, deploy, environment variables, etc.
- - Backend and frontend: Use fetch for http request
  - Backend: library API rewrite
  - Backend: update jade to pug js
  - Build system: Gulp 4
+ - Docker: Use docker-compose
+ - Backend and frontend: Use material design lite instead of bootstrap
 
 # License
 This project is released under MIT License.
