@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(helmet());
 // Render engine
 app.set('views', join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 if (app.get('env') === 'development') {
   app.set('json spaces', 4);

@@ -130,7 +130,6 @@ Only slh-backend can be scaled. Other may have undesired result if they are scal
  - Doc: Write docs for development
  - Test: Replace with ava.js
  - Timer: split refresh-calendar task. Seriously I have no idea what I am reading.
- - Backend: update jade to pug js
  - Build system: Gulp 4
  - Docker: Use docker-compose
  - Backend and frontend: Use material design lite instead of bootstrap

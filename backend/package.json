@@ -25,13 +25,13 @@
     "googleapis": "^14.0.0",
     "helmet": "^2.3.0",
     "iconv-lite": "^0.4.13",
-    "jade": "^1.11.0",
     "js-yaml": "^3.6.1",
     "lodash.clonedeep": "^4.5.0",
     "mongoose": "^4.6.4",
     "morgan": "^1.7.0",
     "named-routes": "^2.0.6",
     "node-fetch": "^1.6.3",
+    "pug": "^2.0.0-beta6",
     "validate.js": "^0.10.0"
   },
   "devDependencies": {
