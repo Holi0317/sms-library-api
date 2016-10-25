@@ -1,0 +1,41 @@
+version: '2'
+services:
+  mongo:
+    image: mongo:3.2
+    volumes:
+     - ./mongodb:/data/db
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-dev
+    image: sms-library-helper-backend:dev
+    volumes:
+      - ./config.yaml:/etc/slh-config.yaml
+      - ./backend/src/:/srv/src/
+    links:
+     - mongo
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile-dev
+    image: sms-library-helper-frontend:dev
+    volumes:
+     - ./frontend/app/:/srv/app/
+    links:
+     - backend
+    ports:
+     - "3000:3000"
+     - "3001:3001"
+
+  timer:
+    build:
+      context: ./timer
+      dockerfile: Dockerfile-dev
+    image: sms-library-helper-timer:dev
+    volumes:
+     - ./config.yaml:/etc/slh-config.yaml
+     - ./timer/src/:/srv/src/
+    links:
+     - mongo

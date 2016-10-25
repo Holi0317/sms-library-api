@@ -8,8 +8,9 @@ function deferReload(){
 
 gulp.task('serve', ['compile', 'copy:fonts'], () => {
   browserSync.init({
-    proxy: 'localhost:3002',
+    proxy: 'backend:3002',
     port: 3000,
+    open: false,
     serveStatic: ['.tmp', 'app']
   });
 

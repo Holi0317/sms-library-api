@@ -19,4 +19,3 @@ RUN apk --update add --no-cache --virtual build-dependencies nodejs python make 
   && apk del build-dependencies \
   && rm -r .tmp app node_modules tasks gulpfile.js nginx.template.conf package.json \
   && rm -r /tmp/npm* /var/cache/apk /root/.node-gyp
-  # TODO Will .node-gyp be cleaned when npm cache clean?

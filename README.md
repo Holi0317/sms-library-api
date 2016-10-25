@@ -125,9 +125,58 @@ Execute `scripts/deploy.sh`. Make sure you have all files set up. Wait for some 
 ## Scale
 Only slh-backend can be scaled. Other may have undesired result if they are scaled up.
 
+# Development environment setup
+This section aims to teach you how to setup development environment and adopt to the workflow of the project.
+
+This project uses docker-compose to setup development environment. You may want to get familiarized with [docker-compose](https://docker.github.io/compose/) before getting started.
+
+Install the following requirements on your computer before getting started:
+ - [Docker](https://docs.docker.com/engine/installation/)
+ - [docker-compose](https://docs.docker.com/compose/install/)
+ - Any command shell. Windows user may use sh from busybox. It should work.
+ - Recommended: git. You can still use download as tarball from GitHub.
+ - Recommended: [nodejs and npm](https://nodejs.org/en/download/). Ideally, all code will be executed in docker container. But you may want node for testing new stuffs.
+
+## Pre build process
+There are several common modules used throughout microservices in the project. Yet, I still cannot find a way to manage them easily. As docker does not follow symlink.
+
+A hack is then used. Before building docker images, `common/`, `custom-typings/` needs to be copied into `backend/` and `timer/`.
+
+A shell script is used to automate this process.
+
+Use any command shell to execute `scripts/pre-build.sh` before building.
+ 
+If there is any changes to `common/` or `custom-typings/`, execute `scripts/pre-build.sh` again.
+
+## Create configuration file
+Refer to [Configuration](#Configuration), create a configuration file for development process.
+ 
+__Important note__: In the configuration file, url of mongo should be `mongodb://mongo/slh-development`. And baseUrl should be `http://localhost:3000/`
+
+Save that to `config.yaml` at the root directory. git will ignore it.
+
+## Create directory for mongodb
+Simply create an empty directory named `mongodb` at root directory. It will be filled up with mongodb files later.
+
+## Build and start frontend server
+Execute `docker-compose -f docker-compose-dev.yml up frontend`. A server will be started on `localhost:3000`.
+
+## Start timer process
+Execute `docker-compose -f docker-compose-dev.yml run backend`. All message will be shown on console.
+
+## Auto reload of code
+Only `src/` directory from backend and timer and `app/` directory from frontend will be mounted into development containers.
+ 
+This means adding new packages, changing gulp tasks will not be sent into the container.
+
+You __MUST__ rebuild the image if such changes occurs.
+
+Moreover, if there is change to `custom-typings` or `common`, `scripts/pre-build.sh` must be run again.
+
+## Rebuild images
+Run `docker-compose -f docker-compose-dev.yml build` to (re)build all image.
+
 # TODO
- - Dev: Create development docker container
- - Doc: Write docs for development
  - Test: Replace with ava.js
  - Timer: split refresh-calendar task. Seriously I have no idea what I am reading.
  - Build system: Gulp 4
