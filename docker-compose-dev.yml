@@ -2,6 +2,8 @@ version: '2'
 services:
   mongo:
     image: mongo:3.2
+    networks:
+     - develop
     volumes:
      - ./mongodb:/data/db
 
@@ -10,6 +12,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile-dev
     image: sms-library-helper-backend:dev
+    networks:
+     - develop
     volumes:
       - ./config.yaml:/etc/slh-config.yaml
       - ./backend/src/:/srv/src/
@@ -21,6 +25,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile-dev
     image: sms-library-helper-frontend:dev
+    networks:
+     - develop
     volumes:
      - ./frontend/app/:/srv/app/
     links:
@@ -34,8 +40,14 @@ services:
       context: ./timer
       dockerfile: Dockerfile-dev
     image: sms-library-helper-timer:dev
+    networks:
+     - develop
     volumes:
      - ./config.yaml:/etc/slh-config.yaml
      - ./timer/src/:/srv/src/
     links:
      - mongo
+
+networks:
+  develop:
+    driver: bridge
