@@ -13,7 +13,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile-dev
-    image: sms-library-helper-backend:dev
+    image: holi0317/sms-library-helper-backend:dev
     mem_limit: 512m
     memswap_limit: 1g
     networks:
@@ -28,7 +28,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile-dev
-    image: sms-library-helper-frontend:dev
+    image: holi0317/sms-library-helper-frontend:dev
     mem_limit: 512m
     memswap_limit: 1g
     networks:
@@ -45,7 +45,7 @@ services:
     build:
       context: ./timer
       dockerfile: Dockerfile-dev
-    image: sms-library-helper-timer:dev
+    image: holi0317/sms-library-helper-timer:dev
     mem_limit: 512m
     memswap_limit: 1g
     networks:
