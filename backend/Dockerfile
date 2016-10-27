@@ -1,6 +1,6 @@
 FROM mhart/alpine-node:6.9
 MAINTAINER Holi0317 "holliswuhollis@gmail.com"
-ARG port=61337
+ARG port=3000
 EXPOSE ${port}
 
 # Setup environment variables
