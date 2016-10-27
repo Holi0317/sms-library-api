@@ -17,7 +17,7 @@ export function execute() {
     .then(() => {
       console.log('Cron job ended');
       if (require.main === module) {
-        process.exit(1);
+        process.exit(0);
       }
     })
     .catch(err => {
