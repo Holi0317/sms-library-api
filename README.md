@@ -80,7 +80,7 @@ google:
 # Deploy
 Before deploy, check for the above environment variable section and get all variables ready.
 
-This app uses docker and swarm. Install [docker](https://www.docker.com/products/docker#/linux) before deploy.
+This app uses docker and docker-compose. Install [docker](https://www.docker.com/products/docker#/linux) and [docker-compose](https://docs.docker.com/compose/install/) before deploy.
 
 This app is split into 4 parts. They are
  - Backend - Node.js server for storing business logic
@@ -89,41 +89,41 @@ This app is split into 4 parts. They are
  - MongoDB - Database
 
 ## Directories
-As this app is so simple (and I am not that good at swarm), it assumes only one swarm node is used for deployment.
-
-Therefore, data is saved directly into host drive. The root directory is hard-coded to `/srv/slh`. Data includes:
+Data is saved directly into host drive. The root directory is hard-coded to `/srv/slh`. Data includes:
 ```
 certs/ssl.crt -- HTTPS cert for http server
 certs/ssl.key -- HTTPS private key for http server
 config.yaml -- Configurations file
-mongodb/  -- Database files. Must create this directory.
+mongodb/  -- Database files.
 ```
-
-## Setup swarm nodes
-Some swarm concepts is needed to get started. You may want to [read them first](https://docs.docker.com/engine/swarm/key-concepts/) before start.
- 
-Create at least one swarm node for deployment. Check [here](https://docs.docker.com/engine/swarm/swarm-tutorial/create-swarm/) for instruction.
 
 ## Configuration
 Check Configuration section above to generate an config.yaml file. Then save it to `/srv/slh/config.yaml`.
 
+Yet, the url of mongodb must be `mongodb://mongo/slh`.
+
 ## Build images
-Execute `scripts/build.sh`. That will build all images from source.
+Execute `scripts/pre-build.sh` for pre-build procedure.
+
+Execute `docker-compose build`. To build all images.
 
 Some variables are hard-coded. Those includes:
- - Port for backend service
- - Name of each service
- - Server name for accessing frontend
-
-Those variables are arguments in `Dockerfile`. If you need to change them, do NOT use the build script but build images by hand.
+ - Server name for accessing frontend. `slh.holi0317.net`
 
 As frontend image requires to compile some C++ code, it takes about 5 minutes to do all compiling.
 
 ## Deploy
-Execute `scripts/deploy.sh`. Make sure you have all files set up. Wait for some time and visit port 80 should have the app spinned up.
+Execute `docker-compose up -d`. Make sure you have all files set up. Wait for some time and visit port 80 should have the app started up.
 
 ## Scale
 Only slh-backend can be scaled. Other may have undesired result if they are scaled up.
+
+## Update
+First, build all images with new code. Checkout `build images` section from above.
+
+Second, kill and remove all containers. Execute `docker-compose kill` and then `docker-compose rm`.
+
+Finally, start new containers. Execute `docker-compose up -d`.
 
 # Development environment setup
 This section aims to teach you how to setup development environment and adopt to the workflow of the project.
@@ -180,7 +180,6 @@ Run `docker-compose -f docker-compose-dev.yml build` to (re)build all image.
  - Test: Replace with ava.js
  - Timer: split refresh-calendar task. Seriously I have no idea what I am reading.
  - Build system: Gulp 4
- - Docker: Use docker-compose
  - Backend and frontend: Use material design lite instead of bootstrap
 
 # License
