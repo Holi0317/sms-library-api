@@ -177,6 +177,7 @@ Moreover, if there is change to `custom-typings` or `common`, `scripts/pre-build
 Run `docker-compose -f docker-compose-dev.yml build` to (re)build all image.
 
 # TODO
+ - Backend: Replace mongoDB with SQLite
  - Test: Replace with ava.js
  - Timer: split refresh-calendar task. Seriously I have no idea what I am reading.
  - Build system: Gulp 4
