@@ -8,3 +8,4 @@ npm-debug.log
 frontend/nginx.conf
 mongodb/
 lib/
+slh.sqlite

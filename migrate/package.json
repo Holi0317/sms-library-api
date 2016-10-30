@@ -1,0 +1,24 @@
+{
+  "name": "sms-library-helper-migrate",
+  "version": "0.1.0",
+  "description": "sms-library-helper: Migrate mongodb to SQLite Database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/holi0317/sms-library-helper.git"
+  },
+  "author": "Holi0317 <holliswuhollis@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/holi0317/sms-library-helper/issues"
+  },
+  "homepage": "https://github.com/holi0317/sms-library-helper#readme",
+  "dependencies": {
+    "mongoose": "^4.6.5",
+    "sequelize": "^3.24.6",
+    "sqlite3": "^3.1.8"
+  }
+}
