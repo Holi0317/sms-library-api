@@ -1,6 +1,7 @@
 import {ONE_DAY, MAX_RENEW_TIME} from '../constants';
+import {CronUserData} from '../cron-user-data';
 
-export async function renewBooks(user) {
+export async function renewBooks(user: CronUserData) {
   if (!user.data.renewEnabled || user.failed) {
     return;
   }
@@ -13,14 +14,14 @@ export async function renewBooks(user) {
   for (let book of user.library.borrowedBooks) {  // Each borrowed books.
 
     let diff = book.dueDate.getTime() - now.getTime();
-    if (diff <= user.data.renewDate * ONE_DAY && diff > 0 && book.id) {
+    if (diff <= user.data.renewDate * ONE_DAY && diff > 0 && book.mcode) {
       // If Logic: Less than defined date, more than 0 day and have book ID.
       promises.push(user.library.renewBook(book));    // Create promise.
       renewBooks.push(book.name);    // Logging.
 
       // Create array of books that needs to be notified.
       if (book.renewal === MAX_RENEW_TIME - 1) {
-        user.emailMsgID.push(book.id);
+        user.emailMsgID.push(book.mcode);
       }
     }
   }

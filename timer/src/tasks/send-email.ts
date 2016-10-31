@@ -1,6 +1,7 @@
 import {MAIL_TEMPLATE, MAIL_SENDER, MAIL_SUBJECT} from '../constants';
 import {gmailSend} from '../common/promisify';
 import {config} from '../common/config';
+import {CronUserData} from '../cron-user-data';
 
 /**
  * Create a Email content following the RFC2822 format. (The one used by Gmail)
@@ -13,7 +14,7 @@ import {config} from '../common/config';
  * @param {String} body - Text content of the email.
  * @returns {String} - Base64 encoded email message.
  */
-function makeEmail(from_, to, subject, body) {
+function makeEmail(from_: string, to: string, subject: string, body: string) {
   let lines = [
     'Content-Type: text/plain; charset="UTF-8"',
     'MIME-Version: 1.0',
@@ -29,7 +30,7 @@ function makeEmail(from_, to, subject, body) {
   return new Buffer(mail).toString('base64');
 }
 
-export async function sendEmail(user) {
+export async function sendEmail(user: CronUserData) {
   if (!user.data.renewEnabled || user.failed || !user.data.emailEnabled) {
     return;
   }

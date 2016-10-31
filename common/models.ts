@@ -3,6 +3,28 @@ import {config} from './config';
 
 export type LogLevels = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'FATAL' | 'SUCCESS';
 
+export interface IUser {
+  refreshToken: string
+  accessToken: string
+  googleID: string
+  renewEnabled: boolean
+  libraryLogin: string
+  libraryPassword: string
+  renewDate: string
+  calendarEnabled: string
+  calendarName: string
+  emailEnabled: boolean
+  emailAddress: string
+  isAdmin: boolean
+}
+
+export interface ILog {
+  userID: string
+  time: Date
+  message: string
+  level: LogLevels
+}
+
 export const User = config.sequelize.define('User', {
   refreshToken: {
     type: Sequelize.STRING,
@@ -70,17 +92,6 @@ export const User = config.sequelize.define('User', {
     type: Sequelize.BOOLEAN,
     allowNull: false,
     defaultValue: false
-  }
-}, {
-  classMethod: {
-    log(message: string, level: LogLevels = 'INFO') {
-      return Logs.create({
-        userID: this.googleID,
-        time: new Date(),
-        message,
-        level
-      });
-    }
   }
 });
 

@@ -1,13 +1,33 @@
 import {MAX_LOG_RECORD} from '../constants';
+import {CronUserData} from '../cron-user-data';
+import {Logs} from '../common/models';
 
-export async function save(user) {
+export async function save(user: CronUserData) {
   if (user.failed) {
     user.log('Cron job failed.', 'FATAL');
   } else {
     user.log('Cron job succeed.', 'SUCCESS');
   }
 
-  user.data.logs.sort((a, b) => b.time - a.time);
-  user.data.logs = user.data.logs.slice(0, MAX_LOG_RECORD);
-  await user.data.save();
+  await Logs.bulkCreate(user.logs);
+  let results = await Logs.findAndCountAll({
+    attributes: ['id'],
+    where: {
+      userID: user.data.googleID
+    },
+    order: 'time DESC',
+    limit: 1,
+    offset: MAX_LOG_RECORD
+  });
+
+  // console.log('results = ', results);
+  if (results.count > MAX_LOG_RECORD) {
+    await Logs.destroy({
+      where: {
+        id: {
+          $lt: results.id
+        }
+      }
+    })
+  }
 }

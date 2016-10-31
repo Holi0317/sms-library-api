@@ -1,4 +1,5 @@
 import {CronUserData} from '../cron-user-data';
+import {User} from '../common/models';
 
 export async function refreshToken(user: CronUserData) {
 
@@ -14,8 +15,12 @@ export async function refreshToken(user: CronUserData) {
 
   user.log('Refreshed Google tokens.', 'DEBUG');
   // OAuth2 does not pass back refresh_token.
-  newTokens.refresh_token = user.data.tokens.refresh_token;
-  user.data.tokens = newTokens;
-  await user.data.save();
+  await User.update({
+    accessToken: newTokens.access_token
+  }, {
+    where: {
+      googleID: user.data.googleID
+    }
+  });
 
 }

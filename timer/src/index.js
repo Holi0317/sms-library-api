@@ -1,12 +1,17 @@
-import './common/promisify';
-import {UserModel} from './common/models';
-import * as tasks from './tasks';
+require('./common/promisify');
+const User = require('./common/models').User;
+const config = require('./common/config').config;
+const tasks = require('./tasks');
 
-export function execute() {
+function execute() {
   console.log('Started cron job.');
 
-  return UserModel.find()
+  return config.sequelize.sync()
+    .then(() => {
+      return User.findAll();
+    })
     .then(tasks.upgradeUser)
+    .then(tasks.logStarted)
     .then(tasks.refreshToken)
     .then(tasks.login)
     .then(tasks.renewBooks)
@@ -28,6 +33,8 @@ export function execute() {
     });
 
 }
+
+module.exports = execute;
 
 if (require.main === module) {
   execute();
