@@ -46,6 +46,8 @@ services:
     volumes:
      - ./config.yaml:/etc/slh-config.yaml
      - ./timer/src/:/srv/src/
+     - ./timer/tasks:/srv/tasks/
+     - ./timer/gulpfile.js:/srv/gulpfile.js
      - ./slh.sqlite:/data/db.sqlite
 
 networks:
