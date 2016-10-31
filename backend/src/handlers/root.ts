@@ -1,5 +1,5 @@
 import {Request, Response, Next} from '../IExpress';
-import {UserModel, Log, UserDocument} from '../common/models';
+import {User, Logs} from '../common/models';
 import {oauth2clientFactory} from '../common/utils';
 import validateUser from '../validate/user-update';
 import {plusPeopleGet} from '../common/promisify';
@@ -11,20 +11,21 @@ import {plusPeopleGet} from '../common/promisify';
  */
 export async function index(req: Request, res: Response) {
   if (req.logined) {
-    let result = await UserModel.findOne({
-      googleId: req.session.googleId
-    })
-      .select({
-        id_: 0,
-        tokens: 0,
-        libraryPassword: 0,
-        googleId: 0
-      }) as UserDocument;
-
-    result.logs.sort((a, b) => {
-      return b.time.getTime() - a.time.getTime();
+    let result = await User.findOne({
+      where: {
+        googleID: req.session.googleID
+      }
     });
-    return res.render('user', {user: result});
+
+    let logs = await Logs.findAll({
+      attributes: ['time', 'message', 'level'],
+      where: {
+        userID: req.session.googleID
+      },
+      order: 'time DESC'
+    });
+
+    return res.render('user', {user: result, logs});
   } else {
     return res.render('index');
   }
@@ -76,7 +77,8 @@ export async function googleCallback(req, res) {
     // Get Google+ profile, googleID
     let plusResponse = await plusPeopleGet({userId: 'me', auth: oauth2client});
     req.session.name = plusResponse.displayName;
-    req.session.googleId = plusResponse.id;
+    req.session.googleID = plusResponse.id;
+    let googleID = req.session.googleID;
 
     // Get Email
     let email = '';
@@ -90,24 +92,37 @@ export async function googleCallback(req, res) {
     }
 
     // Save information into Database
-    let db = await UserModel.findOneAndUpdate({
-      googleId: req.session.googleId
-    }, {
-      $setOnInsert: {
-        tokens: req.session.tokens,
-        googleId: req.session.googleId,
+    let [instance, created] = await User.findOrCreate({
+      where: {
+        googleID
+      },
+      defaults: {
+        refreshToken: tokens.refresh_token,
+        accessToken: tokens.access_token,
+        googleID,
         emailAddress: email
       }
-    }, {
-      upsert: true
-    }) as UserDocument;
+    });
 
-    if (db === null) {
-      // New user. TODO Show greeting in flash.
+    if (!created && ((tokens.refresh_token && instance.refreshToken !== tokens.refresh_token) || instance.accessToken !== tokens.access_token)) {
+      let value = {
+        refreshToken: tokens.refresh_token,
+        accessToken: tokens.access_token
+      };
+      if (!value.refreshToken) {
+        delete value.refreshToken;
+      }
+      await User.update(value, {
+        where: {
+          googleID
+        }
+      });
     }
+
     return res.redirect(req.app.namedRoutes.build('root.index'));
   } catch (err) {
-    res.status(401).render('auth-fail');
+    console.error(err);
+    return res.status(401).render('auth-fail');
   }
 
 }
@@ -157,11 +172,8 @@ export namespace user {
       });
     }
 
-    let message = new Log('Changed user profile.');
-    let doc = await UserModel.findOneAndUpdate({
-      googleId: req.session.googleId
-    }, {
-      $set: {
+    try {
+      let [affectedCount, affectedRows] = await User.update({
         libraryLogin: body.libraryLogin,
         libraryPassword: body.libraryPassword,
         renewEnabled: body.renewEnabled,
@@ -170,20 +182,33 @@ export namespace user {
         calendarEnabled: body.calendarEnabled,
         emailEnabled: body.emailEnabled,
         emailAddress: body.emailAddress
-      },
-      $push: {
-        logs: message
-      }
-    });
+      }, {
+        where: {
+          googleID: req.session.googleID
+        }
+      });
 
-    if (doc) {
+      if (affectedCount === 0) {
+        return res.status(404).json({
+          message: 'Cannot find corresponding user in database',
+          ok: false
+        });
+      }
+
+      await Logs.create({
+        userID: req.session.googleID,
+        time: new Date(),
+        message: 'Changed user profile.',
+        level: 'INFO'
+      });
+
       return res.json({
         message: 'Successfully updated data.',
         ok: true
       });
-    } else {
+    } catch (err) {
       return res.status(500).json({
-        message: 'Cannot find corresponding user in database',
+        message: 'Error when dealing with update data.',
         ok: false
       });
     }
@@ -197,14 +222,22 @@ export namespace user {
     // Remove user
     let oauth2client = oauth2clientFactory();
     oauth2client.setCredentials(req.session.tokens);
-    let googleId = req.session.googleId;
+    let googleID = req.session.googleID;
 
     try {
       await oauth2client.revokeCredentialsAsync();
 
-      await UserModel.findOne({
-        googleId: googleId
-      }).remove();
+      await User.destroy({
+        where: {
+          googleID
+        }
+      });
+
+      await Logs.destroy({
+        where: {
+          userID: googleID
+        }
+      });
 
       await new Promise(function(resolve, reject) {
         // Express session cannot be promisify-ed by Bluebird. Donno why(Just me being lazy)
@@ -223,7 +256,7 @@ export namespace user {
     } catch (err) {
       req.session.flash = 'Cannot delete your account due to server issue.';
       return res.status(500).json({
-        message: 'Delection failed. Server error occured.',
+        message: 'Delete failed. Server error occurred.',
         ok: false
       });
     }
@@ -245,6 +278,6 @@ export function logout(req: Request, res: Response) {
 /**
  * Troll.
  */
-export function troll(req, res) {
+export function troll(req: Request, res: Response) {
   return res.status(418).render('418');
 }

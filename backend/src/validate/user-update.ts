@@ -3,7 +3,7 @@ import './validator-fn';
 import './validator-type';
 
 import Library from '../common/library';
-import {UserModel} from '../common/models';
+import {User} from '../common/models';
 
 validate.Promise = Promise;
 
@@ -76,25 +76,27 @@ export const constraints = {
  *
  * @private
  * @param {Object} data - Data to be validated, which has passed validate.js.
- * @param {string} googleId - Google ID of the user. Used to check dupe login ID.
+ * @param {string} googleID - Google ID of the user. Used to check dupe login ID.
  * @returns {Promise} - Promise to be chained after validate.js.
  * @throws {error} - Library login/password is incorrect.
  * @throws {error} - Duplicate user ID found in database.
  */
-export async function afterValidate(data, googleId) {
+export async function afterValidate(data: any, googleID: string) {
 
   if (data.renewEnabled) {
     let userLibrary = new Library();
     await userLibrary.checkLogin(data.libraryLogin, data.libraryPassword);
 
-    let res = await UserModel.find({
-      libraryLogin: data.libraryLogin,
-      googleId: {
-        $ne: googleId
+    let res = await User.findAndCountAll({
+      where: {
+        libraryLogin: data.libraryLogin,
+        googleID: {
+          $ne: googleID
+        }
       }
     });
 
-    if (res.length) {
+    if (res > 0) {
       throw new Error('Duplicate user ID found in Database. Did you register in the past?');
     }
   }

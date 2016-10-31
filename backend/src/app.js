@@ -1,18 +1,16 @@
-import {join} from 'path';
-import * as express from 'express';
-import {Application, Request, Response} from './IExpress';
-import {ExpressError} from './common/utils';
-import * as logger from 'morgan';
-import * as bodyParser from 'body-parser';
-import * as helmet from 'helmet';
-import * as session from 'express-session';
-import * as connectMongo from 'connect-mongo';
-let MongoStore = connectMongo(session);
+const join = require('path').join;
+const express = require('express');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const session = require('express-session');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
-import {SetRouter} from './router';
-import {config} from './common/config';
+const router = require('./router');
+const config = require('./common/config').config;
 
-export let app = express() as Application;
+let app = express();
+module.exports = app;
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -27,11 +25,11 @@ if (app.get('env') === 'development') {
 }
 
 // Session
-let sess: session.SessionOptions = {
+let sess = {
   secret: config.secret,
   resave: false,
   saveUninitialized: false,
-  name : 'sessionId',
+  name : 'sessionID',
   cookie: {
     maxAge: 8.64e+7, // 1 day
   },
@@ -39,11 +37,13 @@ let sess: session.SessionOptions = {
 if (app.get('env') === 'production') {
   app.set('trust proxy', 1);
   sess.cookie.secure = true;
-  sess.store = new MongoStore({ mongooseConnection: config.conn });
+  sess.store = new SequelizeStore({
+    db: config.sequelize
+  });
 }
 app.use(session(sess));
 
-app.use((req: Request, res: Response, next) => {
+app.use((req, res, next) => {
   res.locals.session = req.session;
   req.logined = Boolean(req.session.tokens);
   res.locals.logined = req.logined;
@@ -53,20 +53,20 @@ app.use((req: Request, res: Response, next) => {
 });
 
 // Routes
-SetRouter(app);
+router.SetRouter(app);
 app.get('*', function(req, res) {
   res.status(404).render('error', {code: 404, message: 'Page not found'});
 });
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  let err = new ExpressError('Not Found');
+app.use((req, res, next) => {
+  let err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // error handlers
-app.use(function(err: ExpressError, req: Request, res: Response) {
+app.use((err, req, res) => {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,

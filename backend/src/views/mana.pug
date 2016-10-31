@@ -29,8 +29,8 @@ block content
               th Admin?
             tbody
               for people in data.db
-                tr.clickable-row(data-href=url('mana.getUser', {user: people.googleId}))
-                  td= people.googleId
+                tr.clickable-row(data-href=url('mana.getUser', {user: people.googleID}))
+                  td= people.googleID
                   if people.libraryLogin
                     td= people.libraryLogin
                   else

@@ -1,6 +1,6 @@
 import {Request, Response, Next} from '../IExpress';
 import {config} from '../common/config';
-import {UserModel, Log, UserDocument} from '../common/models';
+import {User, Logs} from '../common/models';
 import {oauth2clientFactory} from '../common/utils';
 import validateUser from '../validate/user-update';
 import {plusPeopleGet} from '../common/promisify';
@@ -16,18 +16,27 @@ export async function middleware(req: Request, res: Response, next: Next) {
   }
 
   // Populate user from database.
-  let result = await UserModel.findOne({
-    googleId: req.session.googleId
-  }) as UserDocument;
+  let result = await User.findOne({
+    attributes: ['isAdmin', 'googleID'],
+    where: {
+      googleID: req.session.googleID
+    }
+  });
 
-  if (result.googleId === config.adminID) {
-    result.isAdmin = true
+  if (result.googleID === config.adminID && !result.isAdmin) {
+    await User.update({
+      isAdmin: true
+    }, {
+      where: {
+        googleID: req.session.googleID
+      }
+    });
+    return next();
   }
   if (!result.isAdmin) {
     res.status(404).render('error', {code: 404, message: 'Page not found'});
     return
   }
-  await result.save();
   next();
 
 }
@@ -36,9 +45,9 @@ export async function middleware(req: Request, res: Response, next: Next) {
  * Query from database and render management page.
  */
 export async function index(req: Request, res: Response) {
-  let result = await UserModel.find()
-  .sort({
-    googleId: -1
+  let result = await User.findAll({
+    attributes: ['googleID', 'libraryLogin', 'renewEnabled', 'isAdmin'],
+    order: 'googleID DESC'
   });
 
   return res.render('mana', {
@@ -55,29 +64,45 @@ export async function index(req: Request, res: Response) {
  * Query database, get user name from Google and render user management page.
  */
 export async function getUser(req: Request, res: Response) {
-  let result = await UserModel.findOne({
-    googleId: req.params.user
-  }) as UserDocument;
+  try {
+    let result = await User.findOne({
+      where: {
+        googleID: req.params.user
+      }
+    });
+    let logs = await Logs.findAll({
+      attributes: ['time', 'message', 'level'],
+      where: {
+        userID: req.params.user
+      },
+      order: 'time DESC'
+    });
 
-  if (!result) {
-    return res.render('mana-no-user');
+    if (result == null) {
+      return res.render('mana-no-user');
+    }
+
+    let oauth2client = oauth2clientFactory();
+    oauth2client.setCredentials({
+      refresh_token: result.refreshToken,
+      access_token: result.accessToken
+    });
+
+    let googleRes = await plusPeopleGet({userId: 'me', auth: oauth2client});
+    return res.render('mana-user', {data: result, logs, name: googleRes.displayName});
+  } catch (err) {
+    console.error(err);
+    return res.status(500).render('error', {
+
+    });
   }
 
-  result.logs.sort((a: Log, b: Log) => {
-    return b.time.getTime() - a.time.getTime();
-  });
-
-  let oauth2client = oauth2clientFactory();
-  oauth2client.setCredentials(result.tokens);
-
-  let googleRes = await plusPeopleGet({userId: 'me', auth: oauth2client});
-  return res.render('mana-user', {data: result, name: googleRes.displayName});
 }
 
 /**
  * Edit user data, by the command of magic/mana.
  */
-export async function postUser(req, res) {
+export async function postUser(req: Request, res: Response) {
   if (!req.is('json')) {
     // Only accept JSON request
     return res.status(406).json({
@@ -86,11 +111,9 @@ export async function postUser(req, res) {
     });
   }
 
-  let body: UserDocument = req.body;
-
   // Validation
   try {
-    await validateUser(body, req.params.user);
+    await validateUser(req.body, req.params.user);
   } catch (err) {
     res.status(400).json({
       message: err.message,
@@ -98,25 +121,27 @@ export async function postUser(req, res) {
     });
   }
 
-  let message = new Log('An admin has changed your configuration.', 'WARN');
+  try {
+    await User.update({
+      libraryLogin: req.body.libraryLogin,
+      libraryPassword: req.body.libraryPassword,
+      renewEnabled: req.body.renewEnabled,
+      renewDate: req.body.renewDate,
+      calendarName: req.body.calendarName,
+      isAdmin: req.body.isAdmin
+    }, {
+      where: {
+        googleID: req.params.user
+      }
+    });
 
-  let result = await UserModel.findOneAndUpdate({
-    googleId: req.params.user
-  }, {
-    $set: {
-      libraryLogin: body.libraryLogin,
-      libraryPassword: body.libraryPassword,
-      renewEnabled: body.renewEnabled,
-      renewDate: body.renewDate,
-      calendarName: body.calendarName,
-      isAdmin: body.isAdmin
-    },
-    $push: {
-      logs: message
-    }
-  }) as UserDocument;
-
-  if (!result) {
+    await Logs.create({
+      UserID: req.params.user,
+      time: new Date(),
+      message: 'An admin has changed your configuration.',
+      level: 'WARN'
+    });
+  } catch (err) {
     return res.status(404).json({
       message: 'No such user.',
       ok: false

@@ -1,7 +1,7 @@
 let gulp = require('gulp');
 let nodemon = require('nodemon');
 
-gulp.task('serve', ['compile', 'copy:view'], cb => {
+gulp.task('serve', ['compile', 'copy:view', 'copy:js'], cb => {
   nodemon({
     script: 'startserver.js',
     watch: ['lib/'],
@@ -16,5 +16,6 @@ gulp.task('serve', ['compile', 'copy:view'], cb => {
 
   gulp.watch('src/**/*.ts', ['compile']);
   gulp.watch('src/**/*.pug', ['copy:view']);
+  gulp.watch('src/**/*.js', ['copy:js']);
 
 });

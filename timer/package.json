@@ -16,15 +16,10 @@
   },
   "devDependencies": {
     "@types/bluebird": "^3.0.35",
-    "@types/body-parser": "0.0.33",
     "@types/cheerio": "^0.17.31",
-    "@types/connect-mongo": "0.0.31",
     "@types/express": "^4.0.33",
-    "@types/express-session": "0.0.32",
-    "@types/helmet": "0.0.33",
     "@types/js-yaml": "^3.5.28",
     "@types/lodash": "^4.14.37",
-    "@types/mongoose": "^4.5.38",
     "@types/node-fetch": "0.0.4",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
@@ -41,8 +36,9 @@
     "js-yaml": "^3.6.1",
     "lodash.clonedeep": "^4.5.0",
     "lodash.template": "^4.4.0",
-    "mongoose": "^4.6.4",
     "node-fetch": "^1.6.3",
+    "sequelize": "^3.24.6",
+    "sqlite3": "^3.1.8",
     "validate.js": "^0.10.0"
   }
 }

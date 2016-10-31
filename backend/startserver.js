@@ -1,6 +1,7 @@
 'use strict';
 
-var app = require('./lib/app').app;
+var app = require('./lib/app');
+var config = require('./lib/common/config').config;
 var debug = require('debug')('sms-library-helper:server');
 var http = require('http');
 
@@ -21,7 +22,10 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+config.sequelize.sync()
+  .then(() => {
+    server.listen(port);
+  });
 server.on('error', onError);
 server.on('listening', onListening);
 

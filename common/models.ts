@@ -1,105 +1,105 @@
-import * as mongoose from 'mongoose';
+import * as Sequelize from 'sequelize';
 import {config} from './config';
-import * as Promise from 'bluebird';
-
-mongoose.Promise = Promise;
 
 export type LogLevels = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'FATAL' | 'SUCCESS';
 
-export let userSchema = new mongoose.Schema({
-  tokens: mongoose.Schema.Types.Mixed,
-  googleId: String,
-  libraryLogin: String,
-  libraryPassword: String,
-  renewDate: {
-    type: Number,
-    max: 13,
-    min: 2,
-    default: 3
+export const User = config.sequelize.define('User', {
+  refreshToken: {
+    type: Sequelize.STRING,
+    allowNull: false
   },
+  accessToken: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+
+  googleID: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+
   renewEnabled: {
-    type: Boolean,
-    default: false
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+    allowNull: false
   },
+  libraryLogin: {
+    type: Sequelize.STRING,
+    allowNull: true,
+    unique: true
+  },
+  libraryPassword: {
+    type: Sequelize.STRING,
+    allowNull: true
+  },
+  renewDate: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 3,
+    validate: {
+      max: 13,
+      min: 2
+    }
+  },
+
   calendarEnabled: {
-    type: Boolean,
-    default: false
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   },
   calendarName: {
-    type: String,
-    default: 'slh autorenew'
+    type: Sequelize.STRING,
+    allowNull: true,
+    defaultValue: 'slh autorenew'
   },
+
   emailEnabled: {
-    type: Boolean,
-    default: false
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   },
-  emailAddress: String,
-  isAdmin: {
-    type: Boolean,
-    default: false
-  },
-  logs: [{
-    time: Date,
-    message: String,
-    level: {
-      type: String,
-      enum: 'DEBUG INFO WARN ERROR FATAL SUCCESS'.split(' ')
+  emailAddress: {
+    type: Sequelize.STRING,
+    allowNull: true,
+    validate: {
+      isEmail: true
     }
-  }]
+  },
+
+  isAdmin: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  }
+}, {
+  classMethod: {
+    log(message: string, level: LogLevels = 'INFO') {
+      return Logs.create({
+        userID: this.googleID,
+        time: new Date(),
+        message,
+        level
+      });
+    }
+  }
 });
 
-export interface UserDocument extends mongoose.Document {
-  tokens: {
-    access_token: string
-    refresh_token?: string
+export const Logs = config.sequelize.define('Logs', {
+  userID: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  time: {
+    type: Sequelize.DATE,
+    allowNull: false,
+    defaultValue: Sequelize.NOW
+  },
+  message: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  level: {
+    type: Sequelize.ENUM('DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL', 'SUCCESS'),
+    allowNull: false
   }
-  googleId: string
-  libraryLogin: string
-  libraryPassword: string
-  renewDate: number
-  renewEnabled: boolean
-  calendarEnabled: boolean
-  calendarName: string
-  emailEnabled: boolean
-  emailAddress: string
-  isAdmin: boolean
-  logs: Log[]
-  log: (message: string, level?: LogLevels) => void
-}
-
-/**
- * Instance method.
- * Append a log entry into user document.
- * Does NOT perform save action.
- *
- * @param message - Message to be logged.
- * @param level - Level of the log message.
- * They will not be validated until it is written into database.
- */
-userSchema.methods.log = function(message: string, level: LogLevels) {
-  let msg = new Log(message, level);
-  this.logs.push(msg);
-};
-
-/**
- * Helper class for a log message.
- *
- * @class
- * @private
- * @param {string} message - Message to be logged.
- * @param {string} [level=DEBUG] - Level of the log message. Valid levels: DEBUG, INFO, WARN, ERROR, FATAL, SUCCESS.
- * They will not be validicated until it is written into database.
- *
- * @prop {string} level - Level of the message.
- * @prop {string} message - Message content.
- * @prop {Date} time - Time of this message being created.
- */
-export class Log {
-  public time: Date;
-
-  constructor(public message: string, public level: LogLevels = 'INFO') {
-    this.time = new Date();
-  }
-}
-
-export const UserModel = config.conn.model('User', userSchema);
+});

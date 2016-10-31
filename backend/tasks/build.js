@@ -4,7 +4,7 @@ let runSequence = require('run-sequence');
 gulp.task('build', cb => {
   runSequence(
     'clean',
-    ['compile', 'copy:view'],
+    ['compile', 'copy:view', 'copy:js'],
     cb
   )
 });

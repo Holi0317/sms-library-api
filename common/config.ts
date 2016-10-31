@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as url from 'url';
-import * as mongoose from 'mongoose';
+import * as Sequelize from 'sequelize';
 import * as google from 'googleapis';
 import * as yaml from 'js-yaml';
 
@@ -8,10 +8,7 @@ export interface YAMLConfDoc {
   adminID: string
   secret: string
   baseURL: string
-  mongo: {
-    url: string
-    config: any
-  }
+  sqlite: string
   google: {
     clientID: string
     clientSecret: string
@@ -31,7 +28,7 @@ export interface YAMLConfDoc {
 }
 
 interface ConfigInterface {
-  conn: mongoose.Connection
+  sequelize: Sequelize
   adminID: string
   secret: string
   clientID: string
@@ -45,7 +42,9 @@ export let config: ConfigInterface;
 if (process.env.TRAVIS) {
 
   config = {
-    conn: mongoose.createConnection('mongodb://localhost/noop'),
+    sequelize: Sequelize(null, null, null, {
+      dialect: 'sqlite'
+    }),
     adminID: 'Google ID for admin',
     secret: 'Generate a totally random string here.',
     clientID: 'Client ID got from console.developer.google.com',
@@ -53,14 +52,16 @@ if (process.env.TRAVIS) {
     redirectUrl: 'http://localhost:3000/oauth2callback',
     jwt: 'JWT'
   };
-  config.conn.on('error', ()=>{});
 
 } else if (process.env.SLH_CONFIG_PATH) {
 
   let doc = yaml.safeLoad(fs.readFileSync(process.env.SLH_CONFIG_PATH, 'utf8')) as YAMLConfDoc;
   let jwt = doc.google.jwt;
   config = {
-    conn: mongoose.createConnection(doc.mongo.url, doc.mongo.config),
+    sequelize: new Sequelize(null, null, null, {
+      dialect: 'sqlite',
+      storage: doc.sqlite
+    }),
     adminID: doc.adminID,
     secret: doc.secret,
     clientID: doc.google.clientID,

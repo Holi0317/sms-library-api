@@ -1,14 +1,5 @@
 version: '2'
 services:
-  mongo:
-    image: mongo:3.2
-    mem_limit: 512m
-    memswap_limit: 1g
-    networks:
-     - develop
-    volumes:
-     - ./mongodb:/data/db
-
   backend:
     build:
       context: ./backend
@@ -21,8 +12,10 @@ services:
     volumes:
       - ./config.yaml:/etc/slh-config.yaml
       - ./backend/src/:/srv/src/
-    links:
-     - mongo
+      - ./backend/tasks/:/srv/tasks/
+      - ./backend/startserver.js:/srv/startserver.js
+      - ./backend/gulpfile.js:/srv/gulpfile.js
+      - ./slh.sqlite:/data/db.sqlite
 
   frontend:
     build:
@@ -53,8 +46,7 @@ services:
     volumes:
      - ./config.yaml:/etc/slh-config.yaml
      - ./timer/src/:/srv/src/
-    links:
-     - mongo
+     - ./slh.sqlite:/data/db.sqlite
 
 networks:
   develop:

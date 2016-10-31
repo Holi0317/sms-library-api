@@ -10,7 +10,7 @@ block content
         h3.panel-title Overview
       .panel-body
         p Name: #{name}
-        p GoogleID: #{data.googleId}
+        p GoogleID: #{data.googleID}
         p Is admin? #[span: +tickCross(data.isAdmin)]
         p Enabled renew? #[span: +tickCross(data.renewEnabled)]
         if data.libraryLogin
@@ -27,7 +27,7 @@ block content
       .panel-body
         .alert.alert-warning.fade.in(role='alert')
           p Editing this will be logged in system. Think carefully.
-        form.form-horizontal(data-async, action=url('mana.postUser', {user: data.googleId}), method='POST', validator='mana')
+        form.form-horizontal(data-async, action=url('mana.postUser', {user: data.googleID}), method='POST', validator='mana')
           fieldset
 
             +form_togglebutton('Enable auto renew', 'renewEnabled', data.renewEnabled)
@@ -52,4 +52,4 @@ block content
             +form_togglebutton('Is admin?', 'isAdmin', data.isAdmin)
             +form_submit('Submit')
 
-  +showLog(data.logs)
+  +showLog(logs)

@@ -1,5 +1,6 @@
 import {Request, Response} from '../IExpress';
-import {UserModel} from '../common/models';
+import {config} from '../common/config';
+import {User, Logs} from '../common/models';
 import {oauth2clientFactory} from '../common/utils';
 
 /**
@@ -52,35 +53,39 @@ export namespace session {
 
 export namespace db {
   /**
-   * List contents in mongoDB users collection and render as json.
+   * List contents in SQLite users collection and render as json.
    *
    * @throws {Error} - Error when querying.
    */
   export async function users(req: Request, res: Response) {
     try {
-      let data = await UserModel.find();
-      return res.json(data);
+      let users = await User.findAll();
+      let logs = await Logs.findAll();
+      return res.json({
+        users,
+        logs
+      });
     } catch (err) {
       return res.status(500).json({
-        message: 'Error when quering users.'
+        message: 'Error when quering database.'
       });
     }
   }
 
   /**
-   * Drop all contents in mongoDB users collection.
+   * Drop all contents in SQLite.
    *
    * @throws {Error} - Error when dropping.
    */
   export async function usersDrop(req: Request, res: Response) {
     try {
-      await UserModel.remove({});
+      await config.sequelize.drop();
       return res.json({
-        message: 'Dropped all data in user collection.'
+        message: 'Dropped all data.'
       });
     } catch (err) {
       return res.status(500).json({
-        message: 'Error when dropping users.'
+        message: 'Error when dropping data.'
       });
     }
   }
