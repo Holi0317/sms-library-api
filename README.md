@@ -1,5 +1,4 @@
 # sms-library-helper
-
 Library helper for St. Mark's School.
 
 # Brief introduction
@@ -8,12 +7,21 @@ Well, this tool will help user to auto-renew book and add due date to Google cal
 # Deployed site
 [Here](https://slh.holi0317.net/)
 
+# Migration from 0.1.0 to 0.2.x
+Starting from 0.2.0, the project uses SQLite as database instead of MongoDB.
+
+In order to migrate database, a migrate script is written.
+
+Checkout migrate/README.md for details.
+
 # Configuration
 Both backend and frontend requires configuration. This app uses [yaml](https://en.wikipedia.org/wiki/YAML) for configuration.
 
 The yaml file can be stored anywhere in your filesystem. Then, set the environment variable, `SLH_CONFIG_PATH`, that points to the yaml file before starting the application
  
 The `SLH_CONFIG_PATH` environment variable must be presented in absolute path, to avoid confusion.
+
+If it is executed in a docker container with provided Dockerfile, the environmental variable can be ignored. 
 
 ## Required information for Google OAuth2
 In order to get this app up and running, we need to have some information from Google.
@@ -40,27 +48,24 @@ A file should be downloaded and save that up for configuration.
 ## Example
 The following is an example of config.yaml, with comments that should explain each variable usage
 ```yaml
-# Configuration section for mongoDB, database.
-mongo:
-  url: mongodb://mongo/sms-library-helper  # This is the URL endpoint of mongoDB
-  config:  # This is an object (or Associative arrays) for storing mongoose (mongoDB ORM for node) config. Read http://mongoosejs.com/docs/guide.html#options for details
-    user: sms-library-helper
-    pass: password
-    auth:
-      authSource: admin
+# Configuration section for SQLite, database.
+sqlite: /data/db.sqlite  # Point to the SQLite file
 
 # Google ID of the first administrator. You can get this during development.
 # If this is left empty, no one can access the admin page. Yet other function does not affect.
-adminID: 116369226224988015839
+adminID: '116369226224988015839' # Remember the quote
+
 # Session secret for express.js. It must be randomized and not exposed to others. Recommended to use password generator to generate this.
+# Avoid secret that contains quotes ('' and ""). They may cause parsing error to yaml. 
 secret: =r2vRXSJvHu;jNT4nx2`!$$9vd0ET
+
 # Base URL of deployed location. Remember to include scheme(https://) and the tailing slash
 baseURL: http://localhost:3000/
 
 # Google OAuth2 configuration
 google:
   # clientID. Generated from Google Developer Console
-  clientID: ######.apps.googleusercontent.com
+  clientID: aaaa.apps.googleusercontent.com
   # clientSecret: Generated from Google Developer Console.
   clientSecret: fake_client_secret
   # A jwt (service account) token used for sending Gmail
@@ -86,7 +91,6 @@ This app is split into 4 parts. They are
  - Backend - Node.js server for storing business logic
  - Frontend - A reverse proxy and static file server using nginx
  - Timer - Cron job for renewing books and other functions
- - MongoDB - Database
 
 ## Directories
 Data is saved directly into host drive. The root directory is hard-coded to `/srv/slh`. Data includes:
@@ -94,31 +98,42 @@ Data is saved directly into host drive. The root directory is hard-coded to `/sr
 certs/ssl.crt -- HTTPS cert for http server
 certs/ssl.key -- HTTPS private key for http server
 config.yaml -- Configurations file
-mongodb/  -- Database files.
+slh.sqlite -- SQLite database
 ```
+
+A ssl certificate and key must be prepared. Checkout [Arch Wiki](https://wiki.archlinux.org/index.php/nginx#TLS.2FSSL) creation tutorial.
+
+The slh.sqlite must be a file. If you are doing a whole new deployment, remember to `touch /srv/slh/slh.sqlite` before preceding.
 
 ## Configuration
 Check Configuration section above to generate an config.yaml file. Then save it to `/srv/slh/config.yaml`.
 
-Yet, the url of mongodb must be `mongodb://mongo/slh`.
+You must follow the following rules:
+ - sqlite must equal to `/data/db.sqlite`
 
 ## Build images
-Execute `scripts/pre-build.sh` for pre-build procedure.
+Execute `scripts/pre-build.sh` for pre-build procedure. You __MUST__ do this. Otherwise build will fail.
 
 Execute `docker-compose build`. To build all images.
 
 Some variables are hard-coded. Those includes:
  - Server name for accessing frontend. `slh.holi0317.net`
 
+They cannot be changed unless modifying code.
+
 As frontend image requires to compile some C++ code, it takes about 5 minutes to do all compiling.
 
 ## Deploy
 Execute `docker-compose up -d`. Make sure you have all files set up. Wait for some time and visit port 80 should have the app started up.
 
+The service should restart automatically after reboot and restart on failure.
+
 ## Scale
-Only slh-backend can be scaled. Other may have undesired result if they are scaled up.
+Only backend can be scaled. Other may have undesired result if they are scaled up.
 
 ## Update
+If there are migration guide exists, read through them before doing upgrade.
+
 First, build all images with new code. Checkout `build images` section from above.
 
 Second, kill and remove all containers. Execute `docker-compose kill` and then `docker-compose rm`.
@@ -148,15 +163,14 @@ Use any command shell to execute `scripts/pre-build.sh` before building.
  
 If there is any changes to `common/` or `custom-typings/`, execute `scripts/pre-build.sh` again.
 
+Also, create a empty text file called `slh.sqlite` at the root repository directory.
+
 ## Create configuration file
 Refer to [Configuration](#Configuration), create a configuration file for development process.
  
-__Important note__: In the configuration file, url of mongo should be `mongodb://mongo/slh-development`. And baseUrl should be `http://localhost:3000/`
+__Important note__: In the configuration file, sqlite should be `/data/db.sqlite`. And baseUrl should be `http://localhost:3000/`
 
-Save that to `config.yaml` at the root directory. git will ignore it.
-
-## Create directory for mongodb
-Simply create an empty directory named `mongodb` at root directory. It will be filled up with mongodb files later.
+Save that to `config.yaml` at the root repository directory. git will ignore it.
 
 ## Build and start frontend server
 Execute `docker-compose -f docker-compose-dev.yml up frontend`. A server will be started on `localhost:3000`.
@@ -165,11 +179,11 @@ Execute `docker-compose -f docker-compose-dev.yml up frontend`. A server will be
 Execute `docker-compose -f docker-compose-dev.yml run backend`. All message will be shown on console.
 
 ## Auto reload of code
-Only `src/` directory from backend and timer and `app/` directory from frontend will be mounted into development containers.
- 
-This means adding new packages, changing gulp tasks will not be sent into the container.
+All code other than dependencies are mounted into containers.
 
-You __MUST__ rebuild the image if such changes occurs.
+Yet, some code will not cause auto-reload. If that occur, you must manually restart docker container.
+ 
+You __MUST__ rebuild the image if dependency has changed.
 
 Moreover, if there is change to `custom-typings` or `common`, `scripts/pre-build.sh` must be run again.
 
@@ -177,7 +191,6 @@ Moreover, if there is change to `custom-typings` or `common`, `scripts/pre-build
 Run `docker-compose -f docker-compose-dev.yml build` to (re)build all image.
 
 # TODO
- - Backend: Replace mongoDB with SQLite
  - Test: Replace with ava.js
  - Timer: split refresh-calendar task. Seriously I have no idea what I am reading.
  - Build system: Gulp 4
