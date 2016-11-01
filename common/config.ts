@@ -42,7 +42,7 @@ export let config: ConfigInterface;
 if (process.env.TRAVIS) {
 
   config = {
-    sequelize: Sequelize(null, null, null, {
+    sequelize: new Sequelize(null, null, null, {
       dialect: 'sqlite'
     }),
     adminID: 'Google ID for admin',
