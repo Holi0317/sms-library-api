@@ -25,7 +25,8 @@ export async function save(user: CronUserData) {
       where: {
         id: {
           $lte: results.rows[0].id
-        }
+        },
+        userID: user.data.googleID
       }
     });
   }
