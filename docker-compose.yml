@@ -3,7 +3,7 @@ services:
   backend:
     build:
       context: ./backend
-    image: holi0317/sms-library-helper-backend:0.1.0
+    image: holi0317/sms-library-helper-backend:0.2.0
     mem_limit: 512m
     memswap_limit: 1g
     restart: unless-stopped
@@ -16,7 +16,7 @@ services:
   frontend:
     build:
       context: ./frontend
-    image: holi0317/sms-library-helper-frontend:0.1.0
+    image: holi0317/sms-library-helper-frontend:0.2.0
     mem_limit: 512m
     memswap_limit: 1g
     restart: unless-stopped
@@ -33,7 +33,7 @@ services:
   timer:
     build:
       context: ./timer
-    image: holi0317/sms-library-helper-timer:0.1.0
+    image: holi0317/sms-library-helper-timer:0.2.0
     mem_limit: 512m
     memswap_limit: 1g
     restart: unless-stopped

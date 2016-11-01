@@ -1,11 +1,8 @@
 {
   "name": "sms-library-helper-migrate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "sms-library-helper: Migrate mongodb to SQLite Database",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/holi0317/sms-library-helper.git"
