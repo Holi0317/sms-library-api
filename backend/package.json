@@ -1,6 +1,6 @@
 {
   "name": "sms-library-helper-backend",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Backend module for sms-library-helper",
   "main": "lib/index.js",

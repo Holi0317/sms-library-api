@@ -1,6 +1,6 @@
 {
   "name": "sms-library-helper-timer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Timer module for sms-library-helper",
   "main": "lib/index.js",
