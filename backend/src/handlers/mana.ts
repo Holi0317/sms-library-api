@@ -88,8 +88,14 @@ export async function getUser(req: Request, res: Response) {
       access_token: result.accessToken
     });
 
-    let googleRes = await plusPeopleGet({userId: 'me', auth: oauth2client});
-    return res.render('mana-user', {data: result, logs, name: googleRes.displayName});
+    try {
+      let googleRes = await plusPeopleGet({userId: 'me', auth: oauth2client});
+      return res.render('mana-user', {data: result, logs, name: googleRes.displayName});
+    } catch (err) {
+      console.error('Error when fetching user name. ', err);
+      return res.render('mana-user', {data: result, logs, name: '<unknown>'});
+    }
+
   } catch (err) {
     console.error(err);
     return res.status(500).render('error', {
