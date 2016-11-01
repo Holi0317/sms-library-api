@@ -8,7 +8,7 @@ function main() {
       console.log('MongoDB query done. Length: ', users.length);
       let promises = [];
       for (let user of users) {
-        promises.push(sqlModel.User.create({
+        let userReq = sqlModel.User.create({
           refreshToken: user.tokens.refresh_token,
           accessToken: user.tokens.access_token,
           googleID: user.googleId,
@@ -21,16 +21,20 @@ function main() {
           emailEnabled: user.emailEnabled,
           emailAddress: user.emailAddress,
           isAdmin: user.isAdmin
-        }));
+        });
 
-        promises.push(user.logs.map(log => {
-          return sqlModel.Logs.create({
+        let logReq = sqlModel.Logs.bulkCreate(user.logs.map(log => {
+          return {
             userID: user.googleId,
             time: log.time,
             message: log.message,
             level: log.level
-          })
+          }
         }));
+
+        promises.push(userReq);
+        promises.push(logReq);
+
       }
       return Promise.all(promises);
     })
