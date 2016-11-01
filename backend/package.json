@@ -21,9 +21,9 @@
     "connect-session-sequelize": "^4.0.0",
     "debug": "^2.2.0",
     "express": "^4.14.0",
-    "express-session": "^1.14.1",
-    "googleapis": "^14.0.0",
-    "helmet": "^2.3.0",
+    "express-session": "^1.14.2",
+    "googleapis": "^14.1.0",
+    "helmet": "^3.0.0",
     "iconv-lite": "^0.4.13",
     "js-yaml": "^3.6.1",
     "lodash.clonedeep": "^4.5.0",
@@ -41,15 +41,15 @@
     "@types/cheerio": "^0.17.31",
     "@types/express": "^4.0.33",
     "@types/js-yaml": "^3.5.28",
-    "@types/lodash": "^4.14.37",
+    "@types/lodash": "^4.14.38",
     "@types/request-promise-native": "^1.0.1",
-    "@types/sequelize": "^4.0.38",
+    "@types/sequelize": "^4.0.39",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
-    "gulp-typescript": "^3.0.2",
+    "gulp-typescript": "^3.1.2",
     "nodemon": "^1.11.0",
     "require-directory": "^2.1.1",
     "run-sequence": "^1.2.2",
-    "typescript": "^2.0.3"
+    "typescript": "^2.0.6"
   }
 }
