@@ -1,6 +1,7 @@
-import {FetchClient} from './fetch-client';
+import * as request from 'request';
+import * as rp from 'request-promise-native';
 import * as parsers from './library-parser';
-import * as querystring from 'querystring';
+import * as iconv from 'iconv-lite';
 
 /**
  * Endpoints to library system.
@@ -48,20 +49,22 @@ export interface Book {
  * @prop borrowedBooks - Borrowed books.
  */
 export default class User {
-  public fetch: FetchClient;
-  public language?: 'chinese'|'english';
-  public id?: string;
-  public readerID?: string;
-  public borrowedBooks: Book[];
+  private jar = request.jar();
+  private request = rp.defaults({
+    resolveWithFullResponse: true,
+    jar: this.jar,
+    encoding: null,
+    transform(body, response) {
+      response.body = iconv.decode(response.body, 'big5');
+      return response;
+    }
+  });
+  public language?: 'chinese'|'english' = null;
+  public id?: string = null;
+  public readerID?: string = null;
+  public borrowedBooks: Book[] = [];
 
-  constructor() {
-    this.fetch = new FetchClient();
-
-    this.language = null;
-    this.id = null;
-    this.readerID = null;
-    this.borrowedBooks = [];
-  }
+  constructor() { }
 
   /**
    * Pre-process url and inject language to url. Some url requires language.
@@ -102,8 +105,10 @@ export default class User {
   }
 
   private async fetchReaderID() {
-    let res = await this.fetch.fetch(this.formatUrl(URLS.info));
-    this.readerID = await parsers.info(res);
+    let res = await this.request({
+      uri: this.formatUrl(URLS.info)
+    });
+    this.readerID = parsers.info(res);
   }
 
   /**
@@ -118,13 +123,14 @@ export default class User {
    */
   async checkLogin(id: string, passwd: string) {
     this.id = id;
-    let res = await this.fetch.fetch(URLS.auth, {
+    let res = await this.request({
+      uri: URLS.auth,
       qs: {
         UserID: id,
         Passwd: passwd
       }
     });
-    this.language = await parsers.login(res);
+    this.language = parsers.login(res);
   }
 
   /**
@@ -139,13 +145,14 @@ export default class User {
       throw new Error('Not logined.');
     }
 
-    let res = await this.fetch.fetch(this.formatUrl(URLS.showRenew), {
+    let res = await this.request({
+      uri: this.formatUrl(URLS.showRenew),
       qs: {
         PCode: this.readerID
       }
     });
 
-    this.borrowedBooks = await parsers.showRenew(res);
+    this.borrowedBooks = parsers.showRenew(res);
   }
 
   /**
@@ -165,16 +172,17 @@ export default class User {
       throw new Error('Book ID (mcode) is not defined.');
     }
 
-    await this.fetch.fetch(this.formatUrl(URLS.saveRenew), {
+    await this.request({
+      uri: this.formatUrl(URLS.saveRenew),
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: querystring.stringify({
+      form: {
         PatCode: this.readerID,
         sel1: book.mcode,
         subbut: 'Renew'
-      })
+      }
     });
   }
 

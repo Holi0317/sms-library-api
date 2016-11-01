@@ -1,4 +1,3 @@
-import {deocdeBig5 as decode} from '../utils';
 import * as cheerio from 'cheerio';
 
 /**
@@ -7,8 +6,7 @@ import * as cheerio from 'cheerio';
  * @param res - Fetch response for info page.
  * @returns Reader ID of given page as string.
  */
-export async function info(res) {
-  let body = await decode(res);
-  let $ = cheerio.load(body);
+export function info(res) {
+  let $ = cheerio.load(res.body);
   return $('form[name="PATRONF"]>table font').last().text().replace(/\s/g, '');
 }

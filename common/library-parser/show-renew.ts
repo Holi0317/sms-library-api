@@ -1,4 +1,3 @@
-import {deocdeBig5 as decode} from '../utils';
 import * as cheerio from 'cheerio';
 import {Book} from '../library';
 
@@ -14,9 +13,8 @@ function bookParser($: Cheerio): Book {
   }
 }
 
-export async function showRenew(res): Promise<Book[]> {
-  let body = await decode(res);
-  let $ = cheerio.load(body);
+export function showRenew(res): Book[] {
+  let $ = cheerio.load(res.body);
   let borrowedBooks = [];
 
   $('form tr:not(:first-child)').each(function() {
