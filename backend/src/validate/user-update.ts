@@ -87,7 +87,7 @@ export async function afterValidate(data: any, googleID: string) {
     let userLibrary = new Library();
     await userLibrary.checkLogin(data.libraryLogin, data.libraryPassword);
 
-    let res = await User.findAndCountAll({
+    let res = await User.count({
       where: {
         libraryLogin: data.libraryLogin,
         googleID: {

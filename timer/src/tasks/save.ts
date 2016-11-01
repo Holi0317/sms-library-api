@@ -20,14 +20,13 @@ export async function save(user: CronUserData) {
     offset: MAX_LOG_RECORD
   });
 
-  // console.log('results = ', results);
   if (results.count > MAX_LOG_RECORD) {
     await Logs.destroy({
       where: {
         id: {
-          $lt: results.id
+          $lte: results.rows[0].id
         }
       }
-    })
+    });
   }
 }
