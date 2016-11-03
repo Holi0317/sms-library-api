@@ -12,6 +12,7 @@ import {plusPeopleGet} from '../common/promisify';
 export async function index(req: Request, res: Response) {
   if (req.logined) {
     let result = await User.findOne({
+      attributes: ['renewEnabled', 'libraryLogin', 'renewDate', 'calendarEnabled', 'calendarName', 'emailEnabled', 'emailAddress'],
       where: {
         googleID: req.session.googleID
       }
