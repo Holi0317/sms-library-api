@@ -27,53 +27,30 @@ export interface YAMLConfDoc {
   }
 }
 
-interface ConfigInterface {
-  sequelize: Sequelize
-  adminID: string
-  secret: string
-  clientID: string
-  clientSecret: string
-  redirectUrl: string
-  jwt: any
+if (!process.env.SLH_CONFIG_PATH) {
+  throw new Error('SLH_CONFIG_PATH environment variable is not defined. Read README.md for more details.');
 }
 
-export let config: ConfigInterface;
+let doc = yaml.safeLoad(fs.readFileSync(process.env.SLH_CONFIG_PATH, 'utf8')) as YAMLConfDoc;
+let jwt = doc.google.jwt;
 
-if (process.env.TRAVIS) {
+export const config = {
+  sequelize: new Sequelize(null, null, null, {
+    dialect: 'sqlite',
+    storage: doc.sqlite
+  }),
+  adminID: doc.adminID,
+  secret: doc.secret,
+  clientID: doc.google.clientID,
+  clientSecret: doc.google.clientSecret,
+  redirectUrl: url.resolve(doc.baseURL, 'oauth2callback'),
+  jwt: new google.auth.JWT(jwt.client_email, null, jwt.private_key, ['https://www.googleapis.com/auth/gmail.send'], null)
+};
 
-  config = {
-    sequelize: new Sequelize(null, null, null, {
-      dialect: 'sqlite'
-    }),
-    adminID: 'Google ID for admin',
-    secret: 'Generate a totally random string here.',
-    clientID: 'Client ID got from console.developer.google.com',
-    clientSecret: 'Client secret got from console.developer.google.com',
-    redirectUrl: 'http://localhost:3000/oauth2callback',
-    jwt: 'JWT'
-  };
-
-} else if (process.env.SLH_CONFIG_PATH) {
-
-  let doc = yaml.safeLoad(fs.readFileSync(process.env.SLH_CONFIG_PATH, 'utf8')) as YAMLConfDoc;
-  let jwt = doc.google.jwt;
-  config = {
-    sequelize: new Sequelize(null, null, null, {
-      dialect: 'sqlite',
-      storage: doc.sqlite
-    }),
-    adminID: doc.adminID,
-    secret: doc.secret,
-    clientID: doc.google.clientID,
-    clientSecret: doc.google.clientSecret,
-    redirectUrl: url.resolve(doc.baseURL, 'oauth2callback'),
-    jwt: new google.auth.JWT(jwt.client_email, null, jwt.private_key, ['https://www.googleapis.com/auth/gmail.send'], null)
-  };
+if (!process.env.TRAVIS || process.env.NODE_ENV !== 'test') {
   config.jwt.authorize(err => {
     if (err) {
       throw err;
     }
   });
-} else {
-  throw new Error('SLH_CONFIG_PATH environment variable is not defined. Read README.md for more details.');
 }
