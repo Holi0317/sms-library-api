@@ -1,7 +1,6 @@
 import * as request from 'request';
 import * as rp from 'request-promise-native';
 import * as parsers from './library-parser';
-import * as iconv from 'iconv-lite';
 
 /**
  * Endpoints to library system.
@@ -52,12 +51,7 @@ export default class User {
   private jar = request.jar();
   private request = rp.defaults({
     resolveWithFullResponse: true,
-    jar: this.jar,
-    encoding: null,
-    transform(body, response) {
-      response.body = iconv.decode(response.body, 'big5');
-      return response;
-    }
+    jar: this.jar
   });
   public language?: 'chinese'|'english' = null;
   public id?: string = null;

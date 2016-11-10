@@ -24,7 +24,6 @@
     "express-session": "^1.14.2",
     "googleapis": "^14.1.0",
     "helmet": "^3.0.0",
-    "iconv-lite": "^0.4.13",
     "js-yaml": "^3.6.1",
     "lodash.clonedeep": "^4.5.0",
     "morgan": "^1.7.0",
