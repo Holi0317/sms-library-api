@@ -1,0 +1,13 @@
+FROM mhart/alpine-node:6.9
+MAINTAINER Holi0317 "holliswuhollis@gmail.com"
+
+# Copy necessary files
+COPY frontend/ /srv/
+
+# Build it
+WORKDIR /srv/
+RUN apk --update add --no-cache python make g++ \
+  && npm install \
+  && npm install --only=dev
+
+ENTRYPOINT ["node_modules/.bin/gulp", "serve"]

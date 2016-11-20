@@ -1,0 +1,20 @@
+FROM nginx:mainline-alpine
+MAINTAINER Holi0317 "holliswuhollis@gmail.com"
+ARG server_name=slh.holi0317.net
+
+# Copy necessary files
+COPY frontend/ /srv/
+
+# Build it
+WORKDIR /srv/
+RUN apk --update add --no-cache --virtual build-dependencies nodejs python make g++ \
+  && npm install \
+  && npm install --only=dev \
+  && node_modules/.bin/gulp \
+  && node_modules/.bin/gulp nginx-conf --server-name ${server_name} \
+  && mv nginx.conf /etc/nginx/ \
+  # Clean up
+  && npm cache clean \
+  && apk del build-dependencies \
+  && rm -r .tmp app node_modules tasks gulpfile.js nginx.template.conf package.json \
+  && rm -r /tmp/npm* /var/cache/apk /root/.node-gyp

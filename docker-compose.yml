@@ -2,7 +2,8 @@ version: '2'
 services:
   backend:
     build:
-      context: ./backend
+      context: ./
+      dockerfile: dockerfiles/backend
     image: holi0317/sms-library-helper-backend:0.2.2
     mem_limit: 512m
     memswap_limit: 1g
@@ -15,7 +16,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./
+      dockerfile: dockerfiles/frontend
     image: holi0317/sms-library-helper-frontend:0.2.2
     mem_limit: 512m
     memswap_limit: 1g
@@ -32,7 +34,8 @@ services:
 
   timer:
     build:
-      context: ./timer
+      context: ./
+      dockerfile: dockerfiles/timer
     image: holi0317/sms-library-helper-timer:0.2.2
     mem_limit: 512m
     memswap_limit: 1g

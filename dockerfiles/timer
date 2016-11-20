@@ -1,0 +1,20 @@
+FROM mhart/alpine-node:6.9
+MAINTAINER Holi0317 "holliswuhollis@gmail.com"
+
+# Default environment variable
+ENV SLH_CONFIG_PATH /etc/slh-config.yaml
+ENV NODE_ENV production
+
+# Copy necessary files
+COPY . /srv/
+
+# Build
+WORKDIR /srv/
+RUN npm install \
+  && npm install --only=dev \
+  && node_modules/.bin/gulp build \
+  && npm prune --production \
+  && npm cache clean \
+  && mv src/timer/crontab /var/spool/cron/crontabs/root
+
+ENTRYPOINT ["crond", "-d", "8", "-f"]

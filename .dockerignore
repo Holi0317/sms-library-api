@@ -1,0 +1,11 @@
+node_modules/
+.gitignore
+lib/
+.idea/
+config.yaml
+.eslintrc
+docker-compose-dev.yml
+docker-compose.yml
+LICENSE
+README.md
+slh.sqlite

@@ -1,0 +1,23 @@
+FROM mhart/alpine-node:6.9
+MAINTAINER Holi0317 "holliswuhollis@gmail.com"
+ARG port=3000
+EXPOSE ${port}
+
+# Setup environment variables
+ENV PORT ${port}
+ENV NODE_ENV production
+ENV SLH_CONFIG_PATH /etc/slh-config.yaml
+
+# Copy necessary files
+COPY . /srv/
+
+# Build
+WORKDIR /srv/
+RUN npm install \
+  && npm install --only=dev \
+  && node_modules/.bin/gulp build \
+  && npm prune --production \
+  && npm cache clean \
+  && rm -r /tmp/npm*
+
+ENTRYPOINT ["node", "startserver.js"]
