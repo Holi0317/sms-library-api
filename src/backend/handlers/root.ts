@@ -164,7 +164,7 @@ export namespace user {
     let body = req.body;
 
     try {
-      await validateUser(body, req.session.googleId);
+      await validateUser(body, req.session.googleID);
     } catch (err) {
       console.error(err);
       return res.status(400).json({
