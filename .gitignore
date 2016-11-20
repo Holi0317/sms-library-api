@@ -2,7 +2,7 @@ node_modules
 .tmp
 static
 
-config.yaml
+/config.yaml
 npm-debug.log
 .idea
 frontend/nginx.conf

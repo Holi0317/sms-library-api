@@ -1,0 +1,32 @@
+# Configuration section for SQLite, database.
+sqlite: /data/db.sqlite  # Point to the SQLite file
+
+# Google ID of the first administrator. You can get this during development.
+# If this is left empty, no one can access the admin page. Yet other function does not affect.
+adminID: '116369226224988015839' # Remember the quote
+
+# Session secret for express.js. It must be randomized and not exposed to others. Recommended to use password generator to generate this.
+# Avoid secret that contains quotes ('' and ""). They may cause parsing error to yaml.
+secret: =r2vRXSJvHu;jNT4nx2`!$$9vd0ET
+
+# Base URL of deployed location. Remember to include scheme(https://) and the tailing slash
+baseURL: http://localhost:3000/
+
+# Google OAuth2 configuration
+google:
+  # clientID. Generated from Google Developer Console
+  clientID: aaaa.apps.googleusercontent.com
+  # clientSecret: Generated from Google Developer Console.
+  clientSecret: fake_client_secret
+  # A jwt (service account) token used for sending Gmail
+  jwt:
+    type: service_account
+    project_id: my-project
+    private_key_id: fake_key_id
+    private_key: a_super_long_string  # Quote this with "" to avoid error
+    client_email: name@my-project.iam.gserviceaccount.com
+    client_id: my_client_id
+    auth_uri: https://accounts.google.com/o/oauth2/auth
+    token_uri: https://accounts.google.com/o/oauth2/token
+    auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+    client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/name%40my-project.iam.gserviceaccount.com

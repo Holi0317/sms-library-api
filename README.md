@@ -51,6 +51,7 @@ The following is an example of config.yaml, with comments that should explain ea
 # Configuration section for SQLite, database.
 sqlite: /data/db.sqlite  # Point to the SQLite file
 
+
 # Google ID of the first administrator. You can get this during development.
 # If this is left empty, no one can access the admin page. Yet other function does not affect.
 adminID: '116369226224988015839' # Remember the quote
