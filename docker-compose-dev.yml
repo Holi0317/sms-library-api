@@ -7,12 +7,16 @@ services:
     image: holi0317/sms-library-helper-backend:dev
     mem_limit: 512m
     memswap_limit: 1g
+    container_name: slh-backend-dev
     networks:
      - develop
     volumes:
       - ./config.yaml:/etc/slh-config.yaml
-      - ./:srv/
       - ./slh.sqlite:/data/db.sqlite
+      - ./src/:srv/src/
+      - ./custom-typings/:srv/custom-typings/
+      - ./tasks/:srv/tasks/
+      - ./test/:srv/test/
 
   frontend:
     build:
@@ -21,6 +25,7 @@ services:
     image: holi0317/sms-library-helper-frontend:dev
     mem_limit: 512m
     memswap_limit: 1g
+    container_name: slh-frontend-dev
     networks:
      - develop
     volumes:
@@ -38,12 +43,16 @@ services:
     image: holi0317/sms-library-helper-timer:dev
     mem_limit: 512m
     memswap_limit: 1g
+    container_name: slh-timer-dev
     networks:
      - develop
     volumes:
-     - ./config.yaml:/etc/slh-config.yaml
-     - ./:srv/
-     - ./slh.sqlite:/data/db.sqlite
+      - ./config.yaml:/etc/slh-config.yaml
+      - ./slh.sqlite:/data/db.sqlite
+      - ./src/:srv/src/
+      - ./custom-typings/:srv/custom-typings/
+      - ./tasks/:srv/tasks/
+      - ./test/:srv/test/
 
 networks:
   develop:
