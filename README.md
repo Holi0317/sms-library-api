@@ -48,10 +48,6 @@ A file should be downloaded and save that up for configuration.
 ## Example
 The following is an example of config.yaml, with comments that should explain each variable usage
 ```yaml
-# Configuration section for SQLite, database.
-sqlite: /data/db.sqlite  # Point to the SQLite file
-
-
 # Google ID of the first administrator. You can get this during development.
 # If this is left empty, no one can access the admin page. Yet other function does not affect.
 adminID: '116369226224988015839' # Remember the quote
@@ -108,9 +104,6 @@ The slh.sqlite must be a file. If you are doing a whole new deployment, remember
 
 ## Configuration
 Check Configuration section above to generate an config.yaml file. Then save it to `/srv/slh/config.yaml`.
-
-You must follow the following rules:
- - sqlite must equal to `/data/db.sqlite`
 
 ## Build images
 Execute `scripts/pre-build.sh` for pre-build procedure. You __MUST__ do this. Otherwise build will fail.
@@ -169,7 +162,7 @@ Also, create a empty text file called `slh.sqlite` at the root repository direct
 ## Create configuration file
 Refer to [Configuration](#Configuration), create a configuration file for development process.
  
-__Important note__: In the configuration file, sqlite should be `/data/db.sqlite`. And baseUrl should be `http://localhost:3000/`
+__Important note__: In the configuration file, baseUrl should be `http://localhost:3000/`
 
 Save that to `config.yaml` at the root repository directory. git will ignore it.
 

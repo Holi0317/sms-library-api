@@ -8,7 +8,6 @@ export interface YAMLConfDoc {
   adminID: string
   secret: string
   baseURL: string
-  sqlite: string
   google: {
     clientID: string
     clientSecret: string
@@ -37,7 +36,7 @@ let jwt = doc.google.jwt;
 export const config = {
   sequelize: new Sequelize(null, null, null, {
     dialect: 'sqlite',
-    storage: doc.sqlite
+    storage: '/data/db.sqlite'
   }),
   adminID: doc.adminID,
   secret: doc.secret,
